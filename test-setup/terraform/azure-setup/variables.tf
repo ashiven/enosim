@@ -1,3 +1,27 @@
+variable "service_one" {
+  description = "Service to be deployed on vulnbox"
+  default     = "CVExchange"
+  type        = string
+}
+
+variable "service_two" {
+  description = "Service to be deployed on vulnbox"
+  default     = "CVExchange"
+  type        = string
+}
+
+variable "service_three" {
+  description = "Service to be deployed on vulnbox"
+  default     = "CVExchange"
+  type        = string
+}
+
+variable "service_four" {
+  description = "Service to be deployed on vulnbox"
+  default     = "CVExchange"
+  type        = string
+}
+
 variable "vm_map" {
   type = map(object({
     name           = string
