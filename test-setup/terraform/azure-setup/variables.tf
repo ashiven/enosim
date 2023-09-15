@@ -1,23 +1,17 @@
-variable "service_one" {
-  description = "Service to be deployed on vulnbox"
+variable "services" {
+  description = "Service to be deployed on vulnboxes"
   default     = "CVExchange"
   type        = string
 }
 
-variable "service_two" {
-  description = "Service to be deployed on vulnbox"
+variable "checkers" {
+  description = "Checkers to be deployed on checker"
   default     = "CVExchange"
   type        = string
 }
 
-variable "service_three" {
-  description = "Service to be deployed on vulnbox"
-  default     = "CVExchange"
-  type        = string
-}
-
-variable "service_four" {
-  description = "Service to be deployed on vulnbox"
+variable "engine" {
+  description = "Engine to be deployed on engine"
   default     = "CVExchange"
   type        = string
 }
