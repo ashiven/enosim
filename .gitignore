@@ -1,0 +1,5 @@
+.vscode
+.terraform
+/test-setup/terraform/local-setup/services/
+!/test-setup/terraform/local-setup/services/.gitkeep
+virtualbox.box

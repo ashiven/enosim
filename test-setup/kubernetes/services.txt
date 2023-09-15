@@ -1,0 +1,3 @@
+https://github.com/enowars/enowars7-service-expenses.git
+https://github.com/enowars/enowars7-service-CVExchange.git
+https://github.com/enowars/enowars7-service-bollwerk.git
