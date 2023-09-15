@@ -87,5 +87,5 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
 
   #TODO: create separate deployement for vulnboxes and engine+checkers
-  user_data = base64encode("data/deploy_services.sh", local.data_inputs))
+  user_data = each.value.user_data
 }
