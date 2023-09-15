@@ -1,11 +1,8 @@
 locals {
   data_inputs {
-    services   = var.services
-    checkers   = var.checkers
-    engine     = var.engine
+    placeholder = var.placeholder
   }
 }
-
 resource "azurerm_resource_group" "rg" {
   name     = "simulation-setup"
   location = "West Europe"
@@ -13,7 +10,7 @@ resource "azurerm_resource_group" "rg" {
 
 #TODO: find out if enoengine and enocheckers are on a separate subnet from the vulnboxes or on a separate virtual network
 resource "azurerm_virtual_network" "vnet" {
-  name                = "simulation-network"
+  name = "simulation-network"
   # the last 16 bits are for addresses and the ones before are the network id
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.rg.location
@@ -26,8 +23,8 @@ resource "azurerm_subnet" "snet" {
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   # the last 8 bits are for addresses and the ones before are the network id
-  address_prefixes     = ["10.0.2.0/24"] 
-  }
+  address_prefixes = ["10.0.2.0/24"]
+}
 
 resource "azurerm_public_ip" "vm_pip" {
   for_each = var.vm_map
@@ -85,6 +82,5 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = "latest"
   }
 
-  #TODO: create separate deployement for vulnboxes and engine+checkers
   user_data = each.value.user_data
 }
