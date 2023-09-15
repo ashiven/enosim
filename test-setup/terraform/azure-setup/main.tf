@@ -1,5 +1,5 @@
 locals {
-  data_inputs {
+  data_inputs = {
     placeholder = var.placeholder
   }
 }
@@ -8,7 +8,6 @@ resource "azurerm_resource_group" "rg" {
   location = "West Europe"
 }
 
-#TODO: find out if enoengine and enocheckers are on a separate subnet from the vulnboxes or on a separate virtual network
 resource "azurerm_virtual_network" "vnet" {
   name = "simulation-network"
   # the last 16 bits are for addresses and the ones before are the network id
@@ -16,7 +15,6 @@ resource "azurerm_virtual_network" "vnet" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 }
-
 
 resource "azurerm_subnet" "snet" {
   name                 = "internal"
@@ -82,5 +80,5 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = "latest"
   }
 
-  user_data = each.value.user_data
+  user_data = base64encode(templatefile(each.value.user_data, local.data_inputs))
 }
