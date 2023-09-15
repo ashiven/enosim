@@ -1,9 +1,8 @@
 locals {
   data_inputs {
-    service_one   = var.service_one
-    service_two   = var.service_two
-    service_three = var.service_three
-    service_four  = var.service_four
+    services   = var.services
+    checkers   = var.checkers
+    engine     = var.engine
   }
 }
 
