@@ -1,3 +1,4 @@
+#TODO: create variables
 variable "services" {
   description = "Service to be deployed on vulnboxes"
   default     = "CVExchange"
