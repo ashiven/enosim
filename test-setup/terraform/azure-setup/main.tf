@@ -1,3 +1,12 @@
+locals {
+  data_inputs {
+    service_one   = var.service_one
+    service_two   = var.service_two
+    service_three = var.service_three
+    service_four  = var.service_four
+  }
+}
+
 resource "azurerm_resource_group" "rg" {
   name     = "simulation-setup"
   location = "West Europe"
