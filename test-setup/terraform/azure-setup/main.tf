@@ -86,6 +86,6 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = "latest"
   }
 
-  #TODO: load service pulling and deployment scripts onto the respective vms
+  #TODO: create separate deployement for vulnboxes and engine+checkers
   user_data = base64encode("data/deploy_services.sh", local.data_inputs))
 }
