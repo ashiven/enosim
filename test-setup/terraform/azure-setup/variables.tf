@@ -7,6 +7,7 @@ variable "vm_map" {
     name           = string
     size           = string
     admin_password = string
+    user_data      = string
   }))
   default = {
     "vulnbox1" = {

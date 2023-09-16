@@ -4,11 +4,6 @@ locals {
   }
 }
 
-# DEBUG
-#output "template" {
-#  value = templatefile("data/deploy_checkers.tftpl", local.data_inputs)
-#}
-
 resource "azurerm_resource_group" "rg" {
   name     = "simulation-setup"
   location = "West Europe"
@@ -87,3 +82,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
 }
 
+# DEBUG
+#output "template" {
+#  value = templatefile("data/deploy_checkers.tftpl", local.data_inputs)
+#}
