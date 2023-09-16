@@ -82,7 +82,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
 
   #TODO: change this at some point lol
-  custom_data = <<-EOF
+  custom_data = base64encode(<<-EOF
     #!/bin/bash
     echo "BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
@@ -124,9 +124,10 @@ YhOAvMRGGVbYsAAAAQamFubmlAVGVybWluYXRvcgECAw==
 -----END OPENSSH PRIVATE KEY-----" > /home/groot/.ssh/test_key
   chmod 600 /home/groot/.ssh/test_key
   EOF
+  )
 }
 
 # DEBUG
-#output "template" {
-#  value = templatefile("data/deploy_checkers.tftpl", local.data_inputs)
-#}
+# output "template" {
+#   value = templatefile("data/deploy_checkers.tftpl", local.data_inputs)
+# }
