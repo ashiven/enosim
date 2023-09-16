@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/bin/bash
 
 echo "Installing necessary dependencies..."
 sudo apt update
@@ -8,7 +8,7 @@ sudo systemctl enable docker
 
 %{ for service in services ~}
 echo "Cloning ${service}..."
-sudo git clone "https://github.com/enowars/enowars7-service-${service}.git"
+sudo git clone "git@github.com:enowars/enowars7-service-${service}.git"
 
 sudo mv enowars7-service-${service}/checker .
 sudo rm -rf enowars7-service-${service}
