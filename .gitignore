@@ -1,5 +1,8 @@
 .vscode
-.terraform
 services
 !.gitkeep
 virtualbox.box
+.terraform
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
