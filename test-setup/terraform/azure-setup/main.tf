@@ -83,7 +83,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   #TODO: change this at some point lol
   custom_data = base64encode(<<-EOF
-    #!/bin/bash
+    #! /usr/bin/env bash
     echo "BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
 NhAAAAAwEAAQAAAYEAtkF/4RWwR3Goyyh829CqRYfd3TbL2KrM3jwwz45W5/igTvjs3Sng
