@@ -1,5 +1,8 @@
 import secrets
 from typing import Optional
+
+import jsons
+import requests
 from enochecker_core import (
     CheckerInfoMessage,
     CheckerMethod,
@@ -7,8 +10,6 @@ from enochecker_core import (
     CheckerTaskMessage,
     CheckerTaskResult,
 )
-import jsons
-import requests
 
 global_round_id = 0
 FLAG_REGEX_ASCII = r"ENO[A-Za-z0-9+\/=]{48}"
