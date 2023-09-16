@@ -4,9 +4,10 @@ locals {
   }
 }
 
-output "template" {
-  value = templatefile("data/deploy_checkers.tftpl", local.data_inputs)
-}
+# DEBUG
+#output "template" {
+#  value = templatefile("data/deploy_checkers.tftpl", local.data_inputs)
+#}
 
 resource "azurerm_resource_group" "rg" {
   name     = "simulation-setup"
@@ -54,7 +55,6 @@ resource "azurerm_network_interface" "vm_nic" {
 
 }
 
-
 resource "azurerm_linux_virtual_machine" "vm" {
   for_each = var.vm_map
 
@@ -65,6 +65,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   size           = each.value.size
   admin_username = "adminuser"
   admin_password = each.value.admin_password
+  user_data      = base64encode(templatefile(each.value.user_data, local.data_inputs))
 
   network_interface_ids = [azurerm_network_interface.vm_nic[each.key].id]
 
@@ -84,7 +85,5 @@ resource "azurerm_linux_virtual_machine" "vm" {
     sku       = "18.04-LTS"
     version   = "latest"
   }
-
-  user_data = base64encode(templatefile(each.value.user_data, local.data_inputs))
 }
 
