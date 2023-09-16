@@ -1,0 +1,9 @@
+
+#! /usr/bin/env bash
+
+git clone "https://github.com/enowars/EnoEngine.git"
+docker-compose up -d
+dotnet run --project EnoConfig apply
+dotnet run -c Release --project EnoLauncher
+dotnet run -c Release --project EnoFlagSink
+dotnet run -c Release --project EnoEngine

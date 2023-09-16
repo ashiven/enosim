@@ -1,6 +1,6 @@
-variable "placeholder" {
-  default = "use this variable for injecting data into deployment scripts"
-  type    = string
+variable "services" {
+  default = ["CVExchange", "bollwerk", "expenses"]
+  type    = list(string)
 }
 variable "vm_map" {
   type = map(object({

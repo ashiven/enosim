@@ -1,8 +1,13 @@
 locals {
   data_inputs = {
-    placeholder = var.placeholder
+    services = var.services
   }
 }
+
+output "template" {
+  value = templatefile("data/deploy_checkers.tftpl", local.data_inputs)
+}
+
 resource "azurerm_resource_group" "rg" {
   name     = "simulation-setup"
   location = "West Europe"
@@ -82,3 +87,4 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   user_data = base64encode(templatefile(each.value.user_data, local.data_inputs))
 }
+
