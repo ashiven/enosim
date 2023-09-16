@@ -58,14 +58,14 @@ resource "azurerm_linux_virtual_machine" "vm" {
   resource_group_name = azurerm_resource_group.rg.name
 
   size           = each.value.size
-  admin_username = "adminuser"
+  admin_username = "root"
   admin_password = each.value.admin_password
   user_data      = base64encode(templatefile(each.value.user_data, local.data_inputs))
 
   network_interface_ids = [azurerm_network_interface.vm_nic[each.key].id]
 
   admin_ssh_key {
-    username   = "adminuser"
+    username   = "root"
     public_key = file("./data/test_key.pub")
   }
 

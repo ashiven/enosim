@@ -1,14 +1,20 @@
 #! /usr/bin/env bash
 
+echo "Installing necessary dependencies..."
+sudo apt update
+sudo apt install -y docker.io
+sudo systemctl start docker
+sudo systemctl enable docker
+
 %{ for service in services ~}
 echo "Cloning ${service}..."
-git clone "https://github.com/enowars/enowars7-service-${service}.git"
+sudo git clone "https://github.com/enowars/enowars7-service-${service}.git"
 
-mv enowars7-service-${service}/checker .
-rm -rf enowars7-service-${service}
+sudo mv enowars7-service-${service}/checker .
+sudo rm -rf enowars7-service-${service}
 cd checker
 
 echo "Starting ${service}-checker..."
-docker compose up --build --force-recreate -d
+sudo docker compose up --build --force-recreate -d
 cd ..
 %{ endfor }

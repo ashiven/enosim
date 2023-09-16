@@ -1,8 +1,18 @@
 #! /usr/bin/env bash
 
-git clone "https://github.com/enowars/EnoEngine.git"
-docker-compose up -d
-dotnet run --project EnoConfig apply
-dotnet run -c Release --project EnoLauncher
-dotnet run -c Release --project EnoFlagSink
-dotnet run -c Release --project EnoEngine
+echo "Installing necessary dependencies..."
+sudo wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+sudo rm packages-microsoft-prod.deb
+sudo apt update
+sudo apt install -y docker.io
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo apt install -y dotnet-sdk-7.0
+
+sudo git clone "https://github.com/enowars/EnoEngine.git"
+sudo docker-compose up -d
+sudo dotnet run --project EnoConfig apply
+sudo dotnet run -c Release --project EnoLauncher
+sudo dotnet run -c Release --project EnoFlagSink
+sudo dotnet run -c Release --project EnoEngine
