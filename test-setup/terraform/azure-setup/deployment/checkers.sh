@@ -34,6 +34,6 @@ while read -r service_name; do
     cd ${service_name}-checker
 
     echo "Starting ${service_name}-checker..."
-    sudo docker-compose up --build --force-recreate -d
+    sudo docker compose up --build --force-recreate -d
     cd ..
 done < "$services"
