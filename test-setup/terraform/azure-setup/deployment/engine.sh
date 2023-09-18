@@ -27,12 +27,13 @@ sudo apt-get install -y dotnet-sdk-7.0
 sudo systemctl start docker
 sudo systemctl enable docker
 sudo apt-get install -y docker-compose-plugin
+sudo apt-get install -y pass gnupg2
 export DOCKER_BUILDKIT=0
 
 echo "Starting EnoEngine..."
 sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"
 cd EnoEngine
-sudo docker-compose up -d
+sudo docker compose up -d
 sudo dotnet run --project EnoConfig apply
 sudo dotnet run -c Release --project EnoLauncher
 sudo dotnet run -c Release --project EnoFlagSink
