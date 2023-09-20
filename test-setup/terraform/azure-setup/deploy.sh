@@ -12,10 +12,10 @@ if [ -n "${1-}" ] && [ "$1" == "-d" ]; then
   exit 0  
 fi
 
-#echo "Building infrastructure ..."
-#terraform init
-#terraform validate
-#terraform apply -auto-approve
+echo "Building infrastructure ..."
+terraform init
+terraform validate
+terraform apply -auto-approve
 terraform output | tee output.txt
 
 vulnbox_ip=$(grep -oP "vulnbox_ip = \K[^\s]+" ./output.txt)
@@ -38,9 +38,9 @@ echo "Configuring checker ..."
 scp -F ${ssh_config} ./data/checker.sh checker:/home/groot/checker.sh
 scp -F ${ssh_config} ./config/services.txt checker:/home/groot/services.txt
 echo "This will take a few minutes. Please be patient."
-ssh -F ${ssh_config} checker "chmod +x checker.sh && ./checker.sh" > checker_config.log 2>&1
+ssh -F ${ssh_config} checker "chmod +x checker.sh && ./checker.sh" > ./logs/checker_config.log 2>&1
 
 echo "Configuring engine ..."
 scp -F ${ssh_config} ./data/engine.sh engine:/home/groot/engine.sh
 scp -F ${ssh_config} ./config/ctf.json engine:/home/groot/ctf.json
-ssh -F ${ssh_config} engine "mkdir data && chmod +x engine.sh && ./engine.sh" > engine_config.log 2>&1 &
+ssh -F ${ssh_config} engine "mkdir data && chmod +x engine.sh && ./engine.sh" > ./logs/engine_config.log 2>&1 &
