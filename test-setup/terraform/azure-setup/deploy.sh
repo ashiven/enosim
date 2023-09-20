@@ -4,6 +4,7 @@ set -euo pipefail
 
 setup_path="C://Users//janni//OneDrive//Dokumente//Projects//Python//simulation-framework//enosimulator//test-setup//terraform//azure-setup"
 ssh_config="C://Users//janni//.ssh//simconfig"
+
 cd ${setup_path}
 
 if [ -n "${1-}" ] && [ "$1" == "-d" ]; then
@@ -27,6 +28,7 @@ echo "Writing ssh config ..."
 echo -e "Host vulnbox\nUser groot\nHostName ${vulnbox_ip}\nIdentityFile ${setup_path}//data//id_rsa\nStrictHostKeyChecking no\n
 Host checker\nUser groot\nHostName ${checker_ip}\nIdentityFile ${setup_path}//data//id_rsa\nStrictHostKeyChecking no\n
 Host engine\nUser groot\nHostName ${engine_ip}\nIdentityFile ${setup_path}//data//id_rsa\nStrictHostKeyChecking no" > ${ssh_config}
+sleep 1
 
 echo "Configuring vulnbox ..."
 scp -F ${ssh_config} ./data/vulnbox.sh vulnbox:/home/groot/vulnbox.sh
