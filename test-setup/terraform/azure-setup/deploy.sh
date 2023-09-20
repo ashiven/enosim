@@ -32,16 +32,16 @@ echo "Configuring vulnbox ..."
 # scp ./data/id_rsa vulnbox:/home/groot/.ssh/id_rsa
 scp ./data/vulnbox.sh vulnbox:/home/groot/vulnbox.sh
 scp ./config/services.txt vulnbox:/home/groot/services.txt
-ssh vulnbox "chmod +x vulnbox.sh && ./vulnbox.sh" > NUL 2>&1
+ssh vulnbox "chmod +x vulnbox.sh && ./vulnbox.sh" &
 
 echo "Configuring checker ..."
 # scp ./data/id_rsa checker:/home/groot/.ssh/id_rsa
 scp ./data/checker.sh checker:/home/groot/checker.sh
 scp ./config/services.txt checker:/home/groot/services.txt
-ssh checker "chmod +x checker.sh && ./checker.sh" > NUL 2>&1
+ssh checker "chmod +x checker.sh && ./checker.sh" &
 
 echo "Configuring engine ..."
 # scp ./data/id_rsa engine:/home/groot/.ssh/id_rsa
 scp ./data/engine.sh engine:/home/groot/engine.sh
 scp ./config/ctf.json engine:/home/groot/ctf.json
-ssh engine "mkdir data && chmod +x engine.sh && ./engine.sh" > NUL 2>&1
+ssh engine "mkdir data && chmod +x engine.sh && ./engine.sh" &
