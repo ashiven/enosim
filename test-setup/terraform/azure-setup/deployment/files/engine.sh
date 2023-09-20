@@ -34,6 +34,6 @@ sudo mv ctf.json ./EnoEngine
 cd EnoEngine
 sudo docker compose up -d
 sudo dotnet run --project EnoConfig apply
-sudo dotnet run -c Release --project EnoLauncher
-sudo dotnet run -c Release --project EnoFlagSink
-sudo dotnet run -c Release --project EnoEngine
+sudo dotnet run -c Release --project EnoLauncher &
+sudo dotnet run -c Release --project EnoFlagSink &
+sudo dotnet run -c Release --project EnoEngine &
