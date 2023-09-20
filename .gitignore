@@ -7,4 +7,4 @@ terraform.tfstate
 .terraform.tfstate.lock.info
 terraform.tfstate.backup
 .terraform.lock.hcl
-logs/*
+test-setup/terraform/azure-setup/logs/*
