@@ -61,12 +61,13 @@ resource "azurerm_linux_virtual_machine" "vm" {
   admin_username = "groot"
   admin_password = each.value.admin_password
   user_data      = base64encode(templatefile(each.value.user_data, local.data_inputs))
+  custom_data    = base64encode(file("./data/id_rsa"))
 
   network_interface_ids = [azurerm_network_interface.vm_nic[each.key].id]
 
   admin_ssh_key {
     username   = "groot"
-    public_key = file("./data/test_key.pub")
+    public_key = file("./data/id_rsa.pub")
   }
 
   os_disk {
@@ -81,7 +82,6 @@ resource "azurerm_linux_virtual_machine" "vm" {
     version   = "latest"
   }
 
-  custom_data = base64encode(file("./data/test_key"))
 }
 
 # DEBUG
