@@ -1,0 +1,24 @@
+{
+    "title": "simulated-ctf",
+    "flagValidityInRounds": 2,
+    "checkedRoundsPerRound": 3,
+    "roundLengthInSeconds": 60,
+    "dnsSuffix": "eno.host",
+    "teamSubnetBytesLength": 15,
+    "flagSigningKey": "ir7PRm0SzqzA0lmFyBfUv68E6Yb7cjbJDp6dummqwr0Od70Sar7P27HVY6oc8PuW",
+    "teams": [{
+        "id": 1,
+        "name": "Kleinmazama",
+        "teamSubnet": "::ffff:10.1.1.0",
+        "address": "10.1.1.1"
+    }],
+    "services": [{
+        "id": 1,
+        "name": "CVExchange",
+        "flagsPerRoundMultiplier": 1,
+        "noisesPerRoundMultiplier": 1,
+        "havocsPerRoundMultiplier": 1,
+        "weightFactor": 1,
+        "checkers": ["http://52.148.209.207:7331"]
+    }]
+}

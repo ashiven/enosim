@@ -11,15 +11,20 @@ echo -e "Host vulnbox\nUser groot\nHostName ${vulnbox_ip}\nIdentityFile ${setup_
 Host checker\nUser groot\nHostName ${checker_ip}\nIdentityFile ${setup_path}//data//test_key\nStrictHostKeyChecking no\n
 Host engine\nUser groot\nHostName ${engine_ip}\nIdentityFile ${setup_path}//data//test_key\nStrictHostKeyChecking no" > ${ssh_config}
 
-scp ../data/test_key vulnbox:/home/groot/.ssh/test_key
-scp ./vulnbox.sh vulnbox:/home/groot/vulnbox.sh
-scp ./services.txt vulnbox:/home/groot/services.txt
+#echo "Configuring vulnbox ..."
+#scp ../data/test_key vulnbox:/home/groot/.ssh/test_key
+#scp ./files/vulnbox.sh vulnbox:/home/groot/vulnbox.sh
+#scp ./files/services.txt vulnbox:/home/groot/services.txt
+#ssh vulnbox "chmod +x vulnbox.sh && ./vulnbox.sh"
+#
+#echo "Configuring checker ..."
+#scp ../data/test_key checker:/home/groot/.ssh/test_key
+#scp ./files/checker.sh checker:/home/groot/checker.sh
+#scp ./files/services.txt checker:/home/groot/services.txt
+#ssh checker "chmod +x checker.sh && ./checker.sh"
 
-
-scp ../data/test_key checker:/home/groot/.ssh/test_key
-scp ./checker.sh checker:/home/groot/checker.sh
-scp ./services.txt checker:/home/groot/services.txt
-
-
+echo "Configuring engine ..."
 scp ../data/test_key engine:/home/groot/.ssh/test_key
-scp ./engine.sh engine:/home/groot/engine.sh
+scp ./files/engine.sh engine:/home/groot/engine.sh
+scp ./files/ctf.json engine:/home/groot/ctf.json
+# ssh engine "mkdir data && chmod +x engine.sh && ./engine.sh"

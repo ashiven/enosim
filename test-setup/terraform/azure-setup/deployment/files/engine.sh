@@ -32,6 +32,7 @@ export DOCKER_BUILDKIT=0
 
 echo "Starting EnoEngine..."
 sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"
+sudo mv ctf.json ./EnoEngine
 cd EnoEngine
 sudo docker compose up -d
 sudo dotnet run --project EnoConfig apply
