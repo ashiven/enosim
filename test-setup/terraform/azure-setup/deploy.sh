@@ -3,7 +3,7 @@
 set -euo pipefail
 
 setup_path="C://Users//janni//OneDrive//Dokumente//Projects//Python//simulation-framework//enosimulator//test-setup//terraform//azure-setup"
-ssh_config="C://Users//janni//.ssh//config"
+ssh_config="C://Users//janni//.ssh//simconfig"
 cd ${setup_path}
 
 if [ -n "${1-}" ] && [ "$1" == "-d" ]; then
@@ -29,19 +29,16 @@ Host checker\nUser groot\nHostName ${checker_ip}\nIdentityFile ${setup_path}//da
 Host engine\nUser groot\nHostName ${engine_ip}\nIdentityFile ${setup_path}//data//id_rsa\nStrictHostKeyChecking no" > ${ssh_config}
 
 echo "Configuring vulnbox ..."
-# scp ./data/id_rsa vulnbox:/home/groot/.ssh/id_rsa
-scp ./data/vulnbox.sh vulnbox:/home/groot/vulnbox.sh
-scp ./config/services.txt vulnbox:/home/groot/services.txt
-ssh vulnbox "chmod +x vulnbox.sh && ./vulnbox.sh" &
+scp -F ${ssh_config} ./data/vulnbox.sh vulnbox:/home/groot/vulnbox.sh
+scp -F ${ssh_config} ./config/services.txt vulnbox:/home/groot/services.txt
+ssh -F ${ssh_config} vulnbox "chmod +x vulnbox.sh && ./vulnbox.sh" > ./logs/vulnbox_config.log &
 
 echo "Configuring checker ..."
-# scp ./data/id_rsa checker:/home/groot/.ssh/id_rsa
-scp ./data/checker.sh checker:/home/groot/checker.sh
-scp ./config/services.txt checker:/home/groot/services.txt
-ssh checker "chmod +x checker.sh && ./checker.sh" &
+scp -F ${ssh_config} ./data/checker.sh checker:/home/groot/checker.sh
+scp -F ${ssh_config} ./config/services.txt checker:/home/groot/services.txt
+ssh -F ${ssh_config} checker "chmod +x checker.sh && ./checker.sh" > checker_config.log &
 
 echo "Configuring engine ..."
-# scp ./data/id_rsa engine:/home/groot/.ssh/id_rsa
-scp ./data/engine.sh engine:/home/groot/engine.sh
-scp ./config/ctf.json engine:/home/groot/ctf.json
-ssh engine "mkdir data && chmod +x engine.sh && ./engine.sh" &
+scp -F ${ssh_config} ./data/engine.sh engine:/home/groot/engine.sh
+scp -F ${ssh_config} ./config/ctf.json engine:/home/groot/ctf.json
+ssh -F ${ssh_config} engine "mkdir data && chmod +x engine.sh && ./engine.sh" > engine_config.log &
