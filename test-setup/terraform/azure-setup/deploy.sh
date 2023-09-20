@@ -1,20 +1,23 @@
 #! /usr/bin/env bash
 
-vulnbox_ip="52.148.209.211"
-checker_ip="52.148.209.207"
-engine_ip="40.119.129.17"
 setup_path="C://Users//janni//OneDrive//Dokumente//Projects//Python//simulation-framework//enosimulator//test-setup//terraform//azure-setup"
 ssh_config="C://Users//janni//.ssh//config"
-
 cd ${setup_path}
-echo -e "Host vulnbox\nUser groot\nHostName ${vulnbox_ip}\nIdentityFile ${setup_path}//data//id_rsa\nStrictHostKeyChecking no\n
-Host checker\nUser groot\nHostName ${checker_ip}\nIdentityFile ${setup_path}//data//id_rsa\nStrictHostKeyChecking no\n
-Host engine\nUser groot\nHostName ${engine_ip}\nIdentityFile ${setup_path}//data//id_rsa\nStrictHostKeyChecking no" > ${ssh_config}
 
 echo "Building infrastructure ..."
 terraform init
 terraform validate
-terraform apply -auto-approve
+terraform apply -auto-approve | tee output.txt
+
+vulnbox_ip=$(grep -oP "vulnbox_ip = \K[^\s]+" ./output.txt)
+checker_ip=$(grep -oP "checker_ip = \K[^\s]+" ./output.txt)
+engine_ip=$(grep -oP "engine_ip  = \K[^\s]+" ./output.txt)
+rm output.txt
+
+echo -e "Host vulnbox\nUser groot\nHostName ${vulnbox_ip}\nIdentityFile ${setup_path}//data//id_rsa\nStrictHostKeyChecking no\n
+Host checker\nUser groot\nHostName ${checker_ip}\nIdentityFile ${setup_path}//data//id_rsa\nStrictHostKeyChecking no\n
+Host engine\nUser groot\nHostName ${engine_ip}\nIdentityFile ${setup_path}//data//id_rsa\nStrictHostKeyChecking no" > ${ssh_config}
+
 
 echo "Configuring vulnbox ..."
 scp ./data/id_rsa vulnbox:/home/groot/.ssh/id_rsa

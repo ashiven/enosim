@@ -84,6 +84,22 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
 }
 
+output "private_ip_addresses" {
+  description = "IP addresses of the virtual machines"
+  value       = [for _, nic in azurerm_network_interface.vm_nic : nic.ip_configuration[0].private_ip_address]
+}
+
+output "vulnbox_ip" {
+  value = azurerm_public_ip.vm_pip["vulnbox1"].ip_address
+}
+output "checker_ip" {
+  value = azurerm_public_ip.vm_pip["checkers"].ip_address
+}
+output "engine_ip" {
+  value = azurerm_public_ip.vm_pip["enoengine"].ip_address
+}
+
+
 # DEBUG
 # output "template" {
 #   value = templatefile("data/deploy_checkers.tftpl", local.data_inputs)
