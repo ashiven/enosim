@@ -14,7 +14,7 @@ variable "vm_map" {
       admin_password = "vulnbox1Password"
       name           = "vulnbox1"
       size           = "Standard_A1_v2"
-      user_data      = "data/deploy_services.tftpl"
+      user_data      = "templates/deploy_services.tftpl"
     }
     #    "vulnbox2" = {
     #      admin_password = "vulnbox2Password"
@@ -30,13 +30,13 @@ variable "vm_map" {
       admin_password = "enoengine1Password"
       name           = "enoengine"
       size           = "Standard_A1_v2"
-      user_data      = "data/deploy_engine.tftpl"
+      user_data      = "templates/deploy_engine.tftpl"
     }
     "checkers" = {
       admin_password = "checkers1Password"
       name           = "checkers"
       size           = "Standard_A1_v2"
-      user_data      = "data/deploy_checkers.tftpl"
+      user_data      = "templates/deploy_checkers.tftpl"
     }
   }
 }

@@ -13,6 +13,7 @@ Host engine\nUser groot\nHostName ${engine_ip}\nIdentityFile ${setup_path}//data
 
 echo "Building infrastructure ..."
 terraform init
+terraform validate
 terraform apply -auto-approve
 
 echo "Configuring vulnbox ..."
