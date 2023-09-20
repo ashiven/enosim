@@ -2,9 +2,9 @@
 
 setup_path="C://Users//janni//OneDrive//Dokumente//Projects//Python//simulation-framework//enosimulator//test-setup//terraform//azure-setup"
 ssh_config="C://Users//janni//.ssh//config"
-cd ${setup_path}
 
 echo "Building infrastructure ..."
+cd ${setup_path}
 terraform init
 terraform validate
 terraform apply -auto-approve | tee output.txt
