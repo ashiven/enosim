@@ -14,10 +14,10 @@ checker_ip=$(grep -oP "checker_ip = \K[^\s]+" ./output.txt)
 engine_ip=$(grep -oP "engine_ip  = \K[^\s]+" ./output.txt)
 rm output.txt
 
+echo "Writing ssh config ..."
 echo -e "Host vulnbox\nUser groot\nHostName ${vulnbox_ip}\nIdentityFile ${setup_path}//data//id_rsa\nStrictHostKeyChecking no\n
 Host checker\nUser groot\nHostName ${checker_ip}\nIdentityFile ${setup_path}//data//id_rsa\nStrictHostKeyChecking no\n
 Host engine\nUser groot\nHostName ${engine_ip}\nIdentityFile ${setup_path}//data//id_rsa\nStrictHostKeyChecking no" > ${ssh_config}
-
 
 echo "Configuring vulnbox ..."
 scp ./data/id_rsa vulnbox:/home/groot/.ssh/id_rsa
