@@ -1,20 +1,25 @@
 #! /usr/bin/env bash
 
-cd "C:\Users\janni\OneDrive\Dokumente\Projects\Python\simulation-framework\enosimulator\test-setup\terraform\azure-setup\deployment"
+vulnbox_ip="52.148.209.211"
+checker_ip="52.148.209.207"
+engine_ip="40.119.129.17"
+setup_path="C://Users//janni//OneDrive//Dokumente//Projects//Python//simulation-framework//enosimulator//test-setup//terraform//azure-setup"
+ssh_config="C://Users//janni//.ssh//config"
 
-vulnbox_ip="108.142.137.233"
+cd "${setup_path}\deployment"
+echo -e "Host vulnbox\nUser groot\nHostName ${vulnbox_ip}\nIdentityFile ${setup_path}//data//test_key\nStrictHostKeyChecking no\n
+Host checker\nUser groot\nHostName ${checker_ip}\nIdentityFile ${setup_path}//data//test_key\nStrictHostKeyChecking no\n
+Host engine\nUser groot\nHostName ${engine_ip}\nIdentityFile ${setup_path}//data//test_key\nStrictHostKeyChecking no" > ${ssh_config}
 
-scp -i ../data/test_key ../data/test_key groot@${vulnbox_ip}:/home/groot/.ssh/test_key
-scp -i ../data/test_key ./vulnbox.sh groot@${vulnbox_ip}:/home/groot/vulnbox.sh
-scp -i ../data/test_key ./services.txt groot@${vulnbox_ip}:/home/groot/services.txt
+scp ../data/test_key vulnbox:/home/groot/.ssh/test_key
+scp ./vulnbox.sh vulnbox:/home/groot/vulnbox.sh
+scp ./services.txt vulnbox:/home/groot/services.txt
 
-checker_ip="108.142.137.253"
 
-scp -i ../data/test_key ../data/test_key groot@${checker_ip}:/home/groot/.ssh/test_key
-scp -i ../data/test_key ./checker.sh groot@${checker_ip}:/home/groot/checker.sh
-scp -i ../data/test_key ./services.txt groot@${checker_ip}:/home/groot/services.txt
+scp ../data/test_key checker:/home/groot/.ssh/test_key
+scp ./checker.sh checker:/home/groot/checker.sh
+scp ./services.txt checker:/home/groot/services.txt
 
-engine_ip="108.142.138.9"
 
-scp -i ../data/test_key ../data/test_key groot@${engine_ip}:/home/groot/.ssh/test_key
-scp -i ../data/test_key ./engine.sh groot@${engine_ip}:/home/groot/engine.sh
+scp ../data/test_key engine:/home/groot/.ssh/test_key
+scp ./engine.sh engine:/home/groot/engine.sh
