@@ -21,7 +21,7 @@ sudo rm packages-microsoft-prod.deb
 
 sudo apt-get update
 sudo apt-get install -y docker.io
-sudo apt-get install -y dotnet-sdk-5.0
+sudo apt-get install -y dotnet-sdk-6.0
 sudo systemctl start docker
 sudo systemctl enable docker
 sudo apt-get install -y docker-compose-plugin
