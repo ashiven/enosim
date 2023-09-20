@@ -4,9 +4,15 @@ set -euo pipefail
 
 setup_path="C://Users//janni//OneDrive//Dokumente//Projects//Python//simulation-framework//enosimulator//test-setup//terraform//azure-setup"
 ssh_config="C://Users//janni//.ssh//config"
+cd ${setup_path}
+
+if [[ $1 == "-d" ]]; then
+  echo "Destroying infrastructure ..."
+  terraform destroy -auto-approve
+  exit 0  
+fi
 
 echo "Building infrastructure ..."
-cd ${setup_path}
 terraform init
 terraform validate
 terraform apply -auto-approve
