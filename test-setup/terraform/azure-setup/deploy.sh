@@ -29,19 +29,19 @@ Host checker\nUser groot\nHostName ${checker_ip}\nIdentityFile ${setup_path}//da
 Host engine\nUser groot\nHostName ${engine_ip}\nIdentityFile ${setup_path}//data//id_rsa\nStrictHostKeyChecking no" > ${ssh_config}
 
 echo "Configuring vulnbox ..."
-scp ./data/id_rsa vulnbox:/home/groot/.ssh/id_rsa
+# scp ./data/id_rsa vulnbox:/home/groot/.ssh/id_rsa
 scp ./data/vulnbox.sh vulnbox:/home/groot/vulnbox.sh
-scp ./data/services.txt vulnbox:/home/groot/services.txt
+scp ./config/services.txt vulnbox:/home/groot/services.txt
 ssh vulnbox "chmod +x vulnbox.sh && ./vulnbox.sh" > NUL 2>&1
 
 echo "Configuring checker ..."
-scp ./data/id_rsa checker:/home/groot/.ssh/id_rsa
+# scp ./data/id_rsa checker:/home/groot/.ssh/id_rsa
 scp ./data/checker.sh checker:/home/groot/checker.sh
-scp ./data/services.txt checker:/home/groot/services.txt
+scp ./config/services.txt checker:/home/groot/services.txt
 ssh checker "chmod +x checker.sh && ./checker.sh" > NUL 2>&1
 
 echo "Configuring engine ..."
-scp ./data/id_rsa engine:/home/groot/.ssh/id_rsa
+# scp ./data/id_rsa engine:/home/groot/.ssh/id_rsa
 scp ./data/engine.sh engine:/home/groot/engine.sh
-scp ./data/ctf.json engine:/home/groot/ctf.json
+scp ./config/ctf.json engine:/home/groot/ctf.json
 ssh engine "mkdir data && chmod +x engine.sh && ./engine.sh" > NUL 2>&1

@@ -60,8 +60,6 @@ resource "azurerm_linux_virtual_machine" "vm" {
   size           = each.value.size
   admin_username = "groot"
   admin_password = each.value.admin_password
-  user_data      = base64encode(templatefile(each.value.user_data, local.data_inputs))
-  custom_data    = base64encode(file("./data/id_rsa"))
 
   network_interface_ids = [azurerm_network_interface.vm_nic[each.key].id]
 
@@ -98,9 +96,3 @@ output "checker_ip" {
 output "engine_ip" {
   value = azurerm_public_ip.vm_pip["engine"].ip_address
 }
-
-
-# DEBUG
-# output "template" {
-#   value = templatefile("data/deploy_checkers.tftpl", local.data_inputs)
-# }
