@@ -6,7 +6,7 @@ setup_path="C://Users//janni//OneDrive//Dokumente//Projects//Python//simulation-
 ssh_config="C://Users//janni//.ssh//config"
 cd ${setup_path}
 
-if [[ $1 == "-d" ]]; then
+if [ -n "${1-}" ] && [ "$1" == "-d" ]; then
   echo "Destroying infrastructure ..."
   terraform destroy -auto-approve
   exit 0  
