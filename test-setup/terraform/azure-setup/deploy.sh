@@ -31,12 +31,14 @@ Host engine\nUser groot\nHostName ${engine_ip}\nIdentityFile ${setup_path}//data
 echo "Configuring vulnbox ..."
 scp -F ${ssh_config} ./data/vulnbox.sh vulnbox:/home/groot/vulnbox.sh
 scp -F ${ssh_config} ./config/services.txt vulnbox:/home/groot/services.txt
-ssh -F ${ssh_config} vulnbox "chmod +x vulnbox.sh && ./vulnbox.sh" > ./logs/vulnbox_config.log &
+echo "This will take a few minutes. Please be patient."
+ssh -F ${ssh_config} vulnbox "chmod +x vulnbox.sh && ./vulnbox.sh" > ./logs/vulnbox_config.log
 
 echo "Configuring checker ..."
 scp -F ${ssh_config} ./data/checker.sh checker:/home/groot/checker.sh
 scp -F ${ssh_config} ./config/services.txt checker:/home/groot/services.txt
-ssh -F ${ssh_config} checker "chmod +x checker.sh && ./checker.sh" > checker_config.log &
+echo "This will take a few minutes. Please be patient."
+ssh -F ${ssh_config} checker "chmod +x checker.sh && ./checker.sh" > checker_config.log
 
 echo "Configuring engine ..."
 scp -F ${ssh_config} ./data/engine.sh engine:/home/groot/engine.sh
