@@ -7,11 +7,12 @@ echo "Building infrastructure ..."
 cd ${setup_path}
 terraform init
 terraform validate
-terraform apply -auto-approve | tee output.txt
+terraform apply -auto-approve
+terraform output | tee output.txt
 
 vulnbox_ip=$(grep -oP "vulnbox_ip = \K[^\s]+" ./output.txt)
 checker_ip=$(grep -oP "checker_ip = \K[^\s]+" ./output.txt)
-engine_ip=$(grep -oP "engine_ip  = \K[^\s]+" ./output.txt)
+engine_ip=$(grep -oP "engine_ip = \K[^\s]+" ./output.txt)
 rm output.txt
 
 echo "Writing ssh config ..."
@@ -23,16 +24,16 @@ echo "Configuring vulnbox ..."
 scp ./data/id_rsa vulnbox:/home/groot/.ssh/id_rsa
 scp ./data/vulnbox.sh vulnbox:/home/groot/vulnbox.sh
 scp ./data/services.txt vulnbox:/home/groot/services.txt
-ssh vulnbox "chmod +x vulnbox.sh && ./vulnbox.sh"
+ssh vulnbox "chmod +x vulnbox.sh && ./vulnbox.sh" > NUL 2>&1
 
 echo "Configuring checker ..."
 scp ./data/id_rsa checker:/home/groot/.ssh/id_rsa
 scp ./data/checker.sh checker:/home/groot/checker.sh
 scp ./data/services.txt checker:/home/groot/services.txt
-ssh checker "chmod +x checker.sh && ./checker.sh"
+ssh checker "chmod +x checker.sh && ./checker.sh" > NUL 2>&1
 
 echo "Configuring engine ..."
-scp ../data/id_rsa engine:/home/groot/.ssh/id_rsa
+scp ./data/id_rsa engine:/home/groot/.ssh/id_rsa
 scp ./data/engine.sh engine:/home/groot/engine.sh
 scp ./data/ctf.json engine:/home/groot/ctf.json
-ssh engine "mkdir data && chmod +x engine.sh && ./engine.sh"
+ssh engine "mkdir data && chmod +x engine.sh && ./engine.sh" > NUL 2>&1
