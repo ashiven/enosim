@@ -90,13 +90,13 @@ output "private_ip_addresses" {
 }
 
 output "vulnbox_ip" {
-  value = azurerm_public_ip.vm_pip["vulnbox1"].ip_address
+  value = azurerm_public_ip.vm_pip["vulnbox"].ip_address
 }
 output "checker_ip" {
-  value = azurerm_public_ip.vm_pip["checkers"].ip_address
+  value = azurerm_public_ip.vm_pip["checker"].ip_address
 }
 output "engine_ip" {
-  value = azurerm_public_ip.vm_pip["enoengine"].ip_address
+  value = azurerm_public_ip.vm_pip["engine"].ip_address
 }
 
 
