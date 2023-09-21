@@ -36,6 +36,10 @@ def main():
     setup.configure(args.config)
 
 
+if __name__ == "__main__":
+    main()
+
+
 """
 def simulate_ctf(host, port, service_address, test_methods):
     s = requests.Session()
