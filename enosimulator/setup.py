@@ -67,6 +67,17 @@ class Setup:
         self.setup_path = ""
         self.verbose = verbose
 
+    def info(self):
+        print(f"========Services========")
+        for service in self.services.values():
+            print(service)
+        print(f"========Teams===========")
+        for team in self.teams.values():
+            print(team)
+        print(f"========Hostnames=======")
+        for component, ip in self.ips.items():
+            print(f"{component}  {ip}")
+
     def configure(self, config_path):
         config = _parse_json(config_path)
         self.setup_path = f"../test-setup/{config['settings']['location']}"
@@ -112,6 +123,8 @@ class Setup:
         # - to add as many vulnboxes as there are teams
         # - specifically, we modify variables.tf to add vulnbox there
         # - we also then need to outputs at the end of main.tf for the ip addresses
+        print(f"[+] Configuration complete\n")
+        self.info()
 
     def build(self):
         # Step 1: run the build.sh script to create CTF infrastructure
