@@ -58,12 +58,12 @@ class Setup:
                 ctf_file.seek(0)
                 print(ctf_file.read())
 
-        ##TODO:
+        ## TODO:
         # - add config["settings"]["teams"] generated teams to the ctf.json
         # - each service in config["settings"]["services"] needs to be added to the ctf.json
 
     def build(self):
-        _run_bash_script(f"{self.setup_path}/deploy.sh", None)
+        _run_bash_script(f"{self.setup_path}/deploy.sh", [])
 
     def destroy(self):
         _run_bash_script(f"{self.setup_path}/deploy.sh", ["-d"])
