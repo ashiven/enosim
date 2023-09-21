@@ -32,6 +32,10 @@ class Setup:
         with open(f"{self.setup_path}/config/ctf.json", "w") as ctf_file:
             json.dump(ctf_json, ctf_file, indent=4)
 
+        ##TODO:
+        # - add config["settings"]["teams"] generated teams to the ctf.json
+        # - each service in config["settings"]["services"] needs to be added to the ctf.json
+
     def build(self):
         pass
 
