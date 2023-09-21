@@ -1,7 +1,7 @@
 {
    "settings": {
       "duration": 30,
-      "teams": 1,
+      "teams": 3,
       "location": "azure",
       "services": ["CVExchange"],
       "intensity": 1

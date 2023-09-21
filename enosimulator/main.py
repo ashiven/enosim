@@ -34,7 +34,7 @@ def main():
 
     setup = Setup(verbose=True)
     setup.configure(args.config)
-    setup.build()
+    # setup.build()
     # setup.destroy()
 
 

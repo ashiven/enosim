@@ -32,14 +32,27 @@ def _run_bash_script(script_path, args):
 
 
 def _generate_team(id):
-    team_names = ["Kleinmanzama", "Grossmanzama"]
+    team_names = ["Kleinmanzama", "Grossmanzama", "Mittelmanzama"]
     new_team = {
         "id": id,
-        "name": team_names[id],
+        "name": team_names[id - 1],
         "teamSubnet": "::ffff:10.0.2.0",
-        "address": f"10.0.2.{id}",
+        "address": "<placeholder>",
     }
     return new_team
+
+
+def _generate_service(id, service):
+    new_service = {
+        "id": id,
+        "name": service,
+        "flagsPerRoundMultiplier": 1,
+        "noisesPerRoundMultiplier": 1,
+        "havocsPerRoundMultiplier": 1,
+        "weightFactor": 1,
+        "checkers": [],
+    }
+    return new_service
 
 
 #### End Helpers ####
@@ -57,6 +70,7 @@ class Setup:
         config = _parse_json(config_path)
         self.setup_path = f"../test-setup/{config['settings']['location']}"
 
+        # Create services.txt from config.json
         with open(f"{self.setup_path}/config/services.txt", "r+") as service_file:
             for service in config["settings"]["services"]:
                 service_file.write(f"{service}\n")
@@ -65,10 +79,22 @@ class Setup:
                 service_file.seek(0)
                 print(service_file.read())
 
+        # Configure ctf.json from config.json
         ctf_json = _parse_json(f"{self.setup_path}/config/ctf.json")
         for setting, value in config["ctf-json"].items():
             ctf_json[setting] = value
 
+        # Add teams to ctf.json
+        ctf_json["teams"].clear()
+        for id in range(1, config["settings"]["teams"] + 1):
+            ctf_json["teams"].append(_generate_team(id))
+
+        # Add services to ctf.json
+        ctf_json["services"].clear()
+        for id, service in enumerate(config["settings"]["services"]):
+            ctf_json["services"].append(_generate_service(id + 1, service))
+
+        # Create ctf.json
         with open(f"{self.setup_path}/config/ctf.json", "r+") as ctf_file:
             json.dump(ctf_json, ctf_file, indent=4)
             if self.verbose:
@@ -76,14 +102,16 @@ class Setup:
                 ctf_file.seek(0)
                 print(ctf_file.read())
 
-        ## TODO:
-        # - Problem: we can't really know the addresses of the services and checkers
-        #            before we have built the infrastructure
-        # - add config["settings"]["teams"] generated teams to the ctf.json
-        # - each service in config["settings"]["services"] needs to be added to the ctf.json
-
     def build(self):
+        # Step 1: run the build.sh script to create CTF infrastructure
+        _run_bash_script(f"{self.setup_path}/build.sh", [])
+
+        # TODO:
+        # at this point we know the ip addresses and we can add them to self.ips
+        # also we can now expand the ctf.json and add the correct ip addresses
+
+        # Step 2: run the deploy.sh script to deploy configuration to the infrastructure
         _run_bash_script(f"{self.setup_path}/deploy.sh", [])
 
     def destroy(self):
-        _run_bash_script(f"{self.setup_path}/deploy.sh", ["-d"])
+        _run_bash_script(f"{self.setup_path}/build.sh", ["-d"])
