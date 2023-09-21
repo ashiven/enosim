@@ -41,6 +41,10 @@ if __name__ == "__main__":
     main()
 
 
+# step 1: create requests session
+# step 2: get service info from checker
+# step 3: log service info inside of logfile
+# step 4: set test_args for pytests (ARGS: checker_ip, checker_port, service_ip, INFO: flag_variants, noise_variants, havoc_variants, exploit_variants)
 """
 def simulate_ctf(host, port, service_address, test_methods):
     s = requests.Session()
