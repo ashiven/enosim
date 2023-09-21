@@ -1,5 +1,6 @@
 import json
 import subprocess
+import sys
 
 
 ####  Helpers ####
@@ -20,6 +21,7 @@ def _run_bash_script(script_path, args):
         )
         for line in p.stdout:
             print(line)
+            sys.stdout.flush()
 
         p.wait()
         if p.returncode != 0:
