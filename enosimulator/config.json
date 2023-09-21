@@ -1,13 +1,15 @@
 {
    "settings": {
-      "ctf-name": "simulation-ctf",
-      "ctf-duration": 30,
+      "duration": 30,
       "teams": 1,
       "location": "azure",
       "services": ["CVExchange", "bollwerk"],
       "intensity": 1
    },
    "ctf-json": {
-      "a": 2
+      "title": "ctf-sim",
+      "flagValidityInRounds": 2,
+      "checkedRoundsPerRound": 3,
+      "roundLengthInSeconds": 60
    }
 }

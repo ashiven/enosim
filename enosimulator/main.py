@@ -8,9 +8,35 @@ import pytest
 import requests
 from enochecker_core import CheckerInfoMessage
 from requests.adapters import HTTPAdapter
+from setup import Setup
 from urllib3.util.retry import Retry
 
 
+def main():
+    parser = argparse.ArgumentParser(
+        prog="enosimulator",
+        description="Simulating an A/D CTF competition",
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        help="A path to the config file containing service info and simulation setup info",
+        default=os.environ.get("ENOSIMULATOR_CONFIG"),
+    )
+
+    args = parser.parse_args()
+
+    if not args.config:
+        parser.print_usage()
+        raise Exception(
+            "Please supply the path to a config file or set the ENOSIMULATOR_CONFIG environment variable"
+        )
+
+    setup = Setup()
+    setup.configure(args.config)
+
+
+"""
 def simulate_ctf(host, port, service_address, test_methods):
     s = requests.Session()
     retry_strategy = Retry(
@@ -55,27 +81,4 @@ def simulate_ctf(host, port, service_address, test_methods):
             )
 
     sys.exit(pytest.main(test_args))
-
-
-def main():
-    parser = argparse.ArgumentParser(
-        prog="enosimulator",
-        description="Simulating an A/D CTF competition",
-    )
-    parser.add_argument(
-        "-c",
-        "--config",
-        help="A path to the config file containing service info and simulation setup info",
-        default=os.environ.get("ENOSIMULATOR_CONFIG"),
-    )
-
-    args = parser.parse_args()
-
-    if not args.config:
-        parser.print_usage()
-        raise Exception(
-            "Please supply the path to a config file or set the ENOSIMULATOR_CONFIG environment variable"
-        )
-
-    logging.basicConfig(level=logging.INFO)
-    simulate_ctf(args.config)
+"""
