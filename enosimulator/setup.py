@@ -87,12 +87,16 @@ class Setup:
         # Add teams to ctf.json
         ctf_json["teams"].clear()
         for id in range(1, config["settings"]["teams"] + 1):
-            ctf_json["teams"].append(_generate_team(id))
+            new_team = _generate_team(id)
+            ctf_json["teams"].append(new_team)
+            self.teams[new_team["name"]] = new_team
 
         # Add services to ctf.json
         ctf_json["services"].clear()
         for id, service in enumerate(config["settings"]["services"]):
-            ctf_json["services"].append(_generate_service(id + 1, service))
+            new_service = _generate_service(id + 1, service)
+            ctf_json["services"].append(new_service)
+            self.services[service] = new_service
 
         # Create ctf.json
         with open(f"{self.setup_path}/config/ctf.json", "r+") as ctf_file:
@@ -102,13 +106,18 @@ class Setup:
                 ctf_file.seek(0)
                 print(ctf_file.read())
 
+        # TODO:
+        # - at last, we also need to reconfigure the terraform file
+        # - to add as many vulnboxes as there are teams
+
     def build(self):
         # Step 1: run the build.sh script to create CTF infrastructure
         _run_bash_script(f"{self.setup_path}/build.sh", [])
 
         # TODO:
-        # at this point we know the ip addresses and we can add them to self.ips
-        # also we can now expand the ctf.json and add the correct ip addresses
+        # - parse the ip addresses from ../test-setup/azure/logs/ip_addresses.log
+        # - at this point we know the ip addresses and we can add them to self.ips
+        # - also we can now expand the ctf.json and add the correct ip addresses
 
         # Step 2: run the deploy.sh script to deploy configuration to the infrastructure
         _run_bash_script(f"{self.setup_path}/deploy.sh", [])
