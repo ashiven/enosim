@@ -31,6 +31,17 @@ def _run_bash_script(script_path, args):
         print(e)
 
 
+def _generate_team(id):
+    team_names = ["Kleinmanzama", "Grossmanzama"]
+    new_team = {
+        "id": id,
+        "name": team_names[id],
+        "teamSubnet": "::ffff:10.0.2.0",
+        "address": f"10.0.2.{id}",
+    }
+    return new_team
+
+
 #### End Helpers ####
 
 
@@ -66,6 +77,8 @@ class Setup:
                 print(ctf_file.read())
 
         ## TODO:
+        # - Problem: we can't really know the addresses of the services and checkers
+        #            before we have built the infrastructure
         # - add config["settings"]["teams"] generated teams to the ctf.json
         # - each service in config["settings"]["services"] needs to be added to the ctf.json
 
