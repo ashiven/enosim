@@ -9,9 +9,21 @@
     "teams": [
         {
             "id": 1,
-            "name": "Kleinmazama",
+            "name": "Kleinmanzama",
             "teamSubnet": "::ffff:10.0.2.0",
-            "address": "10.0.2.6"
+            "address": "<placeholder>"
+        },
+        {
+            "id": 2,
+            "name": "Grossmanzama",
+            "teamSubnet": "::ffff:10.0.2.0",
+            "address": "<placeholder>"
+        },
+        {
+            "id": 3,
+            "name": "Mittelmanzama",
+            "teamSubnet": "::ffff:10.0.2.0",
+            "address": "<placeholder>"
         }
     ],
     "services": [
@@ -22,9 +34,7 @@
             "noisesPerRoundMultiplier": 1,
             "havocsPerRoundMultiplier": 1,
             "weightFactor": 1,
-            "checkers": [
-                "http://52.148.209.207:7331"
-            ]
+            "checkers": []
         }
     ]
 }
