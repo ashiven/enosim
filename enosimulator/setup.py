@@ -1,4 +1,5 @@
 import json
+import pprint
 import re
 import subprocess
 import sys
@@ -68,15 +69,13 @@ class Setup:
         self.verbose = verbose
 
     def info(self):
-        print(f"========Services========")
-        for service in self.services.values():
-            print(service)
-        print(f"========Teams===========")
-        for team in self.teams.values():
-            print(team)
-        print(f"========Hostnames=======")
-        for component, ip in self.ips.items():
-            print(f"{component}  {ip}")
+        p = pprint.PrettyPrinter()
+        print(f"\n==================SERVICES==================\n")
+        p.pprint(self.services)
+        print(f"\n==================TEAMS=====================\n")
+        p.pprint(self.teams)
+        print(f"\n==================HOSTNAMES=================\n")
+        p.pprint(self.ips)
 
     def configure(self, config_path):
         config = _parse_json(config_path)
@@ -123,7 +122,8 @@ class Setup:
         # - to add as many vulnboxes as there are teams
         # - specifically, we modify variables.tf to add vulnbox there
         # - we also then need to outputs at the end of main.tf for the ip addresses
-        print(f"[+] Configuration complete\n")
+
+        print(f"[+] Configuration complete")
         self.info()
 
     def build(self):
