@@ -11,6 +11,7 @@ def _parse_json(path):
 def _run_bash_script(script_path, args):
     try:
         p_args = ["bash", script_path] + args
+
         p = subprocess.Popen(
             p_args,
             stdout=subprocess.PIPE,
@@ -19,6 +20,10 @@ def _run_bash_script(script_path, args):
         )
         for line in p.stdout:
             print(line)
+
+        p.wait()
+        if p.returncode != 0:
+            print(f"process exited with return code: {p.returncode}")
 
     except subprocess.CalledProcessError as e:
         print(e)

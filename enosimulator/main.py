@@ -32,7 +32,7 @@ def main():
             "Please supply the path to a config file or set the ENOSIMULATOR_CONFIG environment variable"
         )
 
-    setup = Setup()
+    setup = Setup(verbose=True)
     setup.configure(args.config)
     setup.build()
     # setup.destroy()

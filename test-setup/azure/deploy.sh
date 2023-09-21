@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-setup_path="C://Users//janni//OneDrive//Dokumente//Projects//Python//simulation-framework//enosimulator//test-setup//terraform//azure-setup"
+setup_path="C://Users//janni//OneDrive//Dokumente//Projects//Python//simulation-framework//enosimulator//test-setup//azure"
 ssh_config="C://Users//janni//.ssh//simconfig"
 
 cd ${setup_path}
