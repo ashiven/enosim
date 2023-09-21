@@ -3,7 +3,7 @@
       "duration": 30,
       "teams": 1,
       "location": "azure",
-      "services": ["CVExchange", "bollwerk"],
+      "services": ["CVExchange"],
       "intensity": 1
    },
    "ctf-json": {

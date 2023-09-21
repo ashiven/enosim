@@ -1,10 +1,27 @@
 import json
+import subprocess
 
 
 ####  Helpers ####
 def _parse_json(path):
     with open(path, "r") as json_file:
         return json.load(json_file)
+
+
+def _run_bash_script(script_path, args):
+    try:
+        p_args = ["bash", script_path] + args
+        p = subprocess.Popen(
+            p_args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        for line in p.stdout:
+            print(line)
+
+    except subprocess.CalledProcessError as e:
+        print(e)
 
 
 #### End Helpers ####
@@ -37,7 +54,7 @@ class Setup:
         # - each service in config["settings"]["services"] needs to be added to the ctf.json
 
     def build(self):
-        pass
+        _run_bash_script(f"{self.setup_path}/deploy.sh", None)
 
     def destroy(self):
-        pass
+        _run_bash_script(f"{self.setup_path}/deploy.sh", ["-d"])

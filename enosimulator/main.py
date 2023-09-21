@@ -34,6 +34,7 @@ def main():
 
     setup = Setup()
     setup.configure(args.config)
+    setup.build()
 
 
 if __name__ == "__main__":
