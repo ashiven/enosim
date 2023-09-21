@@ -28,26 +28,35 @@ def _run_bash_script(script_path, args):
 
 
 class Setup:
-    def __init__(self):
+    def __init__(self, verbose=False):
         self.ips = dict()
         self.teams = dict()
         self.services = dict()
         self.setup_path = ""
+        self.verbose = verbose
 
     def configure(self, config_path):
         config = _parse_json(config_path)
         self.setup_path = f"../test-setup/{config['settings']['location']}"
 
-        with open(f"{self.setup_path}/config/services.txt", "w") as service_file:
+        with open(f"{self.setup_path}/config/services.txt", "r+") as service_file:
             for service in config["settings"]["services"]:
                 service_file.write(f"{service}\n")
+            if self.verbose:
+                print("[+] Created services.txt")
+                service_file.seek(0)
+                print(service_file.read())
 
         ctf_json = _parse_json(f"{self.setup_path}/config/ctf.json")
         for setting, value in config["ctf-json"].items():
             ctf_json[setting] = value
 
-        with open(f"{self.setup_path}/config/ctf.json", "w") as ctf_file:
+        with open(f"{self.setup_path}/config/ctf.json", "r+") as ctf_file:
             json.dump(ctf_json, ctf_file, indent=4)
+            if self.verbose:
+                print("[+] Created ctf.json")
+                ctf_file.seek(0)
+                print(ctf_file.read())
 
         ##TODO:
         # - add config["settings"]["teams"] generated teams to the ctf.json
