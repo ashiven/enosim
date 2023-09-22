@@ -147,9 +147,7 @@ class Setup:
                 ctf_file.seek(0)
                 print(ctf_file.read())
 
-        # TODO:
-        # - we also need to add outputs at the end of main.tf for the ip addresses
-        # - and we need to modify deploy.sh to make sure the config gets deployed to all vulnboxes
+        # Configure vulnbox count in variables.tf
         with open(f"{self.setup_path}/variables.tf", "r+") as variables_file:
             lines = variables_file.readlines()
             lines[2] = f"  default = {config['settings']['vulnboxes']}\n"
@@ -157,6 +155,7 @@ class Setup:
             variables_file.writelines(lines)
             variables_file.truncate()
 
+        # Add terraform outputs for private and public ip addresses
         with open(
             f"{self.setup_path}/outputs.tf",
             "w",
@@ -174,6 +173,9 @@ class Setup:
                 outputs_file.write(
                     f'output "vulnbox{vulnbox_id}_ip" {{\n  value = azurerm_public_ip.vm_pip["vulnbox{vulnbox_id}"]._ip_address\n}}\n'
                 )
+
+        # TODO:
+        # - we need to modify deploy.sh and build.sh to integrate the config
 
         print(f"[+] Configuration complete")
         self.info()
