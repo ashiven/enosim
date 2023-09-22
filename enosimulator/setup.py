@@ -157,6 +157,24 @@ class Setup:
             variables_file.writelines(lines)
             variables_file.truncate()
 
+        with open(
+            f"{self.setup_path}/outputs.tf",
+            "w",
+        ) as outputs_file:
+            outputs_file.write(
+                f'output "private_ip_addresses" {{\n  value = [for _, nic in azurerm_network_interface.vm_nic : nic.ip_configuration[0].private_ip_address]\n}}\n'
+            )
+            outputs_file.write(
+                f'output "checker_ip" {{\n  value = azurerm_public_ip.vm_pip["checker"]._ip_address\n}}\n'
+            )
+            outputs_file.write(
+                f'output "engine_ip" {{\n  value = azurerm_public_ip.vm_pip["engine"]._ip_address\n}}\n'
+            )
+            for vulnbox_id in range(1, config["settings"]["vulnboxes"] + 1):
+                outputs_file.write(
+                    f'output "vulnbox{vulnbox_id}_ip" {{\n  value = azurerm_public_ip.vm_pip["vulnbox{vulnbox_id}"]._ip_address\n}}\n'
+                )
+
         print(f"[+] Configuration complete")
         self.info()
 

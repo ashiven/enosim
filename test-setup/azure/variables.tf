@@ -1,6 +1,6 @@
 variable "vulnbox_count" {
   type    = number
-  default = 3
+  default = 1
 }
 
 variable "size" {
