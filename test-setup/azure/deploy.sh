@@ -17,13 +17,13 @@ retry() {
 echo "[+] Configuring vulnbox ..."
 retry scp -F ${ssh_config} ./data/vulnbox.sh vulnbox:/home/groot/vulnbox.sh
 retry scp -F ${ssh_config} ./config/services.txt vulnbox:/home/groot/services.txt
-echo "This will take a few minutes. Please be patient."
+echo "[!] This will take a few minutes. Please be patient."
 retry ssh -F ${ssh_config} vulnbox "chmod +x vulnbox.sh && ./vulnbox.sh" >./logs/vulnbox_config.log 2>&1
 
 echo "[+] Configuring checker ..."
 retry scp -F ${ssh_config} ./data/checker.sh checker:/home/groot/checker.sh
 retry scp -F ${ssh_config} ./config/services.txt checker:/home/groot/services.txt
-echo "This will take a few minutes. Please be patient."
+echo "[!] This will take a few minutes. Please be patient."
 retry ssh -F ${ssh_config} checker "chmod +x checker.sh && ./checker.sh" >./logs/checker_config.log 2>&1
 
 echo "[+] Configuring engine ..."
