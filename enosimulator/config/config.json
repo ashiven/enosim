@@ -2,6 +2,7 @@
    "settings": {
       "duration": 30,
       "teams": 3,
+      "vulnboxes": 1,
       "location": "azure",
       "services": ["CVExchange"],
       "intensity": 1

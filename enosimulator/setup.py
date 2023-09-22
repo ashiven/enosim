@@ -143,21 +143,21 @@ class Setup:
 
         # TODO:
         # - at last, we also need to reconfigure the terraform file
-        # - to add as many vulnboxes as there are teams
+        # - to add as many vulnboxes as specified in config.json
         # - specifically, we modify variables.tf to add vulnbox there
         # - we also then need to outputs at the end of main.tf for the ip addresses
 
         print(f"[+] Configuration complete")
         self.info()
 
-    def build(self):
-        # Step 1: run the build.sh script to create CTF infrastructure
+    def build_infra(self):
         _run_bash_script(f"{self.setup_path}/build.sh", [])
 
         # TODO:
         # - parse the ip addresses from ../test-setup/azure/logs/ip_addresses.log
         # - at this point we know the ip addresses and we can add them to self.ips
         # - also we can now expand the ctf.json and add the correct ip addresses
+        # - here, we need to equally didive the teams across the vulnboxes: i.e. there are two vulnboxes and 6 teams, so each vulnbox gets 3 teams
 
         with open(
             f"../test-setup/{self.config['settings']['location']}/logs/ip_addresses.log",
@@ -170,8 +170,8 @@ class Setup:
             if m:
                 self.ips[m.group(1)] = m.group(2)
 
-        # Step 2: run the deploy.sh script to deploy configuration to the infrastructure
+    def apply_config(self):
         _run_bash_script(f"{self.setup_path}/deploy.sh", [])
 
-    def destroy(self):
+    def destroy_infra(self):
         _run_bash_script(f"{self.setup_path}/build.sh", ["-d"])

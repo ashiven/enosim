@@ -35,8 +35,9 @@ def main():
 
     setup = Setup(verbose=False)
     setup.configure(args.config)
-    # setup.build()
-    # setup.destroy()
+    # setup.build_infra()
+    # setup.apply_config()
+    # setup.destroy_infra()
 
 
 if __name__ == "__main__":
