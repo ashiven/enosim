@@ -154,7 +154,7 @@ class Setup:
                 ctf_file.seek(0)
                 print(ctf_file.read())
 
-        # Copy terraform file templates to configure
+        # Copy terraform file templates for configuration
         _copy_file(
             f"{self.setup_path}/templates/versions.tf",
             f"{self.setup_path}/versions.tf",
@@ -199,6 +199,16 @@ class Setup:
                     f'output "vulnbox{vulnbox_id}_ip" {{\n  value = azurerm_public_ip.vm_pip["vulnbox{vulnbox_id}"]._ip_address\n}}\n'
                 )
 
+        # Copy deploy.sh and build.sh templates for configuration
+        _copy_file(
+            f"{self.setup_path}/templates/build.sh",
+            f"{self.setup_path}/build.sh",
+        )
+        _copy_file(
+            f"{self.setup_path}/templates/deploy.sh",
+            f"{self.setup_path}/deploy.sh",
+        )
+
         # TODO:
         # - we need to modify deploy.sh and build.sh to integrate the config
 
@@ -214,6 +224,8 @@ class Setup:
         # - also we can now expand the ctf.json and add the correct ip addresses
         # - here, we need to equally didive the teams across the vulnboxes: i.e. there are two vulnboxes and 6 teams, so each vulnbox gets 3 teams
 
+        # TODO:
+        # - put this thing into a separate function
         with open(
             f"{self.setup_path}/logs/ip_addresses.log",
             "r",
