@@ -107,7 +107,7 @@ class Setup:
 
     def configure(self, config_path):
         config = _parse_json(config_path)
-        self.setup_path = f"../test-setup/{config['settings']['location']}"
+        self.setup_path = f"../test-setup/{config['setup']['location']}"
 
         # Create services.txt from config.json
         _create_file(f"{self.setup_path}/config/services.txt")
