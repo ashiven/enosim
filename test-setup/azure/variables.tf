@@ -1,32 +1,43 @@
-variable "services" {
-  default = ["CVExchange", "bollwerk", "expenses"]
-  type    = list(string)
+variable "vulnbox_count" {
+  type    = number
+  default = 3
 }
-variable "vm_map" {
-  type = map(object({
-    name           = string
-    size           = string
-    admin_password = string
-    user_data      = string
-  }))
-  default = {
-    "vulnbox" = {
-      admin_password = "vulnboxPassword1!"
-      name           = "vulnbox"
-      size           = "Standard_A1_v2"
-      user_data      = "templates/deploy_services.tftpl"
-    }
+
+variable "size" {
+  description = "VM size for vulnboxes"
+  type        = string
+  default     = "Standard_A1_v2"
+}
+
+locals {
+  vm_map = {
     "engine" = {
-      admin_password = "enginePassword1!"
-      name           = "engine"
-      size           = "Standard_A1_v2"
-      user_data      = "templates/deploy_engine.tftpl"
+      name = "engine"
+      size = var.size
     }
     "checker" = {
-      admin_password = "checkerPassword1!"
-      name           = "checker"
-      size           = "Standard_A1_v2"
-      user_data      = "templates/deploy_checkers.tftpl"
+      name = "checker"
+      size = var.size
     }
+    dynamic_vm_map = merge(
+      local.vm_map,
+      {
+        for vulnbox_id in range(1, var.vulnbox_count + 1) :
+        "vulnbox${vulnbox_id}" => {
+          name      = "vulnbox${vulnbox_id}"
+          size      = var.size
+          user_data = var.user_data_template
+        }
+      }
+    )
   }
+}
+
+
+variable "vm_map" {
+  type = map(object({
+    name = string
+    size = string
+  }))
+  default = local.vm_map
 }

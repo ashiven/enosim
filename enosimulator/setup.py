@@ -148,13 +148,14 @@ class Setup:
                 print(ctf_file.read())
 
         # TODO:
-        # - at last, we also need to reconfigure the terraform file
-        # - to add as many vulnboxes as specified in config.json
-        # - specifically, we modify variables.tf to add vulnboxes there
         # - we also need to add outputs at the end of main.tf for the ip addresses
         # - and we need to modify deploy.sh to make sure the config gets deployed to all vulnboxes
-        for vulnbox_id in range(1, config["settings"]["vulnboxes"] + 1):
-            pass
+        with open(f"{self.setup_path}/variables.tf", "r+") as variables_file:
+            lines = variables_file.readlines()
+            lines[2] = f"  default = {config['settings']['vulnboxes']}\n"
+            variables_file.seek(0)
+            variables_file.writelines(lines)
+            variables_file.truncate()
 
         print(f"[+] Configuration complete")
         self.info()
