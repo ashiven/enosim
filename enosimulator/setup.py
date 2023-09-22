@@ -40,7 +40,7 @@ def _run_shell_script(script_path, args):
 
         p.wait()
         if p.returncode != 0:
-            print(f"process exited with return code: {p.returncode}")
+            print(f"[!] Process exited with return code: {p.returncode}")
 
     except CalledProcessError as e:
         print(e)
