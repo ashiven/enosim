@@ -10,3 +10,7 @@ terraform.tfstate.backup
 test-setup/azure/logs/*
 test-setup/azure/config/*
 !test-setup/azure/config/.gitkeep
+test-setup/azure/main.tf
+test-setup/azure/variables.tf
+test-setup/azure/outputs.tf
+test-setup/azure/versions.tf

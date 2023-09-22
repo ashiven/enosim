@@ -18,6 +18,13 @@ def _create_file(path):
             file.write("")
 
 
+def _copy_file(src, dst):
+    if os.path.exists(src):
+        with open(src, "r") as src_file:
+            with open(dst, "w") as dst_file:
+                dst_file.write(src_file.read())
+
+
 def _run_shell_script(script_path, args):
     try:
         cmd = "sh " + script_path + " " + args
@@ -146,6 +153,24 @@ class Setup:
                 print("[+] Created ctf.json")
                 ctf_file.seek(0)
                 print(ctf_file.read())
+
+        # Copy terraform file templates to configure
+        _copy_file(
+            f"{self.setup_path}/templates/versions.tf",
+            f"{self.setup_path}/versions.tf",
+        )
+        _copy_file(
+            f"{self.setup_path}/templates/main.tf",
+            f"{self.setup_path}/main.tf",
+        )
+        _copy_file(
+            f"{self.setup_path}/templates/variables.tf",
+            f"{self.setup_path}/variables.tf",
+        )
+        _copy_file(
+            f"{self.setup_path}/templates/outputs.tf",
+            f"{self.setup_path}/outputs.tf",
+        )
 
         # Configure vulnbox count in variables.tf
         with open(f"{self.setup_path}/variables.tf", "r+") as variables_file:
