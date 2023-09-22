@@ -2,8 +2,8 @@ import json
 import os
 import pprint
 import re
-import subprocess
 import sys
+from subprocess import PIPE, STDOUT, CalledProcessError, Popen
 
 
 ####  Helpers ####
@@ -18,25 +18,31 @@ def _create_file(path):
             file.write("")
 
 
-def _run_bash_script(script_path, args):
+def _run_shell_script(script_path, args):
     try:
-        p_args = ["bash", script_path] + args
+        cmd = "sh " + script_path + " " + args
 
-        p = subprocess.Popen(
-            p_args,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
+        p = Popen(
+            cmd,
+            stdout=PIPE,
+            stderr=STDOUT,
+            shell=True,
+            encoding="utf-8",
+            errors="replace",
         )
-        for line in p.stdout:
-            print(line)
-            sys.stdout.flush()
+
+        while True:
+            line = p.stdout.readline()
+            if not line and p.poll() is not None:
+                break
+            if line:
+                print(line.strip(), flush=True)
 
         p.wait()
         if p.returncode != 0:
             print(f"process exited with return code: {p.returncode}")
 
-    except subprocess.CalledProcessError as e:
+    except CalledProcessError as e:
         print(e)
 
 
@@ -151,7 +157,7 @@ class Setup:
         self.info()
 
     def build_infra(self):
-        _run_bash_script(f"{self.setup_path}/build.sh", [])
+        _run_shell_script(f"{self.setup_path}/build.sh", "")
 
         # TODO:
         # - parse the ip addresses from ../test-setup/azure/logs/ip_addresses.log
@@ -159,6 +165,7 @@ class Setup:
         # - also we can now expand the ctf.json and add the correct ip addresses
         # - here, we need to equally didive the teams across the vulnboxes: i.e. there are two vulnboxes and 6 teams, so each vulnbox gets 3 teams
 
+        """
         with open(
             f"../test-setup/{self.config['settings']['location']}/logs/ip_addresses.log",
             "r",
@@ -169,9 +176,10 @@ class Setup:
             m = re.match(pattern, line)
             if m:
                 self.ips[m.group(1)] = m.group(2)
+        """
 
     def apply_config(self):
-        _run_bash_script(f"{self.setup_path}/deploy.sh", [])
+        _run_shell_script(f"{self.setup_path}/deploy.sh", "")
 
     def destroy_infra(self):
-        _run_bash_script(f"{self.setup_path}/build.sh", ["-d"])
+        _run_shell_script(f"{self.setup_path}/build.sh", "-d")

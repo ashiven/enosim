@@ -37,7 +37,7 @@ def main():
     setup.configure(args.config)
     # setup.build_infra()
     # setup.apply_config()
-    # setup.destroy_infra()
+    setup.destroy_infra()
 
 
 if __name__ == "__main__":
