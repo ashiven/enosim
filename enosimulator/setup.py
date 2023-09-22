@@ -109,7 +109,7 @@ class Setup:
         config = _parse_json(config_path)
         self.setup_path = f"../test-setup/{config['setup']['location']}"
 
-        # Create services.txt from config.json
+        # Create services.txt
         _create_file(f"{self.setup_path}/config/services.txt")
         with open(f"{self.setup_path}/config/services.txt", "r+") as service_file:
             for service in config["settings"]["services"]:
@@ -150,8 +150,11 @@ class Setup:
         # TODO:
         # - at last, we also need to reconfigure the terraform file
         # - to add as many vulnboxes as specified in config.json
-        # - specifically, we modify variables.tf to add vulnbox there
-        # - we also then need to outputs at the end of main.tf for the ip addresses
+        # - specifically, we modify variables.tf to add vulnboxes there
+        # - we also need to add outputs at the end of main.tf for the ip addresses
+        # - and we need to modify deploy.sh to make sure the config gets deployed to all vulnboxes
+        for vulnbox_id in range(1, config["settings"]["vulnboxes"] + 1):
+            pass
 
         print(f"[+] Configuration complete")
         self.info()
