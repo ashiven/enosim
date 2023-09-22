@@ -1,6 +1,5 @@
 __pycache__
 .vscode
-services
 !.gitkeep
 virtualbox.box
 .terraform
@@ -9,3 +8,5 @@ terraform.tfstate
 terraform.tfstate.backup
 .terraform.lock.hcl
 test-setup/azure/logs/*
+test-setup/azure/config/*
+!test-setup/azure/config/.gitkeep

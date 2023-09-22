@@ -1,4 +1,5 @@
 import json
+import os
 import pprint
 import re
 import subprocess
@@ -9,6 +10,12 @@ import sys
 def _parse_json(path):
     with open(path, "r") as json_file:
         return json.load(json_file)
+
+
+def _create_file(path):
+    if not os.path.exists(path):
+        with open(path, "w") as file:
+            file.write("")
 
 
 def _run_bash_script(script_path, args):
@@ -31,6 +38,21 @@ def _run_bash_script(script_path, args):
 
     except subprocess.CalledProcessError as e:
         print(e)
+
+
+def _generate_ctf_json():
+    new_ctf_json = {
+        "title": "eno-ctf",
+        "flagValidityInRounds": 2,
+        "checkedRoundsPerRound": 3,
+        "roundLengthInSeconds": 60,
+        "dnsSuffix": "eno.host",
+        "teamSubnetBytesLength": 15,
+        "flagSigningKey": "ir7PRm0SzqzA0lmFyBfUv68E6Yb7cjbJDp6dummqwr0Od70Sar7P27HVY6oc8PuW",
+        "teams": [],
+        "services": [],
+    }
+    return new_ctf_json
 
 
 def _generate_team(id):
@@ -82,6 +104,7 @@ class Setup:
         self.setup_path = f"../test-setup/{config['settings']['location']}"
 
         # Create services.txt from config.json
+        _create_file(f"{self.setup_path}/config/services.txt")
         with open(f"{self.setup_path}/config/services.txt", "r+") as service_file:
             for service in config["settings"]["services"]:
                 service_file.write(f"{service}\n")
@@ -91,7 +114,7 @@ class Setup:
                 print(service_file.read())
 
         # Configure ctf.json from config.json
-        ctf_json = _parse_json(f"{self.setup_path}/config/ctf.json")
+        ctf_json = _generate_ctf_json()
         for setting, value in config["ctf-json"].items():
             ctf_json[setting] = value
 
@@ -110,6 +133,7 @@ class Setup:
             self.services[service] = new_service
 
         # Create ctf.json
+        _create_file(f"{self.setup_path}/config/ctf.json")
         with open(f"{self.setup_path}/config/ctf.json", "r+") as ctf_file:
             json.dump(ctf_json, ctf_file, indent=4)
             if self.verbose:
