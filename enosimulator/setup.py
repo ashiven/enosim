@@ -20,8 +20,8 @@ def _create_file(path):
 
 def _copy_file(src, dst):
     if os.path.exists(src):
-        with open(src, "r") as src_file:
-            with open(dst, "w") as dst_file:
+        with open(src, "rb") as src_file:
+            with open(dst, "wb") as dst_file:
                 dst_file.write(src_file.read())
 
 
@@ -211,6 +211,8 @@ class Setup:
 
         # TODO:
         # - we need to modify deploy.sh and build.sh to integrate the config
+        # - we can also put the ssh public key path from secrets.json into main.tf
+        # - and we can put the PAT from secrets.json into a working copy of checker.sh, engine.sh, vulnbox.sh
 
         print(f"[+] Configuration complete")
         self.info()
