@@ -165,9 +165,8 @@ class Setup:
         # - also we can now expand the ctf.json and add the correct ip addresses
         # - here, we need to equally didive the teams across the vulnboxes: i.e. there are two vulnboxes and 6 teams, so each vulnbox gets 3 teams
 
-        """
         with open(
-            f"../test-setup/{self.config['settings']['location']}/logs/ip_addresses.log",
+            f"{self.setup_path}/logs/ip_addresses.log",
             "r",
         ) as ip_file:
             lines = ip_file.readlines()
@@ -176,7 +175,6 @@ class Setup:
             m = re.match(pattern, line)
             if m:
                 self.ips[m.group(1)] = m.group(2)
-        """
 
     def apply_config(self):
         _run_shell_script(f"{self.setup_path}/deploy.sh", "")
