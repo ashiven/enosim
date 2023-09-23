@@ -96,8 +96,8 @@ class Setup:
         self.teams = dict()
         self.services = dict()
         self.setup_path = ""
-        self.verbose = verbose
         self.setup_helper = None
+        self.verbose = verbose
 
     def info(self):
         p = pprint.PrettyPrinter()
