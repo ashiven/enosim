@@ -4,7 +4,7 @@ import pprint
 from subprocess import PIPE, STDOUT, CalledProcessError, Popen
 
 from colorama import Fore
-from tcon import TemplateConverter
+from tcon import SetupHelper
 
 ####  Helpers ####
 
@@ -97,7 +97,7 @@ class Setup:
         self.services = dict()
         self.setup_path = ""
         self.verbose = verbose
-        self.tc = None
+        self.setup_helper = None
 
     def info(self):
         p = pprint.PrettyPrinter()
@@ -112,6 +112,7 @@ class Setup:
         config = _parse_json(config_path)
         secrets = _parse_json(secrets_path)
         self.setup_path = f"../test-setup/{config['setup']['location']}"
+        self.setup_helper = SetupHelper(config, secrets)
 
         # Create services.txt
         _create_file(f"{self.setup_path}/config/services.txt")
@@ -152,8 +153,7 @@ class Setup:
                 print(ctf_file.read())
 
         # Convert template files (terraform, deploy.sh, build.sh, etc.) according to config
-        self.tc = TemplateConverter(config, secrets)
-        self.tc.convert_templates()
+        self.setup_helper.convert_templates()
 
         print(Fore.GREEN + f"[+] Configuration complete")
         self.info()
@@ -162,7 +162,7 @@ class Setup:
         _run_shell_script(f"{self.setup_path}/build.sh", "")
 
         # Get ip addresses from terraform output
-        self.ips = self.tc.get_ip_addresses()
+        self.ips = self.setup_helper.get_ip_addresses()
 
     def apply_config(self):
         _run_shell_script(f"{self.setup_path}/deploy.sh", "")

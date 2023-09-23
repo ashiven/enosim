@@ -53,7 +53,7 @@ def _insert_after(path, after, insert_lines):
 #### End Helpers ####
 
 
-class Converter(ABC):
+class Helper(ABC):
     @abstractmethod
     def convert_buildscript(self):
         pass
@@ -75,7 +75,7 @@ class Converter(ABC):
         pass
 
 
-class AzureTemplateConverter(Converter):
+class AzureSetupHelper(Helper):
     def __init__(self, config, secrets):
         self.config = config
         self.secrets = secrets
@@ -277,7 +277,7 @@ class AzureTemplateConverter(Converter):
 
 # TODO:
 # - implement
-class LocalTemplateConverter(Converter):
+class LocalSetupHelper(Helper):
     def __init__(self, config, secrets):
         self.config = config
         self.secrets = secrets
@@ -299,26 +299,22 @@ class LocalTemplateConverter(Converter):
         pass
 
 
-class TemplateConverter:
+class SetupHelper:
     def __init__(self, config, secrets):
         self.config = config
         self.secrets = secrets
-        self.converters = {
-            SetupVariant.AZURE: AzureTemplateConverter(config, secrets),
-            SetupVariant.LOCAL: LocalTemplateConverter(config, secrets),
+        self.helpers = {
+            SetupVariant.AZURE: AzureSetupHelper(config, secrets),
+            SetupVariant.LOCAL: LocalSetupHelper(config, secrets),
         }
 
     def convert_templates(self):
-        converter = self.converters[
-            SetupVariant.from_str(self.config["setup"]["location"])
-        ]
-        converter.convert_buildscript()
-        converter.convert_deploy_script()
-        converter.convert_tf_files()
-        converter.convert_vm_scripts()
+        helper = self.helpers[SetupVariant.from_str(self.config["setup"]["location"])]
+        helper.convert_buildscript()
+        helper.convert_deploy_script()
+        helper.convert_tf_files()
+        helper.convert_vm_scripts()
 
     def get_ip_addresses(self):
-        converter = self.converters[
-            SetupVariant.from_str(self.config["setup"]["location"])
-        ]
-        return converter.get_ip_addresses()
+        helper = self.helpers[SetupVariant.from_str(self.config["setup"]["location"])]
+        return helper.get_ip_addresses()
