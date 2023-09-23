@@ -155,8 +155,8 @@ class Setup:
         # Convert template files (terraform, deploy.sh, build.sh, etc.) according to config
         self.setup_helper.convert_templates()
 
-        print(Fore.GREEN + f"[+] Configuration complete")
         self.info()
+        print(Fore.GREEN + f"[+] Configuration complete")
 
     def build_infra(self):
         _run_shell_script(f"{self.setup_path}/build.sh", "")
