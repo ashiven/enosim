@@ -4,6 +4,7 @@ import pprint
 import re
 from subprocess import PIPE, STDOUT, CalledProcessError, Popen
 
+from colorama import Fore
 from tcon import TemplateConverter
 
 ####  Helpers ####
@@ -42,7 +43,7 @@ def _run_shell_script(script_path, args):
 
         p.wait()
         if p.returncode != 0:
-            print(f"[!] Process exited with return code: {p.returncode}")
+            print(Fore.RED + f"[!] Process exited with return code: {p.returncode}")
 
     except CalledProcessError as e:
         print(e)
@@ -100,11 +101,11 @@ class Setup:
 
     def info(self):
         p = pprint.PrettyPrinter()
-        print(f"\n==================SERVICES==================\n")
+        print(Fore.BLUE + f"\n==================SERVICES==================\n")
         p.pprint(self.services)
-        print(f"\n==================TEAMS=====================\n")
+        print(Fore.BLUE + f"\n==================TEAMS=====================\n")
         p.pprint(self.teams)
-        print(f"\n==================HOSTNAMES=================\n")
+        print(Fore.BLUE + f"\n==================HOSTNAMES=================\n")
         p.pprint(self.ips)
 
     def configure(self, config_path, secrets_path):
@@ -154,7 +155,7 @@ class Setup:
         tc = TemplateConverter(config, secrets)
         tc.convert_templates()
 
-        print(f"[+] Configuration complete")
+        print(Fore.GREEN + f"[+] Configuration complete")
         self.info()
 
     def build_infra(self):

@@ -1,12 +1,15 @@
 import argparse
 import os
 
+from colorama import init
 from dotenv import load_dotenv
 from setup import Setup
 
 
 def main():
     load_dotenv()
+    init(autoreset=True)
+
     parser = argparse.ArgumentParser(
         prog="enosimulator",
         description="Simulating an A/D CTF competition",
