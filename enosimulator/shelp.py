@@ -148,7 +148,9 @@ class AzureSetupHelper(Helper):
         # Configure ip vulnbox deployments
         lines = []
         for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
-            lines.append(f'\necho "[+] Configuring vulnbox{vulnbox_id} ..."\n')
+            lines.append(
+                f'\necho -e "\\033[32m[+] Configuring vulnbox{vulnbox_id} ...\\033[0m"\n'
+            )
             lines.append(
                 f"retry scp -F ${{ssh_config}} ./data/vulnbox.sh vulnbox{vulnbox_id}:/home/groot/vulnbox.sh\n"
             )
@@ -156,7 +158,7 @@ class AzureSetupHelper(Helper):
                 f"retry scp -F ${{ssh_config}} ./data/services.txt vulnbox{vulnbox_id}:/home/groot/services.txt\n"
             )
             lines.append(
-                f'echo "[!] This will take a few minutes. Please be patient."\n'
+                f'echo -e "\\033[31m[!] This will take a few minutes. Please be patient.\\033[0m"\n'
             )
             lines.append(
                 f'retry ssh -F ${{ssh_config}} vulnbox{vulnbox_id} "chmod +x vulnbox.sh && ./vulnbox.sh" >./logs/vulnbox{vulnbox_id}_config.log 2>&1\n'
