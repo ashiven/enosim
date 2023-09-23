@@ -1,17 +1,8 @@
 import argparse
-import logging
 import os
-import sys
 
-import jsons
-import pytest
-import requests
 from dotenv import load_dotenv
-from enochecker_core import CheckerInfoMessage
-from numpy import sometrue
-from requests.adapters import HTTPAdapter
 from setup import Setup
-from urllib3.util.retry import Retry
 
 
 def main():

@@ -1,9 +1,6 @@
 import os
 from abc import ABC, abstractmethod
 from enum import Enum
-from hmac import new
-
-from matplotlib import lines
 
 
 class SetupVariant(Enum):
