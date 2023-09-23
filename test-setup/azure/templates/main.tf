@@ -21,7 +21,7 @@ resource "azurerm_subnet" "snet" {
 }
 
 resource "azurerm_public_ip" "vm_pip" {
-  for_each = var.vm_map
+  for_each = local.vm_map
 
   name                = "${each.value.name}-ip"
   location            = azurerm_resource_group.rg.location
@@ -30,7 +30,7 @@ resource "azurerm_public_ip" "vm_pip" {
 }
 
 resource "azurerm_network_interface" "vm_nic" {
-  for_each = var.vm_map
+  for_each = local.vm_map
 
   name                = "${each.value.name}-nic"
   location            = azurerm_resource_group.rg.location
@@ -46,7 +46,7 @@ resource "azurerm_network_interface" "vm_nic" {
 }
 
 resource "azurerm_linux_virtual_machine" "vm" {
-  for_each = var.vm_map
+  for_each = local.vm_map
 
   name                = each.value.name
   location            = azurerm_resource_group.rg.location
