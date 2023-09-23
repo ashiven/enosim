@@ -1,4 +1,5 @@
 import os
+import re
 from abc import ABC, abstractmethod
 from enum import Enum
 
@@ -67,6 +68,10 @@ class Converter(ABC):
 
     @abstractmethod
     def convert_vm_scripts(self):
+        pass
+
+    @abstractmethod
+    def get_ip_addresses(self):
         pass
 
 
@@ -245,6 +250,30 @@ class AzureTemplateConverter(Converter):
             f"pat=\"{self.secrets['vm-secrets']['github-personal-access-token']}\"\n",
         )
 
+    def get_ip_addresses(self):
+        # Parse ip addresses from ip_addresses.log
+        ip_addresses = dict()
+        with open(
+            f"{self.setup_path}/logs/ip_addresses.log",
+            "r",
+        ) as ip_file:
+            lines = ip_file.readlines()
+            pattern = r"(\w+)\s*=\s*(.+)"
+            for index, line in enumerate(lines):
+                m = re.match(pattern, line)
+                if m:
+                    key = m.group(1)
+                    value = m.group(2).strip().replace('"', "")
+                    if key == "private_ip_addresses":
+                        while "]" not in value:
+                            line = lines.pop(index + 1)
+                            value += line.strip()
+                        private_ip_addresses = eval(value)
+                        ip_addresses["private_ip_addresses"] = private_ip_addresses
+                    else:
+                        ip_addresses[key] = value
+        return ip_addresses
+
 
 # TODO:
 # - implement
@@ -266,6 +295,9 @@ class LocalTemplateConverter(Converter):
     def convert_vm_scripts(self):
         pass
 
+    def get_ip_addresses(self):
+        pass
+
 
 class TemplateConverter:
     def __init__(self, config, secrets):
@@ -284,3 +316,9 @@ class TemplateConverter:
         converter.convert_deploy_script()
         converter.convert_tf_files()
         converter.convert_vm_scripts()
+
+    def get_ip_addresses(self):
+        converter = self.converters[
+            SetupVariant.from_str(self.config["setup"]["location"])
+        ]
+        return converter.get_ip_addresses()

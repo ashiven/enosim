@@ -1,7 +1,6 @@
 import json
 import os
 import pprint
-import re
 from subprocess import PIPE, STDOUT, CalledProcessError, Popen
 
 from colorama import Fore
@@ -98,6 +97,7 @@ class Setup:
         self.services = dict()
         self.setup_path = ""
         self.verbose = verbose
+        self.tc = None
 
     def info(self):
         p = pprint.PrettyPrinter()
@@ -152,8 +152,8 @@ class Setup:
                 print(ctf_file.read())
 
         # Convert template files (terraform, deploy.sh, build.sh, etc.) according to config
-        tc = TemplateConverter(config, secrets)
-        tc.convert_templates()
+        self.tc = TemplateConverter(config, secrets)
+        self.tc.convert_templates()
 
         print(Fore.GREEN + f"[+] Configuration complete")
         self.info()
@@ -161,24 +161,8 @@ class Setup:
     def build_infra(self):
         _run_shell_script(f"{self.setup_path}/build.sh", "")
 
-        # TODO:
-        # - parse the ip addresses from ../test-setup/azure/logs/ip_addresses.log
-        # - at this point we know the ip addresses and we can add them to self.ips
-        # - also we can now expand the ctf.json and add the correct ip addresses
-        # - here, we need to equally didive the teams across the vulnboxes: i.e. there are two vulnboxes and 6 teams, so each vulnbox gets 3 teams
-
-        # TODO:
-        # - put this thing into a separate function
-        with open(
-            f"{self.setup_path}/logs/ip_addresses.log",
-            "r",
-        ) as ip_file:
-            lines = ip_file.readlines()
-        pattern = r"(\w+)\s*=\s*(.+)"
-        for line in lines:
-            m = re.match(pattern, line)
-            if m:
-                self.ips[m.group(1)] = m.group(2)
+        # Get ip addresses from terraform output
+        self.ips = self.tc.get_ip_addresses()
 
     def apply_config(self):
         _run_shell_script(f"{self.setup_path}/deploy.sh", "")
