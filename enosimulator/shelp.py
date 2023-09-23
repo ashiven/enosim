@@ -201,18 +201,18 @@ class AzureSetupHelper(Helper):
                 f'output "private_ip_addresses" {{\n  value = [for _, nic in azurerm_network_interface.vm_nic : nic.ip_configuration[0].private_ip_address]\n}}\n'
             )
             outputs_file.write(
-                f'output "checker_ip" {{\n  value = azurerm_public_ip.vm_pip["checker"]._ip_address\n}}\n'
+                f'output "checker_ip" {{\n  value = azurerm_public_ip.vm_pip["checker"].ip_address\n}}\n'
             )
             outputs_file.write(
-                f'output "engine_ip" {{\n  value = azurerm_public_ip.vm_pip["engine"]._ip_address\n}}\n'
+                f'output "engine_ip" {{\n  value = azurerm_public_ip.vm_pip["engine"].ip_address\n}}\n'
             )
             for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
                 outputs_file.write(
-                    f'output "vulnbox{vulnbox_id}_ip" {{\n  value = azurerm_public_ip.vm_pip["vulnbox{vulnbox_id}"]._ip_address\n}}\n'
+                    f'output "vulnbox{vulnbox_id}_ip" {{\n  value = azurerm_public_ip.vm_pip["vulnbox{vulnbox_id}"].ip_address\n}}\n'
                 )
 
         # Configure ssh key path in main.tf
-        TF_LINE_SSH_KEY_PATH = 67
+        TF_LINE_SSH_KEY_PATH = 61
         _replace_line(
             f"{self.setup_path}/main.tf",
             TF_LINE_SSH_KEY_PATH,

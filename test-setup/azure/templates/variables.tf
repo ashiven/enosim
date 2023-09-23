@@ -3,34 +3,18 @@ variable "vulnbox_count" {
   default = _placeholder_
 }
 
-variable "size" {
-  description = "VM size for vulnboxes"
-  type        = string
-  default     = "Standard_A1_v2"
-}
-
 locals {
-  vm_map = {
-    "engine" = {
-      name = "engine"
-      size = var.size
-    }
-    "checker" = {
-      name = "checker"
-      size = var.size
-    }
-    dynamic_vm_map = merge(
-      local.vm_map,
-      {
-        for vulnbox_id in range(1, var.vulnbox_count + 1) :
-        "vulnbox${vulnbox_id}" => {
-          name      = "vulnbox${vulnbox_id}"
-          size      = var.size
-          user_data = var.user_data_template
-        }
+  dynamic_vm_map = merge(
+    var.vm_map,
+    {
+      for vulnbox_id in range(1, var.vulnbox_count + 1) :
+      "vulnbox${vulnbox_id}" => {
+        name = "vulnbox${vulnbox_id}"
+        size = "Standard_A1_v2"
       }
-    )
-  }
+    }
+  )
+  vm_map = local.dynamic_vm_map
 }
 
 
@@ -39,5 +23,14 @@ variable "vm_map" {
     name = string
     size = string
   }))
-  default = local.vm_map
+  default = {
+    "engine" = {
+      name = "engine"
+      size = "Standard_A1_v2"
+    }
+    "checker" = {
+      name = "checker"
+      size = "Standard_A1_v2"
+    }
+  }
 }

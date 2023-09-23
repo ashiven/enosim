@@ -1,8 +1,3 @@
-locals {
-  data_inputs = {
-    services = var.services
-  }
-}
 
 resource "azurerm_resource_group" "rg" {
   name     = "simulation-setup"
@@ -59,7 +54,6 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   size           = each.value.size
   admin_username = "groot"
-  admin_password = each.value.admin_password
 
   network_interface_ids = [azurerm_network_interface.vm_nic[each.key].id]
 
