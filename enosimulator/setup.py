@@ -2,11 +2,13 @@ import json
 import os
 import pprint
 import re
-import sys
 from subprocess import PIPE, STDOUT, CalledProcessError, Popen
 
+from template_converter import TemplateConverter
 
 ####  Helpers ####
+
+
 def _parse_json(path):
     with open(path, "r") as json_file:
         return json.load(json_file)
@@ -16,13 +18,6 @@ def _create_file(path):
     if not os.path.exists(path):
         with open(path, "w") as file:
             file.write("")
-
-
-def _copy_file(src, dst):
-    if os.path.exists(src):
-        with open(src, "rb") as src_file:
-            with open(dst, "wb") as dst_file:
-                dst_file.write(src_file.read())
 
 
 def _run_shell_script(script_path, args):
@@ -154,65 +149,9 @@ class Setup:
                 ctf_file.seek(0)
                 print(ctf_file.read())
 
-        # Copy terraform file templates for configuration
-        _copy_file(
-            f"{self.setup_path}/templates/versions.tf",
-            f"{self.setup_path}/versions.tf",
-        )
-        _copy_file(
-            f"{self.setup_path}/templates/main.tf",
-            f"{self.setup_path}/main.tf",
-        )
-        _copy_file(
-            f"{self.setup_path}/templates/variables.tf",
-            f"{self.setup_path}/variables.tf",
-        )
-        _copy_file(
-            f"{self.setup_path}/templates/outputs.tf",
-            f"{self.setup_path}/outputs.tf",
-        )
-
-        # Configure vulnbox count in variables.tf
-        with open(f"{self.setup_path}/variables.tf", "r+") as variables_file:
-            lines = variables_file.readlines()
-            lines[2] = f"  default = {config['settings']['vulnboxes']}\n"
-            variables_file.seek(0)
-            variables_file.writelines(lines)
-            variables_file.truncate()
-
-        # Add terraform outputs for private and public ip addresses
-        with open(
-            f"{self.setup_path}/outputs.tf",
-            "w",
-        ) as outputs_file:
-            outputs_file.write(
-                f'output "private_ip_addresses" {{\n  value = [for _, nic in azurerm_network_interface.vm_nic : nic.ip_configuration[0].private_ip_address]\n}}\n'
-            )
-            outputs_file.write(
-                f'output "checker_ip" {{\n  value = azurerm_public_ip.vm_pip["checker"]._ip_address\n}}\n'
-            )
-            outputs_file.write(
-                f'output "engine_ip" {{\n  value = azurerm_public_ip.vm_pip["engine"]._ip_address\n}}\n'
-            )
-            for vulnbox_id in range(1, config["settings"]["vulnboxes"] + 1):
-                outputs_file.write(
-                    f'output "vulnbox{vulnbox_id}_ip" {{\n  value = azurerm_public_ip.vm_pip["vulnbox{vulnbox_id}"]._ip_address\n}}\n'
-                )
-
-        # Copy deploy.sh and build.sh templates for configuration
-        _copy_file(
-            f"{self.setup_path}/templates/build.sh",
-            f"{self.setup_path}/build.sh",
-        )
-        _copy_file(
-            f"{self.setup_path}/templates/deploy.sh",
-            f"{self.setup_path}/deploy.sh",
-        )
-
-        # TODO:
-        # - we need to modify deploy.sh and build.sh to integrate the config
-        # - we can also put the ssh public key path from secrets.json into main.tf
-        # - and we can put the PAT from secrets.json into a working copy of checker.sh, engine.sh, vulnbox.sh
+        # Convert template files (terraform, deploy.sh, build.sh, etc.) according to config
+        tc = TemplateConverter(config)
+        tc.convert_templates()
 
         print(f"[+] Configuration complete")
         self.info()
