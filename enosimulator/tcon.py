@@ -70,7 +70,8 @@ class AzureTemplateConverter(Converter):
             f"{self.setup_path}/build.sh",
         )
         ABSOLUTE_SETUP_PATH_LINE = 4
-        SSH_PRIVATE_KEY_LINE = 5
+        SSH_CONFIG_PATH_LINE = 5
+        SSH_PRIVATE_KEY_PATH_LINE = 6
         _replace_line(
             f"{self.setup_path}/build.sh",
             ABSOLUTE_SETUP_PATH_LINE,
@@ -78,12 +79,18 @@ class AzureTemplateConverter(Converter):
         )
         _replace_line(
             f"{self.setup_path}/build.sh",
-            SSH_PRIVATE_KEY_LINE,
+            SSH_CONFIG_PATH_LINE,
             f"ssh_config=\"{self.config['setup']['ssh-config-path']}\"\n",
+        )
+        _replace_line(
+            f"{self.setup_path}/build.sh",
+            SSH_PRIVATE_KEY_PATH_LINE,
+            f"ssh_private_key_path=\"{self.secrets['vm-secrets']['ssh-private-key-path']}\"\n",
         )
 
         # TODO:
-        # - implement
+        # - ip parsing for all vulnboxes
+        # - appending to ssh config for all vulnboxes
 
     def convert_deploy_script(self):
         # Copy deploy.sh template for configuration
