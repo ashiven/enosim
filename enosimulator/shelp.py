@@ -216,7 +216,7 @@ class AzureSetupHelper(Helper):
         _replace_line(
             f"{self.setup_path}/main.tf",
             TF_LINE_SSH_KEY_PATH,
-            f"   public_key = file(\"{self.secrets['vm-secrets']['ssh-public-key-path']}\")\n",
+            f"    public_key = file(\"{self.secrets['vm-secrets']['ssh-public-key-path']}\")\n",
         )
 
     def convert_vm_scripts(self):
