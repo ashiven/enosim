@@ -159,12 +159,9 @@ class AzureTemplateConverter(Converter):
             lines.append(
                 f'retry ssh -F ${{ssh_config}} vulnbox{vulnbox_id} "chmod +x vulnbox.sh && ./vulnbox.sh" >./logs/vulnbox{vulnbox_id}_config.log 2>&1\n'
             )
-
         _insert_after(
             f"{self.setup_path}/deploy.sh", "retry ssh -F ${ssh_config} checker", lines
         )
-        # TODO:
-        # - implement
 
     def convert_tf_files(self):
         # Copy terraform file templates for configuration
