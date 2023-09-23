@@ -6,6 +6,7 @@ import sys
 import jsons
 import pytest
 import requests
+from dotenv import load_dotenv
 from enochecker_core import CheckerInfoMessage
 from numpy import sometrue
 from requests.adapters import HTTPAdapter
@@ -14,6 +15,7 @@ from urllib3.util.retry import Retry
 
 
 def main():
+    load_dotenv()
     parser = argparse.ArgumentParser(
         prog="enosimulator",
         description="Simulating an A/D CTF competition",
