@@ -8,9 +8,11 @@ ssh_config=_placeholder_
 cd ${setup_path}
 
 retry() {
-  until "$@"; do
+  local retries=3
+  until "$@" || [ "$retries" -eq 0 ]; do
     echo "[!] Retrying command ..."
     sleep 1
+    retries=$((retries - 1))
   done
 }
 
