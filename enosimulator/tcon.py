@@ -33,7 +33,7 @@ def _copy_file(src, dst):
 def _replace_line(path, line_number, new_line):
     with open(path, "rb+") as file:
         lines = file.readlines()
-        lines[line_number] = new_line.encode("utf-8")
+        lines[line_number] = new_line.replace("\\", "/").encode("utf-8")
         file.seek(0)
         file.writelines(lines)
         file.truncate()
@@ -127,6 +127,41 @@ class AzureTemplateConverter(Converter):
         _copy_file(
             f"{self.setup_path}/templates/deploy.sh",
             f"{self.setup_path}/deploy.sh",
+        )
+
+        # Configure setup_path, ssh_config_path
+        ABSOLUTE_SETUP_PATH_LINE = 4
+        SSH_CONFIG_PATH_LINE = 5
+        _replace_line(
+            f"{self.setup_path}/deploy.sh",
+            ABSOLUTE_SETUP_PATH_LINE,
+            f'setup_path="{os.path.abspath(self.setup_path)}"\n',
+        )
+        _replace_line(
+            f"{self.setup_path}/deploy.sh",
+            SSH_CONFIG_PATH_LINE,
+            f"ssh_config=\"{self.config['setup']['ssh-config-path']}\"\n",
+        )
+
+        # Configure ip vulnbox deployments
+        lines = []
+        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
+            lines.append(f'\necho "[+] Configuring vulnbox{vulnbox_id} ..."\n')
+            lines.append(
+                f"retry scp -F ${{ssh_config}} ./data/vulnbox.sh vulnbox{vulnbox_id}:/home/groot/vulnbox.sh\n"
+            )
+            lines.append(
+                f"retry scp -F ${{ssh_config}} ./data/services.txt vulnbox{vulnbox_id}:/home/groot/services.txt\n"
+            )
+            lines.append(
+                f'echo "[!] This will take a few minutes. Please be patient."\n'
+            )
+            lines.append(
+                f'retry ssh -F ${{ssh_config}} vulnbox{vulnbox_id} "chmod +x vulnbox.sh && ./vulnbox.sh" >./logs/vulnbox{vulnbox_id}_config.log 2>&1\n'
+            )
+
+        _insert_after(
+            f"{self.setup_path}/deploy.sh", "retry ssh -F ${ssh_config} checker", lines
         )
         # TODO:
         # - implement
