@@ -1,6 +1,6 @@
 {
    "setup": {
-      "sshConfigPath": "C:\\Users\\janni\\.ssh\\simconfig",
+      "ssh-config-path": "C:\\Users\\janni\\.ssh\\simconfig",
       "location": "azure"
    },
    "settings": {

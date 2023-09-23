@@ -69,6 +69,19 @@ class AzureTemplateConverter(Converter):
             f"{self.setup_path}/templates/build.sh",
             f"{self.setup_path}/build.sh",
         )
+        ABSOLUTE_SETUP_PATH_LINE = 4
+        SSH_PRIVATE_KEY_LINE = 5
+        _replace_line(
+            f"{self.setup_path}/build.sh",
+            ABSOLUTE_SETUP_PATH_LINE,
+            f'setup_path="{os.path.abspath(self.setup_path)}"\n',
+        )
+        _replace_line(
+            f"{self.setup_path}/build.sh",
+            SSH_PRIVATE_KEY_LINE,
+            f"ssh_config=\"{self.config['setup']['ssh-config-path']}\"\n",
+        )
+
         # TODO:
         # - implement
 
