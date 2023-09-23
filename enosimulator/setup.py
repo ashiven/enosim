@@ -4,7 +4,7 @@ import pprint
 from subprocess import PIPE, STDOUT, CalledProcessError, Popen
 
 from colorama import Fore
-from tcon import SetupHelper
+from shelp import SetupHelper
 
 ####  Helpers ####
 
