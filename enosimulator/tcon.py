@@ -39,6 +39,19 @@ def _replace_line(path, line_number, new_line):
         file.truncate()
 
 
+def _insert_after(path, after, insert_lines):
+    new_lines = []
+    with open(path, "rb") as file:
+        lines = file.readlines()
+        for line in lines:
+            new_lines.append(line)
+            if line.startswith(after.encode("utf-8")):
+                for insert_line in insert_lines:
+                    new_lines.append(insert_line.encode("utf-8"))
+    with open(path, "wb") as file:
+        file.writelines(new_lines)
+
+
 #### End Helpers ####
 
 
@@ -93,29 +106,21 @@ class AzureTemplateConverter(Converter):
             f"ssh_private_key_path=\"{self.secrets['vm-secrets']['ssh-private-key-path']}\"\n",
         )
 
-        # Configure ip_address parsing and ssh config creation
-        with open(f"{self.setup_path}/templates/build.sh", "rb") as build_template:
-            lines = build_template.readlines()
-            new_lines = []
-            for line in lines:
-                new_lines.append(line)
-                if line.startswith(b"engine_ip="):
-                    for vulnbox_id in range(
-                        1, self.config["settings"]["vulnboxes"] + 1
-                    ):
-                        new_lines.append(
-                            f'vulnbox{vulnbox_id}_ip=$(grep -oP "vulnbox{vulnbox_id}_ip\s*=\s*\K[^\s]+" ./logs/ip_addresses.log)\n'.encode(
-                                "utf-8"
-                            )
-                        )
-            for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
-                new_lines.append(
-                    f'echo -e "Host vulnbox{vulnbox_id}\\nUser groot\\nHostName ${{vulnbox{vulnbox_id}_ip}}\\nIdentityFile ${{ssh_private_key_path}}\\nStrictHostKeyChecking no\\n" >>${{ssh_config}}\n'.encode(
-                        "utf-8"
-                    )
-                )
-        with open(f"{self.setup_path}/build.sh", "wb") as build_file:
-            build_file.writelines(new_lines)
+        # Configure ip address parsing
+        lines = []
+        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
+            lines.append(
+                f'vulnbox{vulnbox_id}_ip=$(grep -oP "vulnbox{vulnbox_id}_ip\s*=\s*\K[^\s]+" ./logs/ip_addresses.log)\n'
+            )
+        _insert_after(f"{self.setup_path}/build.sh", "engine_ip=", lines)
+
+        # Configure writing ssh config
+        lines = []
+        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
+            lines.append(
+                f'echo -e "Host vulnbox{vulnbox_id}\\nUser groot\\nHostName ${{vulnbox{vulnbox_id}_ip}}\\nIdentityFile ${{ssh_private_key_path}}\\nStrictHostKeyChecking no\\n" >>${{ssh_config}}\n'
+            )
+        _insert_after(f"{self.setup_path}/build.sh", 'echo -e "Host engine', lines)
 
     def convert_deploy_script(self):
         # Copy deploy.sh template for configuration
