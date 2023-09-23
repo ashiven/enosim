@@ -28,9 +28,9 @@ def _copy_file(src, dst):
 
 
 def _replace_line(path, line_number, new_line):
-    with open(path, "r+") as file:
+    with open(path, "rb+") as file:
         lines = file.readlines()
-        lines[line_number] = new_line
+        lines[line_number] = new_line.encode("utf-8")
         file.seek(0)
         file.writelines(lines)
         file.truncate()
@@ -153,21 +153,18 @@ class AzureTemplateConverter(Converter):
         _replace_line(
             f"{self.setup_path}/data/vulnbox.sh",
             PAT_LINE,
-            f"pat={self.secrets['vm-secrets']['github-personal-access-token']}\n",
+            f"pat=\"{self.secrets['vm-secrets']['github-personal-access-token']}\"\n",
         )
         _replace_line(
             f"{self.setup_path}/data/checker.sh",
             PAT_LINE,
-            f"pat={self.secrets['vm-secrets']['github-personal-access-token']}\n",
+            f"pat=\"{self.secrets['vm-secrets']['github-personal-access-token']}\"\n",
         )
         _replace_line(
             f"{self.setup_path}/data/engine.sh",
             PAT_LINE,
-            f"pat={self.secrets['vm-secrets']['github-personal-access-token']}\n",
+            f"pat=\"{self.secrets['vm-secrets']['github-personal-access-token']}\"\n",
         )
-        # TODO:
-        # - implement
-        # - we can put the PAT from secrets.json into a working copy of checker.sh, engine.sh, vulnbox.sh
 
 
 # TODO:
