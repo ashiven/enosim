@@ -27,6 +27,15 @@ def _copy_file(src, dst):
                 dst_file.write(src_file.read())
 
 
+def _replace_line(path, line_number, new_line):
+    with open(path, "r+") as file:
+        lines = file.readlines()
+        lines[line_number] = new_line
+        file.seek(0)
+        file.writelines(lines)
+        file.truncate()
+
+
 #### End Helpers ####
 
 
@@ -49,8 +58,9 @@ class Converter(ABC):
 
 
 class AzureTemplateConverter(Converter):
-    def __init__(self, config):
+    def __init__(self, config, secrets):
         self.config = config
+        self.secrets = secrets
         self.setup_path = f"../test-setup/{config['setup']['location']}"
 
     def convert_buildscript(self):
@@ -91,12 +101,12 @@ class AzureTemplateConverter(Converter):
         )
 
         # Configure vulnbox count in variables.tf
-        with open(f"{self.setup_path}/variables.tf", "r+") as variables_file:
-            lines = variables_file.readlines()
-            lines[2] = f"  default = {self.config['settings']['vulnboxes']}\n"
-            variables_file.seek(0)
-            variables_file.writelines(lines)
-            variables_file.truncate()
+        TF_LINE_COUNT = 2
+        _replace_line(
+            f"{self.setup_path}/variables.tf",
+            TF_LINE_COUNT,
+            f"  default = {self.config['settings']['vulnboxes']}\n",
+        )
 
         # Add terraform outputs for private and public ip addresses
         with open(
@@ -117,20 +127,56 @@ class AzureTemplateConverter(Converter):
                     f'output "vulnbox{vulnbox_id}_ip" {{\n  value = azurerm_public_ip.vm_pip["vulnbox{vulnbox_id}"]._ip_address\n}}\n'
                 )
 
-        # TODO:
-        # - we can also put the ssh public key path from secrets.json into main.tf
+        # Configure ssh key path in main.tf
+        TF_LINE_SSH_KEY_PATH = 67
+        _replace_line(
+            f"{self.setup_path}/main.tf",
+            TF_LINE_SSH_KEY_PATH,
+            f"   public_key = file(\"{self.secrets['vm-secrets']['ssh-public-key-path']}\")\n",
+        )
 
-    def _convert_vm_scripts():
-        pass
+    def convert_vm_scripts(self):
+        # Copy vm script templates for configuration
+        _copy_file(
+            f"{self.setup_path}/templates/data/vulnbox.sh",
+            f"{self.setup_path}/data/vulnbox.sh",
+        )
+        _copy_file(
+            f"{self.setup_path}/templates/data/checker.sh",
+            f"{self.setup_path}/data/checker.sh",
+        )
+        _copy_file(
+            f"{self.setup_path}/templates/data/engine.sh",
+            f"{self.setup_path}/data/engine.sh",
+        )
+        PAT_LINE = 4
+        _replace_line(
+            f"{self.setup_path}/data/vulnbox.sh",
+            PAT_LINE,
+            f"pat={self.secrets['vm-secrets']['github-personal-access-token']}\n",
+        )
+        _replace_line(
+            f"{self.setup_path}/data/checker.sh",
+            PAT_LINE,
+            f"pat={self.secrets['vm-secrets']['github-personal-access-token']}\n",
+        )
+        _replace_line(
+            f"{self.setup_path}/data/engine.sh",
+            PAT_LINE,
+            f"pat={self.secrets['vm-secrets']['github-personal-access-token']}\n",
+        )
         # TODO:
+        # - implement
         # - we can put the PAT from secrets.json into a working copy of checker.sh, engine.sh, vulnbox.sh
 
 
 # TODO:
 # - implement
 class LocalTemplateConverter(Converter):
-    def __init__(self, setup_path):
-        self.setup_path = setup_path
+    def __init__(self, config, secrets):
+        self.config = config
+        self.secrets = secrets
+        self.setup_path = f"../test-setup/{config['setup']['location']}"
 
     def convert_buildscript(self):
         pass
@@ -141,20 +187,26 @@ class LocalTemplateConverter(Converter):
     def convert_tf_files(self):
         pass
 
+    def convert_vm_scripts(self):
+        pass
+        # TODO:
+        # - we can put the PAT from secrets.json into a working copy of checker.sh, engine.sh, vulnbox.sh
+
 
 class TemplateConverter:
     def __init__(self, config, secrets):
         self.config = config
         self.secrets = secrets
         self.converters = {
-            SetupVariant.AZURE: AzureTemplateConverter(config),
-            SetupVariant.LOCAL: LocalTemplateConverter(config),
+            SetupVariant.AZURE: AzureTemplateConverter(config, secrets),
+            SetupVariant.LOCAL: LocalTemplateConverter(config, secrets),
         }
 
-    def convert_templates(self, setup_variant):
+    def convert_templates(self):
         converter = self.converters[
             SetupVariant.from_str(self.config["setup"]["location"])
         ]
         converter.convert_buildscript()
         converter.convert_deploy_script()
         converter.convert_tf_files()
+        converter.convert_vm_scripts()

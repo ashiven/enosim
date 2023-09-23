@@ -16,3 +16,5 @@ test-setup/azure/outputs.tf
 test-setup/azure/versions.tf
 test-setup/azure/build.sh
 test-setup/azure/deploy.sh
+test-setup/azure/data/*
+!test-setup/azure/data/.gitkeep

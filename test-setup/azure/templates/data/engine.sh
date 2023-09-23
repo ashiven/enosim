@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-pat=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
+pat=_placeholder_
 
 echo "Installing necessary dependencies..."
 sudo apt-get update
@@ -12,8 +12,8 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o 
 sudo chmod a+r /etc/apt/keyrings/docker.gpg
 echo \
   "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" |
+  sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
 
 sudo wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 sudo dpkg -i packages-microsoft-prod.deb

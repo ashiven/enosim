@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-pat=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
+pat=_placeholder_
 
 echo "Installing necessary dependencies..."
 sudo apt-get update
