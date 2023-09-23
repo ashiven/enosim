@@ -22,9 +22,8 @@ terraform output | tee ./logs/ip_addresses.log
 
 checker_ip=$(grep -oP "checker_ip\s*=\s*\K[^\s]+" ./logs/ip_addresses.log)
 engine_ip=$(grep -oP "engine_ip\s*=\s*\K[^\s]+" ./logs/ip_addresses.log)
-vulnbox_ip=$(grep -oP "vulnbox_ip\s*=\s*\K[^\s]+" ./logs/ip_addresses.log)
 
 echo "[+] Writing ssh config ..."
+rm -f ${ssh_config}
 echo -e "Host checker\nUser groot\nHostName ${checker_ip}\nIdentityFile ${ssh_private_key_path}\nStrictHostKeyChecking no\n" >>${ssh_config}
-echo -e "Host engine\nUser groot\nHostName ${engine_ip}\nIdentityFile ${ssh_private_key_path}\nStrictHostKeyChecking no" >>${ssh_config}
-echo -e "Host vulnbox\nUser groot\nHostName ${vulnbox_ip}\nIdentityFile ${ssh_private_key_path}\nStrictHostKeyChecking no\n" >>${ssh_config}
+echo -e "Host engine\nUser groot\nHostName ${engine_ip}\nIdentityFile ${ssh_private_key_path}\nStrictHostKeyChecking no\n" >>${ssh_config}

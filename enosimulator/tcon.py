@@ -94,8 +94,8 @@ class AzureTemplateConverter(Converter):
         )
 
         # Configure ip_address parsing and ssh config creation
-        with open(f"{self.setup_path}/templates/build.sh", "rb") as build_file:
-            lines = build_file.readlines()
+        with open(f"{self.setup_path}/templates/build.sh", "rb") as build_template:
+            lines = build_template.readlines()
             new_lines = []
             for line in lines:
                 new_lines.append(line)
@@ -104,14 +104,13 @@ class AzureTemplateConverter(Converter):
                         1, self.config["settings"]["vulnboxes"] + 1
                     ):
                         new_lines.append(
-                            f'vulnbox{vulnbox_id}_ip=$(grep -oP "vulnbox{vulnbox_id}_ip\s*=\s*\K[^\s]+" ./logs/ip_addresses.log)'.encode(
+                            f'vulnbox{vulnbox_id}_ip=$(grep -oP "vulnbox{vulnbox_id}_ip\s*=\s*\K[^\s]+" ./logs/ip_addresses.log)\n'.encode(
                                 "utf-8"
                             )
                         )
-            new_lines.pop()
             for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
                 new_lines.append(
-                    f'echo -e "Host vulnbox{vulnbox_id}\\nUser groot\\nHostName ${{vulnbox{vulnbox_id}_ip}}\\nIdentityFile ${{ssh_private_key_path}}\\nStrictHostKeyChecking no\\n" >>${{ssh_config}}'.encode(
+                    f'echo -e "Host vulnbox{vulnbox_id}\\nUser groot\\nHostName ${{vulnbox{vulnbox_id}_ip}}\\nIdentityFile ${{ssh_private_key_path}}\\nStrictHostKeyChecking no\\n" >>${{ssh_config}}\n'.encode(
                         "utf-8"
                     )
                 )
