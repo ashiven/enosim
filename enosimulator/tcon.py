@@ -1,6 +1,9 @@
 import os
 from abc import ABC, abstractmethod
 from enum import Enum
+from hmac import new
+
+from matplotlib import lines
 
 
 class SetupVariant(Enum):
@@ -64,11 +67,13 @@ class AzureTemplateConverter(Converter):
         self.setup_path = f"../test-setup/{config['setup']['location']}"
 
     def convert_buildscript(self):
-        # Copy deploy.sh template for configuration
+        # Copy build.sh template for configuration
         _copy_file(
             f"{self.setup_path}/templates/build.sh",
             f"{self.setup_path}/build.sh",
         )
+
+        # Configure setup_path, ssh_config_path and ssh_private_key_path
         ABSOLUTE_SETUP_PATH_LINE = 4
         SSH_CONFIG_PATH_LINE = 5
         SSH_PRIVATE_KEY_PATH_LINE = 6
@@ -88,9 +93,30 @@ class AzureTemplateConverter(Converter):
             f"ssh_private_key_path=\"{self.secrets['vm-secrets']['ssh-private-key-path']}\"\n",
         )
 
-        # TODO:
-        # - ip parsing for all vulnboxes
-        # - appending to ssh config for all vulnboxes
+        # Configure ip_address parsing and ssh config creation
+        with open(f"{self.setup_path}/templates/build.sh", "rb") as build_file:
+            lines = build_file.readlines()
+            new_lines = []
+            for line in lines:
+                new_lines.append(line)
+                if line.startswith(b"engine_ip="):
+                    for vulnbox_id in range(
+                        1, self.config["settings"]["vulnboxes"] + 1
+                    ):
+                        new_lines.append(
+                            f'vulnbox{vulnbox_id}_ip=$(grep -oP "vulnbox{vulnbox_id}_ip\s*=\s*\K[^\s]+" ./logs/ip_addresses.log)'.encode(
+                                "utf-8"
+                            )
+                        )
+            new_lines.pop()
+            for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
+                new_lines.append(
+                    f'echo -e "Host vulnbox{vulnbox_id}\\nUser groot\\nHostName ${{vulnbox{vulnbox_id}_ip}}\\nIdentityFile ${{ssh_private_key_path}}\\nStrictHostKeyChecking no\\n" >>${{ssh_config}}'.encode(
+                        "utf-8"
+                    )
+                )
+        with open(f"{self.setup_path}/build.sh", "wb") as build_file:
+            build_file.writelines(new_lines)
 
     def convert_deploy_script(self):
         # Copy deploy.sh template for configuration
@@ -206,8 +232,6 @@ class LocalTemplateConverter(Converter):
 
     def convert_vm_scripts(self):
         pass
-        # TODO:
-        # - we can put the PAT from secrets.json into a working copy of checker.sh, engine.sh, vulnbox.sh
 
 
 class TemplateConverter:
