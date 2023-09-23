@@ -4,7 +4,7 @@ import pprint
 import re
 from subprocess import PIPE, STDOUT, CalledProcessError, Popen
 
-from template_converter import TemplateConverter
+from tcon import TemplateConverter
 
 ####  Helpers ####
 
@@ -107,8 +107,9 @@ class Setup:
         print(f"\n==================HOSTNAMES=================\n")
         p.pprint(self.ips)
 
-    def configure(self, config_path):
+    def configure(self, config_path, secrets_path):
         config = _parse_json(config_path)
+        secrets = _parse_json(secrets_path)
         self.setup_path = f"../test-setup/{config['setup']['location']}"
 
         # Create services.txt
@@ -150,7 +151,7 @@ class Setup:
                 print(ctf_file.read())
 
         # Convert template files (terraform, deploy.sh, build.sh, etc.) according to config
-        tc = TemplateConverter(config)
+        tc = TemplateConverter(config, secrets)
         tc.convert_templates()
 
         print(f"[+] Configuration complete")

@@ -24,7 +24,12 @@ def main():
         help="A path to the config file containing service info and simulation setup info",
         default=os.environ.get("ENOSIMULATOR_CONFIG"),
     )
-
+    parser.add_argument(
+        "-s",
+        "--secrets",
+        help="A path to the secrets file containing ssh key paths and login credentials for cloud providers",
+        default=os.environ.get("ENOSIMULATOR_SECRETS"),
+    )
     args = parser.parse_args()
 
     if not args.config:
@@ -32,9 +37,14 @@ def main():
         raise Exception(
             "Please supply the path to a config file or set the ENOSIMULATOR_CONFIG environment variable"
         )
+    if not args.secrets:
+        parser.print_usage()
+        raise Exception(
+            "Please supply the path to a secrets file or set the ENOSIMULATOR_SECRETS environment variable"
+        )
 
     setup = Setup(verbose=False)
-    setup.configure(args.config)
+    setup.configure(args.config, args.secrets)
     # setup.build_infra()
     # setup.apply_config()
     # setup.destroy_infra()

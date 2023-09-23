@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-setup_path="C://Users//janni//OneDrive//Dokumente//Projects//Python//simulation-framework//enosimulator//test-setup//azure"
-ssh_config="C://Users//janni//.ssh//simconfig"
+setup_path=_placeholder_
+ssh_config=_placeholder_
 
 cd ${setup_path}
 

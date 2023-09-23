@@ -143,8 +143,9 @@ class LocalTemplateConverter(Converter):
 
 
 class TemplateConverter:
-    def __init__(self, config):
+    def __init__(self, config, secrets):
         self.config = config
+        self.secrets = secrets
         self.converters = {
             SetupVariant.AZURE: AzureTemplateConverter(config),
             SetupVariant.LOCAL: LocalTemplateConverter(config),
