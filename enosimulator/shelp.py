@@ -188,20 +188,30 @@ class AzureSetupHelper(Helper):
         )
 
         # Add service principal credentials to versions.tf
-        lines = []
-        lines.append(
-            f"  subscription_id = \"{self.secrets['cloud-secrets']['azure-service-principal']['subscription-id']}\"\n"
+        TF_SUBSCRIPTION_ID_LINE = 11
+        TF_CLIENT_ID_LINE = 12
+        TF_CLIENT_SECRET_LINE = 13
+        TF_TENANT_ID_LINE = 14
+        _replace_line(
+            f"{self.setup_path}/versions.tf",
+            TF_SUBSCRIPTION_ID_LINE,
+            f"  subscription_id = \"{self.secrets['cloud-secrets']['azure-service-principal']['subscription-id']}\"\n",
         )
-        lines.append(
-            f"  client_id       = \"{self.secrets['cloud-secrets']['azure-service-principal']['client-id']}\"\n"
+        _replace_line(
+            f"{self.setup_path}/versions.tf",
+            TF_CLIENT_ID_LINE,
+            f"  client_id       = \"{self.secrets['cloud-secrets']['azure-service-principal']['client-id']}\"\n",
         )
-        lines.append(
-            f"  client_secret   = \"{self.secrets['cloud-secrets']['azure-service-principal']['client-secret']}\"\n"
+        _replace_line(
+            f"{self.setup_path}/versions.tf",
+            TF_CLIENT_SECRET_LINE,
+            f"  client_secret   = \"{self.secrets['cloud-secrets']['azure-service-principal']['client-secret']}\"\n",
         )
-        lines.append(
-            f"  tenant_id       = \"{self.secrets['cloud-secrets']['azure-service-principal']['tenant-id']}\"\n"
+        _replace_line(
+            f"{self.setup_path}/versions.tf",
+            TF_TENANT_ID_LINE,
+            f"  tenant_id       = \"{self.secrets['cloud-secrets']['azure-service-principal']['tenant-id']}\"\n",
         )
-        _insert_after(f"{self.setup_path}/versions.tf", "  features {}", lines)
 
         # Configure ssh key path in main.tf
         TF_LINE_SSH_KEY_PATH = 61

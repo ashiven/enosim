@@ -9,4 +9,8 @@ terraform {
 
 provider "azurerm" {
   features {}
+  subscription_id = _placeholder_
+  client_id       = _placeholder_
+  client_secret   = _placeholder_
+  tenant_id       = _placeholder_
 }
