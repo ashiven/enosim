@@ -162,7 +162,7 @@ class Setup:
         print(Fore.GREEN + "[+] Configuration complete")
 
     def build_infra(self):
-        _run_shell_script(f"{self.setup_path}/build.sh", "")
+        # _run_shell_script(f"{self.setup_path}/build.sh", "")
 
         # Get ip addresses from terraform output
         public_ips, private_ips = self.setup_helper.get_ip_addresses()
@@ -178,9 +178,11 @@ class Setup:
             self.services[service["name"]] = service
 
         # Add ip addresses for teams to ctf.json
-        for team in ctf_json["teams"]:
-            # TODO: figure out private ip distribution
-            team["address"] = self.ips["private_ip_addresses"]["vulnbox1"]
+        for id, team in enumerate(ctf_json["teams"]):
+            vulnboxes = len(self.ips["private_ip_addresses"]) - 2
+            team["address"] = self.ips["private_ip_addresses"][
+                f"vulnbox{(id % vulnboxes) + 1}"
+            ]
             self.teams[team["name"]] = team
 
         # Update ctf.json
