@@ -173,14 +173,14 @@ class Setup:
         ctf_json = _parse_json(f"{self.setup_path}/config/ctf.json")
         for service in ctf_json["services"]:
             service["checkers"][0] = service["checkers"][0].replace(
-                "<placeholder>", self.ips["public_ip_addresses"]["checker_ip"]
+                "<placeholder>", self.ips["public_ip_addresses"]["checker"]
             )
             self.services[service["name"]] = service
 
         # Add ip addresses for teams to ctf.json
         for team in ctf_json["teams"]:
             # TODO: figure out private ip distribution
-            team["address"] = self.ips["private_ip_addresses"][0]
+            team["address"] = self.ips["private_ip_addresses"]["vulnbox1"]
             self.teams[team["name"]] = team
 
         # Update ctf.json
