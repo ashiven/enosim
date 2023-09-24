@@ -113,7 +113,7 @@ class AzureSetupHelper(Helper):
         lines = []
         for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
             lines.append(
-                f'vulnbox{vulnbox_id}_ip=$(grep -oP "vulnbox{vulnbox_id}_ip\s*=\s*\K[^\s]+" ./logs/ip_addresses.log)\n'
+                f'vulnbox{vulnbox_id}_ip=$(grep -oP "vulnbox{vulnbox_id}\s*=\s*\K[^\s]+" ./logs/ip_addresses.log)\n'
             )
         _insert_after(f"{self.setup_path}/build.sh", "engine_ip=", lines)
 
