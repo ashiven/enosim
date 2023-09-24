@@ -121,7 +121,7 @@ class Setup:
             for service in config["settings"]["services"]:
                 service_file.write(f"{service}\n")
             if self.verbose:
-                print("[+] Created services.txt")
+                print(Fore.GREEN + "[+] Created services.txt")
                 service_file.seek(0)
                 print(service_file.read())
 
@@ -149,7 +149,7 @@ class Setup:
         with open(f"{self.setup_path}/config/ctf.json", "r+") as ctf_file:
             json.dump(ctf_json, ctf_file, indent=4)
             if self.verbose:
-                print("[+] Created ctf.json")
+                print(Fore.GREEN + "[+] Created ctf.json")
                 ctf_file.seek(0)
                 print(ctf_file.read())
 
@@ -157,13 +157,34 @@ class Setup:
         self.setup_helper.convert_templates()
 
         self.info()
-        print(Fore.GREEN + f"[+] Configuration complete")
+        print(Fore.GREEN + "[+] Configuration complete")
 
     def build_infra(self):
         _run_shell_script(f"{self.setup_path}/build.sh", "")
 
         # Get ip addresses from terraform output
         self.ips = self.setup_helper.get_ip_addresses()
+
+        # Add ip addresses for checkers to ctf.json
+        ctf_json = _parse_json(f"{self.setup_path}/config/ctf.json")
+        for service in ctf_json["services"]:
+            # TODO: add checker port numbers
+            service["checkers"].append("http://" + self.ips["checker_ip"] + ":")
+            self.services[service["name"]] = service
+
+        # Add ip addresses for teams to ctf.json
+        for team in ctf_json["teams"]:
+            # TODO: figure out private ip distribution
+            team["address"] = self.ips["private_ip_addresses"]
+            self.teams[team["name"]] = team
+
+        # Update ctf.json
+        with open(f"{self.setup_path}/config/ctf.json", "r+") as ctf_file:
+            json.dump(ctf_json, ctf_file, indent=4)
+            if self.verbose:
+                print(Fore.GREEN + "[+] Updated ctf.json")
+                ctf_file.seek(0)
+                print(ctf_file.read())
 
     def apply_config(self):
         _run_shell_script(f"{self.setup_path}/deploy.sh", "")
