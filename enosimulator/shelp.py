@@ -146,7 +146,7 @@ class AzureSetupHelper(Helper):
             f"ssh_config=\"{self.config['setup']['ssh-config-path']}\"\n",
         )
 
-        # Configure ip vulnbox deployments
+        # Configure vulnbox deployments
         lines = []
         for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
             lines.append(
@@ -187,6 +187,30 @@ class AzureSetupHelper(Helper):
             f"{self.setup_path}/outputs.tf",
         )
 
+        # Add service principal credentials to versions.tf
+        lines = []
+        lines.append(
+            f"  subscription_id = \"{self.secrets['cloud-secrets']['azure-service-principal']['subscription-id']}\"\n"
+        )
+        lines.append(
+            f"  client_id       = \"{self.secrets['cloud-secrets']['azure-service-principal']['client-id']}\"\n"
+        )
+        lines.append(
+            f"  client_secret   = \"{self.secrets['cloud-secrets']['azure-service-principal']['client-secret']}\"\n"
+        )
+        lines.append(
+            f"  tenant_id       = \"{self.secrets['cloud-secrets']['azure-service-principal']['tenant-id']}\"\n"
+        )
+        _insert_after(f"{self.setup_path}/versions.tf", "  features {}", lines)
+
+        # Configure ssh key path in main.tf
+        TF_LINE_SSH_KEY_PATH = 61
+        _replace_line(
+            f"{self.setup_path}/main.tf",
+            TF_LINE_SSH_KEY_PATH,
+            f"    public_key = file(\"{self.secrets['vm-secrets']['ssh-public-key-path']}\")\n",
+        )
+
         # Configure vulnbox count in variables.tf
         TF_LINE_COUNT = 2
         _replace_line(
@@ -213,14 +237,6 @@ class AzureSetupHelper(Helper):
                 outputs_file.write(
                     f'output "vulnbox{vulnbox_id}" {{\n  value = azurerm_public_ip.vm_pip["vulnbox{vulnbox_id}"].ip_address\n}}\n'
                 )
-
-        # Configure ssh key path in main.tf
-        TF_LINE_SSH_KEY_PATH = 61
-        _replace_line(
-            f"{self.setup_path}/main.tf",
-            TF_LINE_SSH_KEY_PATH,
-            f"    public_key = file(\"{self.secrets['vm-secrets']['ssh-public-key-path']}\")\n",
-        )
 
     def convert_vm_scripts(self):
         # Copy vm script templates for configuration
