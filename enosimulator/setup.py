@@ -15,9 +15,10 @@ def _parse_json(path):
 
 
 def _create_file(path):
-    if not os.path.exists(path):
-        with open(path, "w") as file:
-            file.write("")
+    if os.path.exists(path):
+        os.remove(path)
+    with open(path, "w") as file:
+        file.write("")
 
 
 def _run_shell_script(script_path, args):
@@ -82,7 +83,7 @@ def _generate_service(id, service, checker_port):
         "noisesPerRoundMultiplier": 1,
         "havocsPerRoundMultiplier": 1,
         "weightFactor": 1,
-        "checkers": [f"http://<placeholder>:{checker_port}"],
+        "checkers": [str(checker_port)],
     }
     return new_service
 
@@ -172,9 +173,10 @@ class Setup:
         # Add ip addresses for checkers to ctf.json
         ctf_json = _parse_json(f"{self.setup_path}/config/ctf.json")
         for service in ctf_json["services"]:
-            service["checkers"][0] = service["checkers"][0].replace(
-                "<placeholder>", self.ips["public_ip_addresses"]["checker"]
-            )
+            checker_port = service["checkers"].pop()
+            for name, ip_address in self.ips["public_ip_addresses"].items():
+                if name.startswith("checker"):
+                    service["checkers"].append(f"http://{ip_address}:{checker_port}")
             self.services[service["name"]] = service
 
         # Add ip addresses for teams to ctf.json
@@ -198,6 +200,11 @@ class Setup:
 
     def apply_config(self):
         _run_shell_script(f"{self.setup_path}/deploy.sh", "")
+
+        # TODO:
+        # - it would be nice to use vm images to speed up the deployment process
+        # - for this i could add an option to config.json whether to use vm images or not
+        # - add a check whether the infrastructure is already running
 
     def destroy_infra(self):
         _run_shell_script(f"{self.setup_path}/build.sh", "-d")
