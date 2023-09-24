@@ -74,7 +74,7 @@ def _generate_team(id):
     return new_team
 
 
-def _generate_service(id, service):
+def _generate_service(id, service, checker_port):
     new_service = {
         "id": id,
         "name": service,
@@ -82,7 +82,7 @@ def _generate_service(id, service):
         "noisesPerRoundMultiplier": 1,
         "havocsPerRoundMultiplier": 1,
         "weightFactor": 1,
-        "checkers": [],
+        "checkers": [f"http://<placeholder>:{checker_port}"],
     }
     return new_service
 
@@ -107,6 +107,7 @@ class Setup:
         p.pprint(self.teams)
         print(Fore.BLUE + f"\n==================HOSTNAMES=================\n")
         p.pprint(self.ips)
+        print("\n")
 
     def configure(self, config_path, secrets_path):
         config = _parse_json(config_path)
@@ -140,7 +141,8 @@ class Setup:
         # Add services to ctf.json
         ctf_json["services"].clear()
         for id, service in enumerate(config["settings"]["services"]):
-            new_service = _generate_service(id + 1, service)
+            checker_port = config["settings"]["checker-ports"][id]
+            new_service = _generate_service(id + 1, service, checker_port)
             ctf_json["services"].append(new_service)
             self.services[service] = new_service
 
@@ -163,19 +165,22 @@ class Setup:
         _run_shell_script(f"{self.setup_path}/build.sh", "")
 
         # Get ip addresses from terraform output
-        self.ips = self.setup_helper.get_ip_addresses()
+        public_ips, private_ips = self.setup_helper.get_ip_addresses()
+        self.ips["public_ip_addresses"] = public_ips
+        self.ips["private_ip_addresses"] = private_ips
 
         # Add ip addresses for checkers to ctf.json
         ctf_json = _parse_json(f"{self.setup_path}/config/ctf.json")
         for service in ctf_json["services"]:
-            # TODO: add checker port numbers
-            service["checkers"].append("http://" + self.ips["checker_ip"] + ":")
+            service["checkers"][0] = service["checkers"][0].replace(
+                "<placeholder>", self.ips["public_ip_addresses"]["checker_ip"]
+            )
             self.services[service["name"]] = service
 
         # Add ip addresses for teams to ctf.json
         for team in ctf_json["teams"]:
             # TODO: figure out private ip distribution
-            team["address"] = self.ips["private_ip_addresses"]
+            team["address"] = self.ips["private_ip_addresses"][0]
             self.teams[team["name"]] = team
 
         # Update ctf.json
@@ -185,6 +190,9 @@ class Setup:
                 print(Fore.GREEN + "[+] Updated ctf.json")
                 ctf_file.seek(0)
                 print(ctf_file.read())
+
+        self.info()
+        print(Fore.GREEN + "[+] Infrastructure built successfully")
 
     def apply_config(self):
         _run_shell_script(f"{self.setup_path}/deploy.sh", "")

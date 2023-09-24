@@ -272,10 +272,9 @@ class AzureSetupHelper(Helper):
                             line = lines.pop(index + 1)
                             value += line.strip()
                         private_ip_addresses = eval(value)
-                        ip_addresses["private_ip_addresses"] = private_ip_addresses
                     else:
                         ip_addresses[key] = value
-        return ip_addresses
+        return ip_addresses, private_ip_addresses
 
 
 # TODO:

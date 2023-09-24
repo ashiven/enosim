@@ -8,6 +8,7 @@
       "teams": 3,
       "vulnboxes": 1,
       "services": ["CVExchange"],
+      "checker-ports": [7331],
       "intensity": 1
    },
    "ctf-json": {

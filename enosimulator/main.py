@@ -41,7 +41,7 @@ def main():
 
     setup = Setup(verbose=False)
     setup.configure(args.config, args.secrets)
-    # setup.build_infra()
+    setup.build_infra()
     # setup.apply_config()
     # setup.destroy_infra()
 
