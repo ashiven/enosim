@@ -79,7 +79,8 @@ class AzureSetupHelper(Helper):
     def __init__(self, config, secrets):
         self.config = config
         self.secrets = secrets
-        self.setup_path = f"../test-setup/{config['setup']['location']}"
+        dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
+        self.setup_path = f"{dir_path}/../test-setup/{config['setup']['location']}"
 
     def convert_buildscript(self):
         # Copy build.sh template for configuration
@@ -283,7 +284,8 @@ class LocalSetupHelper(Helper):
     def __init__(self, config, secrets):
         self.config = config
         self.secrets = secrets
-        self.setup_path = f"../test-setup/{config['setup']['location']}"
+        dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
+        self.setup_path = f"{dir_path}/../test-setup/{config['setup']['location']}"
 
     def convert_buildscript(self):
         pass
