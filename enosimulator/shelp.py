@@ -180,7 +180,7 @@ class AzureSetupHelper(Helper):
                 f'echo -e "\\033[31m[!] This will take a few minutes. Please be patient.\\033[0m"\n'
             )
             lines.append(
-                f'retry ssh -F ${{ssh_config}} vulnbox{vulnbox_id} "chmod +x vulnbox.sh && ./vulnbox.sh" >./logs/vulnbox{vulnbox_id}_config.log 2>&1\n'
+                f'retry ssh -F ${{ssh_config}} vulnbox{vulnbox_id} "chmod +x vulnbox.sh && ./vulnbox.sh" | tee ./logs/vulnbox{vulnbox_id}_config.log 2>&1\n'
             )
         _insert_after(
             f"{self.setup_path}/deploy.sh", "retry ssh -F ${ssh_config} checker", lines

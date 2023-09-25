@@ -165,7 +165,7 @@ class Setup:
         print(Fore.GREEN + "[+] Configuration complete")
 
     def build_infra(self):
-        # _run_shell_script(f"{self.setup_path}/build.sh", "")
+        _run_shell_script(f"{self.setup_path}/build.sh", "")
 
         # Get ip addresses from terraform output
         public_ips, private_ips = self.setup_helper.get_ip_addresses()
@@ -204,11 +204,6 @@ class Setup:
 
     def deploy(self):
         _run_shell_script(f"{self.setup_path}/deploy.sh", "")
-
-        # TODO:
-        # - it would be nice to use vm images to speed up the deployment process
-        # - for this i could add an option to config.json whether to use vm images or not
-        # - add a check whether the infrastructure is already running
 
     def destroy(self):
         _run_shell_script(f"{self.setup_path}/build.sh", "-d")
