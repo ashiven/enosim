@@ -1,0 +1,25 @@
+{
+   "setup": {
+      "ssh-config-path": "C:/Users/janni/.ssh/simconfig",
+      "location": "azure",
+      "vm-image-references": {
+         "vulnbox": "/subscriptions/<sub-id>/resourceGroups/vm-images/providers/Microsoft.Compute/images/vulnbox-checker",
+         "checker": "/subscriptions/<sub-id>/resourceGroups/vm-images/providers/Microsoft.Compute/images/vulnbox-checker",
+         "engine": "/subscriptions/<sub-id>/resourceGroups/vm-images/providers/Microsoft.Compute/images/engine"
+      }
+   },
+   "settings": {
+      "duration-in-minutes": 30,
+      "teams": 3,
+      "vulnboxes": 1,
+      "services": ["enowars7-service-CVExchange"],
+      "checker-ports": [7331],
+      "intensity": 1
+   },
+   "ctf-json": {
+      "title": "ctf-sim",
+      "flag-validity-in-rounds": 2,
+      "checked-rounds-per-round": 3,
+      "round-length-in-seconds": 60
+   }
+}

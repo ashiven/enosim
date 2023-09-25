@@ -1,25 +1,25 @@
 {
    "setup": {
-      "ssh-config-path": "C:/Users/janni/.ssh/simconfig",
-      "location": "azure",
+      "ssh-config-path": "<string> <required> <the path, including filename, where the simulation ssh config should be saved>",
+      "location": "<string> <required> <local or the cloud provider to be used for the simulation setup>",
       "vm-image-references": {
-         "vulnbox": "/subscriptions/<sub-id>/resourceGroups/vm-images/providers/Microsoft.Compute/images/vulnbox-checker",
-         "checker": "/subscriptions/<sub-id>/resourceGroups/vm-images/providers/Microsoft.Compute/images/vulnbox-checker",
-         "engine": "/subscriptions/<sub-id>/resourceGroups/vm-images/providers/Microsoft.Compute/images/engine"
+         "vulnbox": "<string> <optional> <a vm image that should be used for vulnboxes>",
+         "checker": "<string> <optional> <a vm image that should be used for checkers>",
+         "engine": "<string> <optional> <a vm image that should be used for the engine>"
       }
    },
    "settings": {
-      "duration-in-minutes": 30,
-      "teams": 3,
-      "vulnboxes": 1,
-      "services": ["enowars7-service-CVExchange"],
-      "checker-ports": [7331],
-      "intensity": 1
+      "duration-in-minutes": "<int> <required> <the duration of the simulation in minutes>",
+      "teams": "<int> <required> <the number of teams that should participate in the simulation>",
+      "vulnboxes": "<int> <required> <the number of vulnboxes that should be used for the simulation>",
+      "services": "<List(string)> <required> <the repository names of the services that should be used for the simulation>",
+      "checker-ports": "<List(int)> <required> <the ports that match the services. the order should be the same as in services>",
+      "intensity": "<int> <required> <the intensity of the simulation. the higher the intensity, the more requests will be sent to services>"
    },
    "ctf-json": {
-      "title": "ctf-sim",
-      "flag-validity-in-rounds": 2,
-      "checked-rounds-per-round": 3,
-      "round-length-in-seconds": 60
+      "title": "<string> <required> <the title of the ctf>",
+      "flag-validity-in-rounds": "<int> <required> <the number of rounds a flag is valid>",
+      "checked-rounds-per-round": "<int> <required> <the number of rounds checked per round>",
+      "round-length-in-seconds": "<int> <required> <the length of a round in seconds>"
    }
 }
