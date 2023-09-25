@@ -22,6 +22,8 @@ export DOCKER_BUILDKIT=0
 
 pat=_placeholder_
 
+sed -i 's/^[[:space:]]*//;s/[[:space:]]*$//' services.txt
+
 while read -r service_name; do
   echo "Cloning ${service_name}... "
   sudo git clone "https://${pat}@github.com/enowars/${service_name}.git"

@@ -28,6 +28,8 @@ export DOCKER_BUILDKIT=0
 
 pat=_placeholder_
 
+sed -i 's/^[[:space:]]*//;s/[[:space:]]*$//' services.txt
+
 echo "Starting EnoEngine..."
 sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"
 sudo mv ctf.json ./EnoEngine
