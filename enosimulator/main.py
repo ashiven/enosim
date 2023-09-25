@@ -4,7 +4,7 @@ import os
 from colorama import init
 from dotenv import load_dotenv
 from setup import Setup
-from simulation import Simulation
+from sim import Simulation
 
 
 def main():
