@@ -210,3 +210,7 @@ class Setup:
 
     def destroy_infra(self):
         _run_shell_script(f"{self.setup_path}/build.sh", "-d")
+
+        # TODO:
+        # - at this point all of the files that have been created from templates should be deleted again
+        # - also the files that have been created by terraform should be deleted
