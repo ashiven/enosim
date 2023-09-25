@@ -168,7 +168,7 @@ class AzureSetupHelper(Helper):
         lines = []
         for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
             lines.append(
-                f'\necho -e "\\033[32m[+] Configuring vulnbox{vulnbox_id} ...\\033[0m"\n'
+                f'\necho -e "\\n\\033[32m[+] Configuring vulnbox{vulnbox_id} ...\\033[0m"\n'
             )
             lines.append(
                 f"retry scp -F ${{ssh_config}} ./data/vulnbox.sh vulnbox{vulnbox_id}:/home/groot/vulnbox.sh\n"

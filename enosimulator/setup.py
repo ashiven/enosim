@@ -162,7 +162,7 @@ class Setup:
         self.setup_helper.convert_templates()
 
         self.info()
-        print(Fore.GREEN + "[+] Configuration complete")
+        print(Fore.GREEN + "[+] Configuration complete\n")
 
     def build_infra(self):
         _run_shell_script(f"{self.setup_path}/build.sh", "")
