@@ -1,0 +1,29 @@
+{
+   "builders": [
+      {
+         "type": "azure-arm",
+
+         "client_id": "{{user `client_id`}}",
+         "client_secret": "{{user `client_secret`}}",
+         "tenant_id": "{{user `tenant_id`}}",
+         "subscription_id": "{{user `subscription_id`}}",
+
+         "managed_image_resource_group_name": "vm-images",
+         "managed_image_name": "engine",
+
+         "os_type": "Linux",
+         "image_publisher": "Canonical",
+         "image_offer": "UbuntuServer",
+         "image_sku": "18.04-LTS",
+
+         "location": "West Europe",
+         "vm_size": "Standard_A1_v2"
+      }
+   ],
+   "provisioners": [
+      {
+         "type": "shell",
+         "script": "./engine.sh"
+      }
+   ]
+}

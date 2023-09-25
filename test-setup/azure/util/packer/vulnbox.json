@@ -23,7 +23,7 @@
    "provisioners": [
       {
          "type": "shell",
-         "script": "../vulnbox.sh"
+         "script": "./vulnbox.sh"
       }
    ]
 }
