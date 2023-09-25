@@ -98,6 +98,7 @@ class AzureSetupHelper(Helper):
         self.secrets = secrets
         dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
         self.setup_path = f"{dir_path}/../test-setup/{config['setup']['location']}"
+        self.use_vm_images = False
 
     def convert_buildscript(self):
         # Copy build.sh template for configuration
@@ -239,13 +240,12 @@ class AzureSetupHelper(Helper):
         )
 
         # Configure vm image references in main.tf
-        use_vm_images = False
         TF_LINE_SOURCE_IMAGE = 69
         if any(
             ref != "<optional>"
             for ref in self.config["setup"]["vm-image-references"].values()
         ):
-            use_vm_images = True
+            self.use_vm_images = True
             _replace_line(
                 f"{self.setup_path}/main.tf",
                 TF_LINE_SOURCE_IMAGE,
@@ -270,7 +270,7 @@ class AzureSetupHelper(Helper):
         )
 
         # Configure vm image references in variables.tf
-        if use_vm_images:
+        if self.use_vm_images:
             sub_id = self.secrets["cloud-secrets"]["azure-service-principal"][
                 "subscription-id"
             ]
@@ -317,7 +317,10 @@ class AzureSetupHelper(Helper):
             f"{self.setup_path}/templates/data/engine.sh",
             f"{self.setup_path}/data/engine.sh",
         )
-        PAT_LINE = 4
+
+        # Configure github personal access token
+        PAT_LINE = 22
+        PAT_LINE_ENGINE = 28
         _replace_line(
             f"{self.setup_path}/data/vulnbox.sh",
             PAT_LINE,
@@ -330,9 +333,45 @@ class AzureSetupHelper(Helper):
         )
         _replace_line(
             f"{self.setup_path}/data/engine.sh",
-            PAT_LINE,
+            PAT_LINE_ENGINE,
             f"pat=\"{self.secrets['vm-secrets']['github-personal-access-token']}\"\n",
         )
+
+        # Omit configuration when using vm images
+        VULNBOX_CHECKER_CONFIG_LINES_START = 4
+        VULNBOX_CHECKER_CONFIG_LINES_END = 21
+        ENGINE_CONFIG_LINES_START = 4
+        ENGINE_CONFIG_LINES_END = 27
+        if self.use_vm_images:
+            _delete_lines(
+                f"{self.setup_path}/data/vulnbox.sh",
+                [
+                    line
+                    for line in range(
+                        VULNBOX_CHECKER_CONFIG_LINES_START,
+                        VULNBOX_CHECKER_CONFIG_LINES_END + 1,
+                    )
+                ],
+            )
+            _delete_lines(
+                f"{self.setup_path}/data/checker.sh",
+                [
+                    line
+                    for line in range(
+                        VULNBOX_CHECKER_CONFIG_LINES_START,
+                        VULNBOX_CHECKER_CONFIG_LINES_END + 1,
+                    )
+                ],
+            )
+            _delete_lines(
+                f"{self.setup_path}/data/engine.sh",
+                [
+                    line
+                    for line in range(
+                        ENGINE_CONFIG_LINES_START, ENGINE_CONFIG_LINES_END + 1
+                    )
+                ],
+            )
 
     def get_ip_addresses(self):
         # Parse ip addresses from ip_addresses.log

@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-pat=_placeholder_
-
 echo "Installing necessary dependencies..."
 sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg
@@ -27,6 +25,8 @@ sudo systemctl enable docker
 sudo apt-get install -y docker-compose-plugin
 sudo apt-get install -y pass gnupg2
 export DOCKER_BUILDKIT=0
+
+pat=_placeholder_
 
 echo "Starting EnoEngine..."
 sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"

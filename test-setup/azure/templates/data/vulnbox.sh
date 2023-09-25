@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-pat=_placeholder_
-
 echo "Installing necessary dependencies..."
 sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg
@@ -21,6 +19,8 @@ sudo systemctl start docker
 sudo systemctl enable docker
 sudo apt-get install -y docker-compose-plugin
 export DOCKER_BUILDKIT=0
+
+pat=_placeholder_
 
 while read -r service_name; do
   echo "Cloning ${service_name}... "
