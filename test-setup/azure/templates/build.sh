@@ -23,7 +23,7 @@ terraform output >./logs/ip_addresses.log
 checker_ip=$(grep -oP "checker\s*=\s*\K[^\s]+" ./logs/ip_addresses.log)
 engine_ip=$(grep -oP "engine\s*=\s*\K[^\s]+" ./logs/ip_addresses.log)
 
-echo -e "\033[32m[+] Writing ssh config ...\033[0m"
 rm -f ${ssh_config}
+echo -e "\n\033[32m[+] Writing ssh config ...\033[0m"
 echo -e "Host checker\nUser groot\nHostName ${checker_ip}\nIdentityFile ${ssh_private_key_path}\nStrictHostKeyChecking no\n" >>${ssh_config}
 echo -e "Host engine\nUser groot\nHostName ${engine_ip}\nIdentityFile ${ssh_private_key_path}\nStrictHostKeyChecking no\n" >>${ssh_config}
