@@ -4,25 +4,24 @@ from typing import Optional
 import jsons
 import requests
 from enochecker_core import (
-    CheckerInfoMessage,  # the response the checker sends when accessing the /service endpoint, containing info like the name of the service, flag variants etc.
-)
-from enochecker_core import (
-    CheckerMethod,  # this is an Enum with the variants: PUTFLAG, GETFLAG, PUTNOISE, GETNOISE, HAVOC, EXPLOIT
-)
-from enochecker_core import (
-    CheckerResultMessage,  # the response that the checker sends after receiving an instruction to execute putflag, getflag, exploit etc.
-)
-from enochecker_core import (
-    CheckerTaskMessage,  # can be sent to a checker to instruct it to execute putflag, getflag, exploit etc.
-)
-from enochecker_core import (
-    CheckerTaskResult,  # this is an Enum with the variants: OK, MUMBLE, OFFLINE, INTERNAL_ERROR
+    CheckerMethod,
+    CheckerResultMessage,
+    CheckerTaskMessage,
+    CheckerTaskResult,
 )
 
 FLAG_REGEX_ASCII = r"ENO[A-Za-z0-9+\/=]{48}"
 FLAG_REGEX_UTF8 = r"🥺[A-Za-z0-9+\/=]{48}🥺🥺"
 REQUEST_TIMEOUT = 10
 CHAIN_ID_PREFIX = secrets.token_hex(20)
+
+
+class Simulation:
+    def __init__(self, setup):
+        self.setup = setup
+
+    def run(self):
+        pass
 
 
 # this method creates a CheckerTaskMessage to be sent to the checker to request execution of putflag, getflag etc.

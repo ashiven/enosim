@@ -9,6 +9,3 @@ output "checker" {
 output "engine" {
   value = azurerm_public_ip.vm_pip["engine"].ip_address
 }
-output "vulnbox1" {
-  value = azurerm_public_ip.vm_pip["vulnbox1"].ip_address
-}

@@ -50,6 +50,12 @@ def _insert_after(path, after, insert_lines):
         file.writelines(new_lines)
 
 
+def _append_lines(path, append_lines):
+    with open(path, "ab") as file:
+        for line in append_lines:
+            file.write(line.encode("utf-8"))
+
+
 #### End Helpers ####
 
 
@@ -230,23 +236,12 @@ class AzureSetupHelper(Helper):
         )
 
         # Add terraform outputs for private and public ip addresses
-        with open(
-            f"{self.setup_path}/outputs.tf",
-            "w",
-        ) as outputs_file:
-            outputs_file.write(
-                f'output "private_ip_addresses" {{\n  value = {{\n    for name, vm in azurerm_network_interface.vm_nic : name => vm.private_ip_address\n  }}\n}}\n'
+        lines = []
+        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
+            lines.append(
+                f'output "vulnbox{vulnbox_id}" {{\n  value = azurerm_public_ip.vm_pip["vulnbox{vulnbox_id}"].ip_address\n}}\n'
             )
-            outputs_file.write(
-                f'output "checker" {{\n  value = azurerm_public_ip.vm_pip["checker"].ip_address\n}}\n'
-            )
-            outputs_file.write(
-                f'output "engine" {{\n  value = azurerm_public_ip.vm_pip["engine"].ip_address\n}}\n'
-            )
-            for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
-                outputs_file.write(
-                    f'output "vulnbox{vulnbox_id}" {{\n  value = azurerm_public_ip.vm_pip["vulnbox{vulnbox_id}"].ip_address\n}}\n'
-                )
+        _append_lines(f"{self.setup_path}/outputs.tf", lines)
 
     def convert_vm_scripts(self):
         # Copy vm script templates for configuration

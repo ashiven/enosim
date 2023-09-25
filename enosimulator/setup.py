@@ -96,6 +96,8 @@ class Setup:
         self.ips = dict()
         self.teams = dict()
         self.services = dict()
+        self.config = None
+        self.secrets = None
         self.setup_path = ""
         self.setup_helper = None
         self.verbose = verbose
@@ -111,16 +113,16 @@ class Setup:
         print("\n")
 
     def configure(self, config_path, secrets_path):
-        config = _parse_json(config_path)
-        secrets = _parse_json(secrets_path)
+        self.config = _parse_json(config_path)
+        self.secrets = _parse_json(secrets_path)
         dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
-        self.setup_path = f"{dir_path}/../test-setup/{config['setup']['location']}"
-        self.setup_helper = SetupHelper(config, secrets)
+        self.setup_path = f"{dir_path}/../test-setup/{self.config['setup']['location']}"
+        self.setup_helper = SetupHelper(self.config, self.secrets)
 
         # Create services.txt
         _create_file(f"{self.setup_path}/config/services.txt")
         with open(f"{self.setup_path}/config/services.txt", "r+") as service_file:
-            for service in config["settings"]["services"]:
+            for service in self.config["settings"]["services"]:
                 service_file.write(f"{service}\n")
             if self.verbose:
                 print(Fore.GREEN + "[+] Created services.txt")
@@ -129,20 +131,20 @@ class Setup:
 
         # Configure ctf.json from config.json
         ctf_json = _generate_ctf_json()
-        for setting, value in config["ctf-json"].items():
+        for setting, value in self.config["ctf-json"].items():
             ctf_json[setting] = value
 
         # Add teams to ctf.json
         ctf_json["teams"].clear()
-        for id in range(1, config["settings"]["teams"] + 1):
+        for id in range(1, self.config["settings"]["teams"] + 1):
             new_team = _generate_team(id)
             ctf_json["teams"].append(new_team)
             self.teams[new_team["name"]] = new_team
 
         # Add services to ctf.json
         ctf_json["services"].clear()
-        for id, service in enumerate(config["settings"]["services"]):
-            checker_port = config["settings"]["checker-ports"][id]
+        for id, service in enumerate(self.config["settings"]["services"]):
+            checker_port = self.config["settings"]["checker-ports"][id]
             new_service = _generate_service(id + 1, service, checker_port)
             ctf_json["services"].append(new_service)
             self.services[service] = new_service
@@ -163,7 +165,7 @@ class Setup:
         print(Fore.GREEN + "[+] Configuration complete")
 
     def build_infra(self):
-        _run_shell_script(f"{self.setup_path}/build.sh", "")
+        # _run_shell_script(f"{self.setup_path}/build.sh", "")
 
         # Get ip addresses from terraform output
         public_ips, private_ips = self.setup_helper.get_ip_addresses()
@@ -181,7 +183,7 @@ class Setup:
 
         # Add ip addresses for teams to ctf.json
         for id, team in enumerate(ctf_json["teams"]):
-            vulnboxes = len(self.ips["private_ip_addresses"]) - 2
+            vulnboxes = self.config["settings"]["vulnboxes"]
             team["address"] = self.ips["private_ip_addresses"][
                 f"vulnbox{(id % vulnboxes) + 1}"
             ]
