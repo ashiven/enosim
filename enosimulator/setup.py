@@ -192,6 +192,7 @@ class Setup:
             self.teams[team["name"]] = team
 
         # Update ctf.json
+        _create_file(f"{self.setup_path}/config/ctf.json")
         with open(f"{self.setup_path}/config/ctf.json", "r+") as ctf_file:
             json.dump(ctf_json, ctf_file, indent=4)
             if self.verbose:
