@@ -3,9 +3,9 @@
       "ssh-config-path": "C:/Users/janni/.ssh/simconfig",
       "location": "azure",
       "vm-image-references": {
-         "vulnbox": "<optional>",
-         "checker": "<optional>",
-         "engine": "<optional>"
+         "vulnbox": "/subscriptions/<sub-id>/resourceGroups/vm-images/providers/Microsoft.Compute/images/vulnbox-checker",
+         "checker": "/subscriptions/<sub-id>/resourceGroups/vm-images/providers/Microsoft.Compute/images/vulnbox-checker",
+         "engine": "/subscriptions/<sub-id>/resourceGroups/vm-images/providers/Microsoft.Compute/images/engine"
       }
    },
    "settings": {

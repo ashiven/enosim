@@ -56,6 +56,17 @@ def _append_lines(path, append_lines):
             file.write(line.encode("utf-8"))
 
 
+def _delete_lines(path, delete_lines):
+    new_lines = []
+    with open(path, "rb") as file:
+        lines = file.readlines()
+        for index, line in enumerate(lines):
+            if index not in delete_lines:
+                new_lines.append(line)
+    with open(path, "wb") as file:
+        file.writelines(new_lines)
+
+
 #### End Helpers ####
 
 
@@ -227,6 +238,29 @@ class AzureSetupHelper(Helper):
             f"    public_key = file(\"{self.secrets['vm-secrets']['ssh-public-key-path']}\")\n",
         )
 
+        # Configure vm image references in main.tf
+        use_vm_images = False
+        TF_LINE_SOURCE_IMAGE = 69
+        if any(
+            ref != "<optional>"
+            for ref in self.config["setup"]["vm-image-references"].values()
+        ):
+            use_vm_images = True
+            _replace_line(
+                f"{self.setup_path}/main.tf",
+                TF_LINE_SOURCE_IMAGE,
+                "  source_image_id = each.value.source_image_id\n",
+            )
+            _delete_lines(
+                f"{self.setup_path}/main.tf",
+                [
+                    line
+                    for line in range(
+                        TF_LINE_SOURCE_IMAGE + 1, TF_LINE_SOURCE_IMAGE + 6
+                    )
+                ],
+            )
+
         # Configure vulnbox count in variables.tf
         TF_LINE_COUNT = 2
         _replace_line(
@@ -234,6 +268,32 @@ class AzureSetupHelper(Helper):
             TF_LINE_COUNT,
             f"  default = {self.config['settings']['vulnboxes']}\n",
         )
+
+        # Configure vm image references in variables.tf
+        if use_vm_images:
+            sub_id = self.secrets["cloud-secrets"]["azure-service-principal"][
+                "subscription-id"
+            ]
+            _insert_after(
+                f"{self.setup_path}/variables.tf",
+                "    name = string",
+                f"    source_image_id = string\n",
+            )
+            _insert_after(
+                f"{self.setup_path}/variables.tf",
+                '      name = "engine"',
+                f'      source_image_id = "{self.config["setup"]["vm-image-references"]["engine"].replace("<sub-id>", sub_id)}"\n',
+            )
+            _insert_after(
+                f"{self.setup_path}/variables.tf",
+                '      name = "checker"',
+                f'      source_image_id = "{self.config["setup"]["vm-image-references"]["checker"].replace("<sub-id>", sub_id)}"\n',
+            )
+            _insert_after(
+                f"{self.setup_path}/variables.tf",
+                '        name = "vulnbox${vulnbox_id}"',
+                f'        source_image_id = "{self.config["setup"]["vm-image-references"]["vulnbox"].replace("<sub-id>", sub_id)}"\n',
+            )
 
         # Add terraform outputs for private and public ip addresses
         lines = []
