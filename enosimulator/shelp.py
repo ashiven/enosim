@@ -177,7 +177,7 @@ class AzureSetupHelper(Helper):
                 f"retry scp -F ${{ssh_config}} ./data/services.txt vulnbox{vulnbox_id}:/home/groot/services.txt\n"
             )
             lines.append(
-                f'echo -e "\\033[31m[!] This will take a few minutes. Please be patient.\\033[0m"\n'
+                f'echo -e "\\033[31;33m[!] This will take a few minutes. Please be patient.\\033[0m"\n'
             )
             lines.append(
                 f'retry ssh -F ${{ssh_config}} vulnbox{vulnbox_id} "chmod +x vulnbox.sh && ./vulnbox.sh" | tee ./logs/vulnbox{vulnbox_id}_config.log 2>&1\n'

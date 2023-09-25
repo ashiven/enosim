@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-echo "Installing necessary dependencies..."
+echo -e "\033[32m[+] Installing necessary dependencies..."
 sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg
 sudo install -m 0755 -d /etc/apt/keyrings
@@ -25,7 +25,6 @@ pat=_placeholder_
 sed -i 's/^[[:space:]]*//;s/[[:space:]]*$//' services.txt
 
 while read -r service_name; do
-  echo "Cloning ${service_name}... "
   sudo git clone "https://${pat}@github.com/enowars/${service_name}.git"
 
   sudo mv "enowars7-service-${service_name}/checker" .
@@ -33,7 +32,7 @@ while read -r service_name; do
   sudo mv checker "${service_name}-checker"
   cd "${service_name}-checker"
 
-  echo "Starting ${service_name}-checker..."
+  echo -e "\033[32m[+] Starting ${service_name}-checker..."
   sudo docker compose up --build --force-recreate -d
   cd ..
 done <"services.txt"

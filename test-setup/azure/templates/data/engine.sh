@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-echo "Installing necessary dependencies..."
+echo -e "\033[32m[+] Installing necessary dependencies..."
 sudo apt-get update
 sudo apt-get install ca-certificates curl gnupg
 sudo install -m 0755 -d /etc/apt/keyrings
@@ -30,10 +30,11 @@ pat=_placeholder_
 
 sed -i 's/^[[:space:]]*//;s/[[:space:]]*$//' services.txt
 
-echo "Starting EnoEngine..."
 sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"
 sudo mv ctf.json ./EnoEngine
 cd EnoEngine
+
+echo -e "\033[32m[+] Starting EnoEngine..."
 sudo docker compose up -d
 sudo dotnet run --project EnoConfig apply
 sudo dotnet run -c Release --project EnoLauncher &
