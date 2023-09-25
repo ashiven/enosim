@@ -27,8 +27,8 @@ sed -i 's/^[[:space:]]*//;s/[[:space:]]*$//' services.txt
 while read -r service_name; do
   sudo git clone "https://${pat}@github.com/enowars/${service_name}.git"
 
-  sudo mv "enowars7-service-${service_name}/service" .
-  sudo rm -rf "enowars7-service-${service_name}"
+  sudo mv "${service_name}/service" .
+  sudo rm -rf "${service_name}"
   sudo mv service "${service_name}"
   cd "${service_name}"
 
