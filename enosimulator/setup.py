@@ -74,7 +74,7 @@ def _generate_team(id):
     new_team = {
         "id": id,
         "name": team_names[id - 1],
-        "teamSubnet": "::ffff:10.0.2.0",
+        "teamSubnet": "::ffff:<placeholder>",
         "address": "<placeholder>",
     }
     return new_team
@@ -184,9 +184,11 @@ class Setup:
         # Add ip addresses for teams to ctf.json
         for id, team in enumerate(ctf_json["teams"]):
             vulnboxes = self.config["settings"]["vulnboxes"]
-            team["address"] = self.ips["private_ip_addresses"][
-                f"vulnbox{(id % vulnboxes) + 1}"
-            ]
+            vulnbox_id = (id % vulnboxes) + 1
+            team["address"] = self.ips["private_ip_addresses"][f"vulnbox{vulnbox_id}"]
+            team["teamSubnet"] = (
+                team["teamSubnet"].replace("<placeholder>", team["address"])[:-1] + "0"
+            )
             self.teams[team["name"]] = team
 
         # Update ctf.json
