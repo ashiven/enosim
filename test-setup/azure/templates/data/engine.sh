@@ -28,8 +28,16 @@ export DOCKER_BUILDKIT=0
 
 pat=_placeholder_
 
-sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"
+optional() {
+  directory="$1"
+  if [ ! -d "$directory" ]; then
+    "${@:2}"
+  fi
+}
+
+optional EnoEngine sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"
 sudo mv ctf.json ./EnoEngine
+optional data sudo mkdir data
 cd EnoEngine
 
 echo -e "\033[32m[+] Starting EnoEngine..."

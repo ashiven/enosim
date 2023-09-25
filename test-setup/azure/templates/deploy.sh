@@ -26,4 +26,4 @@ echo -e "\n\033[32m[+] Configuring engine ...\033[0m"
 retry scp -F ${ssh_config} ./data/engine.sh engine:/home/groot/engine.sh
 retry scp -F ${ssh_config} ./config/ctf.json engine:/home/groot/ctf.json
 echo -e "\033[31;33m[!] This will take a few minutes. Please be patient.\033[0m"
-retry ssh -F ${ssh_config} engine "mkdir data && chmod +x engine.sh && ./engine.sh" | tee ./logs/engine_config.log 2>&1
+retry ssh -F ${ssh_config} engine "chmod +x engine.sh && ./engine.sh" | tee ./logs/engine_config.log 2>&1
