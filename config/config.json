@@ -1,20 +1,25 @@
 {
    "setup": {
       "ssh-config-path": "C:/Users/janni/.ssh/simconfig",
-      "location": "azure"
+      "location": "azure",
+      "vm-image-references": {
+         "vulnbox": "<optional>",
+         "checker": "<optional>",
+         "engine": "<optional>"
+      }
    },
    "settings": {
-      "duration": 30,
+      "duration-in-minutes": 30,
       "teams": 3,
       "vulnboxes": 1,
-      "services": ["CVExchange"],
+      "services": ["enowars7-service-CVExchange"],
       "checker-ports": [7331],
       "intensity": 1
    },
    "ctf-json": {
       "title": "ctf-sim",
-      "flagValidityInRounds": 2,
-      "checkedRoundsPerRound": 3,
-      "roundLengthInSeconds": 60
+      "flag-validity-in-rounds": 2,
+      "checked-rounds-per-round": 3,
+      "round-length-in-seconds": 60
    }
 }

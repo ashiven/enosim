@@ -9,6 +9,11 @@ from shelp import SetupHelper
 ####  Helpers ####
 
 
+def _kebab_to_camel(s):
+    words = s.split("-")
+    return words[0] + "".join(w.title() for w in words[1:])
+
+
 def _parse_json(path):
     with open(path, "r") as json_file:
         return json.load(json_file)
@@ -127,7 +132,7 @@ class Setup:
         # Configure ctf.json from config.json
         ctf_json = _generate_ctf_json()
         for setting, value in self.config["ctf-json"].items():
-            ctf_json[setting] = value
+            ctf_json[_kebab_to_camel(setting)] = value
 
         # Add teams to ctf.json
         ctf_json["teams"].clear()

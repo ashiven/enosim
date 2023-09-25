@@ -24,7 +24,7 @@ export DOCKER_BUILDKIT=0
 
 while read -r service_name; do
   echo "Cloning ${service_name}... "
-  sudo git clone "https://${pat}@github.com/enowars/enowars7-service-${service_name}.git"
+  sudo git clone "https://${pat}@github.com/enowars/${service_name}.git"
 
   sudo mv "enowars7-service-${service_name}/service" .
   sudo rm -rf "enowars7-service-${service_name}"
