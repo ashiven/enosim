@@ -10,6 +10,7 @@ from simulation import Simulation
 def main():
     load_dotenv()
     init(autoreset=True)
+    dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
 
     parser = argparse.ArgumentParser(
         prog="enosimulator",
@@ -19,13 +20,17 @@ def main():
         "-c",
         "--config",
         help="A path to the config file containing service info and simulation setup info",
-        default=os.environ.get("ENOSIMULATOR_CONFIG"),
+        default=os.environ.get(
+            "ENOSIMULATOR_CONFIG", f"{dir_path}/../config/config.json"
+        ),
     )
     parser.add_argument(
         "-s",
         "--secrets",
         help="A path to the secrets file containing ssh key paths and login credentials for cloud providers",
-        default=os.environ.get("ENOSIMULATOR_SECRETS"),
+        default=os.environ.get(
+            "ENOSIMULATOR_SECRETS", f"{dir_path}/../config/secrets.json"
+        ),
     )
     args = parser.parse_args()
 
