@@ -45,11 +45,11 @@ def main():
             "Please supply the path to a secrets file or set the ENOSIMULATOR_SECRETS environment variable"
         )
 
-    setup = Setup(verbose=False)
-    setup.configure(args.config, args.secrets)
+    setup = Setup(args.config, args.secrets, verbose=False)
+    setup.configure()
     setup.build_infra()
-    # setup.apply_config()
-    # setup.destroy_infra()
+    # setup.deploy()
+    # setup.destroy()
 
     simulation = Simulation(setup)
     simulation.run()

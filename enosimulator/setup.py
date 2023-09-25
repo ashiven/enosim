@@ -92,15 +92,16 @@ def _generate_service(id, service, checker_port):
 
 
 class Setup:
-    def __init__(self, verbose=False):
+    def __init__(self, config_path, secrets_path, verbose=False):
         self.ips = dict()
         self.teams = dict()
         self.services = dict()
-        self.config = None
-        self.secrets = None
-        self.setup_path = ""
-        self.setup_helper = None
         self.verbose = verbose
+        self.config = _parse_json(config_path)
+        self.secrets = _parse_json(secrets_path)
+        dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
+        self.setup_path = f"{dir_path}/../test-setup/{self.config['setup']['location']}"
+        self.setup_helper = SetupHelper(self.config, self.secrets)
 
     def info(self):
         p = pprint.PrettyPrinter()
@@ -112,13 +113,7 @@ class Setup:
         p.pprint(self.ips)
         print("\n")
 
-    def configure(self, config_path, secrets_path):
-        self.config = _parse_json(config_path)
-        self.secrets = _parse_json(secrets_path)
-        dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
-        self.setup_path = f"{dir_path}/../test-setup/{self.config['setup']['location']}"
-        self.setup_helper = SetupHelper(self.config, self.secrets)
-
+    def configure(self):
         # Create services.txt
         _create_file(f"{self.setup_path}/config/services.txt")
         with open(f"{self.setup_path}/config/services.txt", "r+") as service_file:
@@ -200,7 +195,7 @@ class Setup:
         self.info()
         print(Fore.GREEN + "[+] Infrastructure built successfully")
 
-    def apply_config(self):
+    def deploy(self):
         _run_shell_script(f"{self.setup_path}/deploy.sh", "")
 
         # TODO:
@@ -208,7 +203,7 @@ class Setup:
         # - for this i could add an option to config.json whether to use vm images or not
         # - add a check whether the infrastructure is already running
 
-    def destroy_infra(self):
+    def destroy(self):
         _run_shell_script(f"{self.setup_path}/build.sh", "-d")
 
         # TODO:
