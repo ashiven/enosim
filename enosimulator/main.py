@@ -53,7 +53,7 @@ def main():
     simulation = Simulation(setup)
     simulation.run()
 
-    setup.destroy()
+    # setup.destroy()
 
 
 if __name__ == "__main__":
