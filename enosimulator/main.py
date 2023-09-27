@@ -48,6 +48,7 @@ def main():
     setup = Setup(args.config, args.secrets, verbose=False)
     setup.configure()
     setup.build_infra()
+    # TODO: - uncomment in production
     # setup.deploy()
 
     simulation = Simulation(setup)
