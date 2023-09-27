@@ -9,7 +9,8 @@ from orchestrator import Orchestrator
 
 def _random_test(team):
     probability = team["experience"].value
-    return random.random() < probability
+    random_value = random.random()
+    return random_value < probability
 
 
 def _exploit_or_patch(team):
@@ -30,35 +31,31 @@ class Simulation:
         self.orchestrator.update_teams()
 
     def run(self):
-        # TODO:
-        # - we have our simulation loop that generates a round_id for every minute of the simulation
-        # - in every round we have to:
-        #   - go through all teams:
-        #       - for each team we perform the random test in accordance with their experience level
-        #       - if the random test is successful, the team will start exploiting one random flagstore or patch one random flagstore
-        #       - this just means that the boolean value for the flagstore in the exploiting or patched dict will be set to True
-        #   - then we will tell the orchestrator to send out exploit requests to the teams exploit-checker towards all other teams that haven't patched the flagstore yet
         for round_id in range(self.setup.config["settings"]["duration-in-minutes"]):
             print(
                 Fore.BLUE + f"\n==================ROUND {round_id}==================\n"
             )
 
-            # step 1: go through all teams and perform the random test
+            # Go through all teams and perform the random test
             for team, settings in self.setup.teams.items():
                 if _random_test(settings):
                     variant, service, flagstore = _exploit_or_patch(settings)
-                    info_text = (
-                        "started exploiting" if variant == "exploiting" else "patched"
-                    )
-                    print(
-                        Fore.GREEN
-                        + f"\n[+] Team {team} {info_text} {service}: {flagstore}\n"
-                    )
+                    if not self.setup.teams[team][variant][service][flagstore]:
+                        self.setup.teams[team][variant][service][flagstore] = True
+                        info_text = (
+                            "started exploiting"
+                            if variant == "exploiting"
+                            else "patched"
+                        )
+                        print(
+                            Fore.GREEN
+                            + f"\n[+] Team {team} {info_text} {service}: {flagstore}\n"
+                        )
 
-            # step 2: go through all teams and exploit one random flagstore or patch one random flagstore
+            # TODO: - implement
+            # Instruct orchestrator to send out exploit requests
 
-            # step 3: wait one minute for the next round to start
-            sleep(1)
+            sleep(5)
 
 
 """
