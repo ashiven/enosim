@@ -52,10 +52,12 @@ class Simulation:
                             + f"\n[+] Team {team} {info_text} {service}: {flagstore}\n"
                         )
 
-            # TODO: - implement
+            # TODO:
+            # - it may be a good idea to do this concurrently for each team
+            # - for this i could use the threading library and spawn a thread for each team
             # Instruct orchestrator to send out exploit requests
 
-            sleep(5)
+            sleep(60)
 
 
 """
