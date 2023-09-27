@@ -40,6 +40,7 @@ class Experience(Enum):
     INTERMEDIATE = 0.1
     ADVANCED = 0.2
     PRO = 0.3
+    HAXXOR = 1
 
     @staticmethod
     def from_str(s):
@@ -53,6 +54,8 @@ class Experience(Enum):
             return Experience.ADVANCED
         elif s == "pro":
             return Experience.PRO
+        elif s == "haxxor":
+            return Experience.HAXXOR
         else:
             raise NotImplementedError
 
@@ -95,25 +98,35 @@ def _generate_setup_team(id, experience, config):
 class TeamGenerator:
     def __init__(self, config):
         self.config = config
-        NOOB_PERCENTAGE = (0.2, Experience.NOOB)
-        BEGINNER_PERCENTAGE = (0.2, Experience.BEGINNER)
-        INTERMEDIATE_PERCENTAGE = (0.3, Experience.INTERMEDIATE)
-        ADVANCED_PERCENTAGE = (0.2, Experience.ADVANCED)
-        PRO_PERCENTAGE = (0.1, Experience.PRO)
-        self.team_distribution = {
-            e: int(p * self.config["settings"]["teams"])
-            for p, e in [
-                NOOB_PERCENTAGE,
-                BEGINNER_PERCENTAGE,
-                INTERMEDIATE_PERCENTAGE,
-                ADVANCED_PERCENTAGE,
-                PRO_PERCENTAGE,
-            ]
-        }
-        while sum(self.team_distribution.values()) < self.config["settings"]["teams"]:
-            self.team_distribution[Experience.NOOB] += 1
-        while sum(self.team_distribution.values()) > self.config["settings"]["teams"]:
-            self.team_distribution[Experience.NOOB] -= 1
+        if self.config["settings"]["simulation-type"] == "stress-test":
+            self.team_distribution = {
+                Experience.HAXXOR: self.config["settings"]["teams"]
+            }
+
+        else:
+            NOOB_PERCENTAGE = (0.2, Experience.NOOB)
+            BEGINNER_PERCENTAGE = (0.2, Experience.BEGINNER)
+            INTERMEDIATE_PERCENTAGE = (0.3, Experience.INTERMEDIATE)
+            ADVANCED_PERCENTAGE = (0.2, Experience.ADVANCED)
+            PRO_PERCENTAGE = (0.1, Experience.PRO)
+            self.team_distribution = {
+                e: int(p * self.config["settings"]["teams"])
+                for p, e in [
+                    NOOB_PERCENTAGE,
+                    BEGINNER_PERCENTAGE,
+                    INTERMEDIATE_PERCENTAGE,
+                    ADVANCED_PERCENTAGE,
+                    PRO_PERCENTAGE,
+                ]
+            }
+            while (
+                sum(self.team_distribution.values()) < self.config["settings"]["teams"]
+            ):
+                self.team_distribution[Experience.NOOB] += 1
+            while (
+                sum(self.team_distribution.values()) > self.config["settings"]["teams"]
+            ):
+                self.team_distribution[Experience.NOOB] -= 1
 
     def generate(self):
         ctf_json_teams = []

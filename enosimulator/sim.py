@@ -24,6 +24,35 @@ class Simulation:
         pass
 
 
+# step 1: create requests session
+# step 2: get service info from checker
+# step 3: log service info inside of logfile
+"""
+def simulate_ctf(host, port, service_address, test_methods):
+
+    s = requests.Session()
+    retry_strategy = Retry( total=5, backoff_factor=1,)
+    s.mount("http://", HTTPAdapter(max_retries=retry_strategy))
+
+    r = s.get(f"http://{host}:{port}/service")
+    if r.status_code != 200:
+        raise Exception("Failed to get /service from checker")
+    
+    info: CheckerInfoMessage = jsons.loads(
+        r.content, CheckerInfoMessage, key_transformer=jsons.KEY_TRANSFORMER_SNAKECASE
+    )
+
+    logging.info(
+        "Testing service %s, flagVariants: %d, noiseVariants: %d, havocVariants: %d, exploitVariants: %d",
+        info.service_name,
+        info.flag_variants,
+        info.noise_variants,
+        info.havoc_variants,
+        info.exploit_variants,
+    )
+"""
+
+
 # this method creates a CheckerTaskMessage to be sent to the checker to request execution of putflag, getflag etc.
 def _create_request_message(
     method: str,  # which method (putflag, getflag, exploit etc.)
