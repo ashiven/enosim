@@ -14,7 +14,7 @@
       "vulnboxes": 1,
       "services": ["enowars7-service-CVExchange"],
       "checker-ports": [7331],
-      "intensity": 1
+      "simulation-type": "realistic"
    },
    "ctf-json": {
       "title": "ctf-sim",

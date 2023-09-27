@@ -14,7 +14,7 @@
       "vulnboxes": "<int> <required> <the number of vulnboxes that should be used for the simulation>",
       "services": "<List(string)> <required> <the repository names of the services that should be used for the simulation>",
       "checker-ports": "<List(int)> <required> <the ports that match the services. the order should be the same as in services>",
-      "intensity": "<int> <required> <the intensity of the simulation. the higher the intensity, the more requests will be sent to services>"
+      "simulation-type": "<string> <required> <the type of simulation to run. choose between 'realistic' and 'stress-test'>"
    },
    "ctf-json": {
       "title": "<string> <required> <the title of the ctf>",
