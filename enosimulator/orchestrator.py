@@ -104,3 +104,6 @@ class Orchestrator:
                     team["patched"][info.service_name].update(
                         {f"{service.name}-Flag{flagstore_id}": False}
                     )
+
+    def send_exploit(source_team, target_team, service, flagstore):
+        pass
