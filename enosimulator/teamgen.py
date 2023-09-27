@@ -93,19 +93,19 @@ def _generate_setup_team(id, experience, config):
 class TeamGenerator:
     def __init__(self, config):
         self.config = config
-        NOOB = (0.2, Experience.NOOB)
-        BEGINNER = (0.2, Experience.BEGINNER)
-        INTERMEDIATE = (0.3, Experience.INTERMEDIATE)
-        ADVANCED = (0.2, Experience.ADVANCED)
-        PRO = (0.1, Experience.PRO)
+        NOOB_PERCENTAGE = (0.2, Experience.NOOB)
+        BEGINNER_PERCENTAGE = (0.2, Experience.BEGINNER)
+        INTERMEDIATE_PERCENTAGE = (0.3, Experience.INTERMEDIATE)
+        ADVANCED_PERCENTAGE = (0.2, Experience.ADVANCED)
+        PRO_PERCENTAGE = (0.1, Experience.PRO)
         self.team_distribution = {
             e: int(p * self.config["settings"]["teams"])
             for p, e in [
-                NOOB,
-                BEGINNER,
-                INTERMEDIATE,
-                ADVANCED,
-                PRO,
+                NOOB_PERCENTAGE,
+                BEGINNER_PERCENTAGE,
+                INTERMEDIATE_PERCENTAGE,
+                ADVANCED_PERCENTAGE,
+                PRO_PERCENTAGE,
             ]
         }
         while sum(self.team_distribution.values()) < self.config["settings"]["teams"]:
