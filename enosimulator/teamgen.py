@@ -73,7 +73,7 @@ def _generate_ctf_team(id):
     return new_team
 
 
-def _generate_setup_team(id, experience, config):
+def _generate_setup_team(id, experience):
     new_team = {
         TEAM_NAMES[id - 1]: {
             "id": id,
@@ -81,12 +81,8 @@ def _generate_setup_team(id, experience, config):
             "teamSubnet": "::ffff:<placeholder>",
             "address": "<placeholder>",
             "experience": experience,
-            "exploiting": {
-                service: "<placeholder>" for service in config["settings"]["services"]
-            },
-            "patched": {
-                service: "<placeholder>" for service in config["settings"]["services"]
-            },
+            "exploiting": dict(),
+            "patched": dict(),
         }
     }
     return new_team
@@ -137,9 +133,7 @@ class TeamGenerator:
             for team_id in range(1, teams + 1):
                 ctf_json_teams.append(_generate_ctf_team(team_id_total + team_id))
                 setup_teams.update(
-                    _generate_setup_team(
-                        team_id_total + team_id, experience, self.config
-                    )
+                    _generate_setup_team(team_id_total + team_id, experience)
                 )
             team_id_total += teams
 

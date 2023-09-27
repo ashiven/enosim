@@ -1,5 +1,4 @@
 import secrets
-from typing import Optional
 
 import jsons
 import requests
@@ -9,6 +8,7 @@ from enochecker_core import (
     CheckerTaskMessage,
     CheckerTaskResult,
 )
+from orchestrator import Orchestrator
 
 FLAG_REGEX_ASCII = r"ENO[A-Za-z0-9+\/=]{48}"
 FLAG_REGEX_UTF8 = r"🥺[A-Za-z0-9+\/=]{48}🥺🥺"
@@ -19,62 +19,25 @@ CHAIN_ID_PREFIX = secrets.token_hex(20)
 class Simulation:
     def __init__(self, setup):
         self.setup = setup
+        self.orchestrator = Orchestrator(setup)
 
     def run(self):
+        self.orchestrator.update_teams()
         pass
 
 
-# step 1: create requests session
-# step 2: get service info from checker
-# step 3: log service info inside of logfile
-"""
-def simulate_ctf(host, port, service_address, test_methods):
-
-    s = requests.Session()
-    retry_strategy = Retry( total=5, backoff_factor=1,)
-    s.mount("http://", HTTPAdapter(max_retries=retry_strategy))
-
-    r = s.get(f"http://{host}:{port}/service")
-    if r.status_code != 200:
-        raise Exception("Failed to get /service from checker")
-    
-    info: CheckerInfoMessage = jsons.loads(
-        r.content, CheckerInfoMessage, key_transformer=jsons.KEY_TRANSFORMER_SNAKECASE
-    )
-
-    logging.info(
-        "Testing service %s, flagVariants: %d, noiseVariants: %d, havocVariants: %d, exploitVariants: %d",
-        info.service_name,
-        info.flag_variants,
-        info.noise_variants,
-        info.havoc_variants,
-        info.exploit_variants,
-    )
-"""
-
-
-# this method creates a CheckerTaskMessage to be sent to the checker to request execution of putflag, getflag etc.
 def _create_request_message(
-    method: str,  # which method (putflag, getflag, exploit etc.)
-    round_id: int,  # which round we are currently in (this will become the unique ID for this task)
-    variant_id: int,  # which of the exploits or putflags etc. to use (for example use exploit 1)
-    service_address: str,  # this is the ip address of the service that the checker contacts
-    flag: Optional[
-        str
-    ] = None,  # when we want the checker to execute putflag or getflag, we have to tell it the flag that should be put/get
-    unique_variant_index: Optional[
-        int
-    ] = None,  # this is only relevant for the different ways that tests have been implemented for the same checker method
-    flag_regex: Optional[
-        str
-    ] = None,  # a regular expression that the checker can use to find the given flag in a service response (we have to supply it according to the flags we give the checker)
-    flag_hash: Optional[
-        str
-    ] = None,  # the hashed flag, not sure why we need this exactly
-    attack_info: Optional[
-        str
-    ] = None,  # we can supply the attack info from putflag for some reason
-) -> CheckerTaskMessage:
+    method,
+    round_id,
+    variant_id,
+    service_address,
+    flag=None,
+    unique_variant_index=None,
+    flag_regex=None,
+    flag_hash=None,
+    attack_info=None,
+):
+    # Generate a unique task chain id for each task according to enoengine specs
     if unique_variant_index is None:
         unique_variant_index = variant_id
     prefix = "havoc"
@@ -84,7 +47,6 @@ def _create_request_message(
         prefix = "noise"
     elif method == "exploit":
         prefix = "exploit"
-    # this is a unique identifier that gets created to store related info in the checkers database (for example attack info after a putflag call)
     task_chain_id = (
         f"{CHAIN_ID_PREFIX}_{prefix}_s0_r{round_id}_t0_i{unique_variant_index}"
     )
