@@ -34,13 +34,12 @@ sed -i 's/^[[:space:]]*//;s/[[:space:]]*$//' services.txt
 while read -r service_name; do
   optional "${service_name}" sudo git clone "https://${pat}@github.com/enowars/${service_name}.git"
 
-  sudo rm -rf service
-  sudo mv "${service_name}/service" .
-  sudo rm -rf "${service_name}"
-  optional "${service_name}-service}" sudo mv service "${service_name}"-service
-  cd "${service_name}-service"
-
+  cd "${service_name}/service"
   echo -e "\033[32m[+] Starting ${service_name}-service..."
   sudo docker compose up --build --force-recreate -d
-  cd ..
+
+  cd "../checker"
+  echo -e "\033[32m[+] Starting ${service_name}-exploiter..."
+  sudo docker compose up --build --force-recreate -d
+
 done <"services.txt"
