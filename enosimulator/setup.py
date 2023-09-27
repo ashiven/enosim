@@ -26,6 +26,13 @@ def _create_file(path):
         file.write("")
 
 
+def _delete_files(path):
+    for file in os.listdir(path):
+        file_path = os.path.join(path, file)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
+
 def _run_shell_script(script_path, args):
     try:
         cmd = "sh " + script_path + " " + args
@@ -198,6 +205,8 @@ class Setup:
     def destroy(self):
         _run_shell_script(f"{self.setup_path}/build.sh", "-d")
 
-        # TODO:
-        # - at this point all of the files that have been created from templates should be deleted again
-        # - also the files that have been created by terraform should be deleted
+        # Delete all files created for this setup
+        _delete_files(f"{self.setup_path}")
+        _delete_files(f"{self.setup_path}/config")
+        _delete_files(f"{self.setup_path}/data")
+        _delete_files(f"{self.setup_path}/logs")
