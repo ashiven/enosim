@@ -13,7 +13,7 @@
       "teams": "<int> <required> <the number of teams that should participate in the simulation>",
       "vulnboxes": "<int> <required> <the number of vulnboxes that should be used for the simulation>",
       "services": "<List(string)> <required> <the repository names of the services that should be used for the simulation>",
-      "checker-ports": "<List(int)> <required> <the ports that match the services. the order should be the same as in services>",
+      "checker-ports": "<List(int)> <required> <the port numbers of the service checkers. the order should be the same as in services>",
       "simulation-type": "<string> <required> <the type of simulation to run. choose between 'realistic' and 'stress-test'>"
    },
    "ctf-json": {
