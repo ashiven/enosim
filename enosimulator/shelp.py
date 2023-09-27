@@ -448,6 +448,3 @@ class SetupHelper:
 
     def generate_teams(self):
         return self.team_gen.generate()
-
-    def update_teams(self):
-        self.team_gen.update()

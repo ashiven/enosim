@@ -177,7 +177,8 @@ class Setup:
             team["teamSubnet"] = (
                 team["teamSubnet"].replace("<placeholder>", team["address"])[:-1] + "0"
             )
-            self.teams[team["name"]] = team
+            self.teams[team["name"]]["address"] = team["address"]
+            self.teams[team["name"]]["teamSubnet"] = team["teamSubnet"]
 
         # Update ctf.json
         _create_file(f"{self.setup_path}/config/ctf.json")
