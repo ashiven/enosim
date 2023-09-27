@@ -160,7 +160,7 @@ class Setup:
         print(Fore.GREEN + "[+] Configuration complete\n")
 
     def build_infra(self):
-        # _run_shell_script(f"{self.setup_path}/build.sh", "")
+        _run_shell_script(f"{self.setup_path}/build.sh", "")
 
         # Get ip addresses from terraform output
         public_ips, private_ips = self.setup_helper.get_ip_addresses()
