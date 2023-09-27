@@ -48,7 +48,7 @@ def main():
     setup = Setup(args.config, args.secrets, verbose=False)
     setup.configure()
     setup.build_infra()
-    setup.deploy()
+    # setup.deploy()
 
     simulation = Simulation(setup)
     simulation.run()

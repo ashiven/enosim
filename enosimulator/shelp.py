@@ -3,6 +3,8 @@ import re
 from abc import ABC, abstractmethod
 from enum import Enum
 
+from teamgen import TeamGenerator
+
 
 class SetupVariant(Enum):
     AZURE = "azure"
@@ -431,6 +433,7 @@ class SetupHelper:
             SetupVariant.AZURE: AzureSetupHelper(config, secrets),
             SetupVariant.LOCAL: LocalSetupHelper(config, secrets),
         }
+        self.team_gen = TeamGenerator(config)
 
     def convert_templates(self):
         helper = self.helpers[SetupVariant.from_str(self.config["setup"]["location"])]
@@ -442,3 +445,9 @@ class SetupHelper:
     def get_ip_addresses(self):
         helper = self.helpers[SetupVariant.from_str(self.config["setup"]["location"])]
         return helper.get_ip_addresses()
+
+    def generate_teams(self):
+        return self.team_gen.generate()
+
+    def update_teams(self):
+        self.team_gen.update()

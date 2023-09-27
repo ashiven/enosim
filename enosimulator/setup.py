@@ -69,17 +69,6 @@ def _generate_ctf_json():
     return new_ctf_json
 
 
-def _generate_team(id):
-    team_names = ["Kleinmanzama", "Grossmanzama", "Mittelmanzama"]
-    new_team = {
-        "id": id,
-        "name": team_names[id - 1],
-        "teamSubnet": "::ffff:<placeholder>",
-        "address": "<placeholder>",
-    }
-    return new_team
-
-
 def _generate_service(id, service, checker_port):
     new_service = {
         "id": id,
@@ -136,10 +125,9 @@ class Setup:
 
         # Add teams to ctf.json
         ctf_json["teams"].clear()
-        for id in range(1, self.config["settings"]["teams"] + 1):
-            new_team = _generate_team(id)
-            ctf_json["teams"].append(new_team)
-            self.teams[new_team["name"]] = new_team
+        ctf_json_teams, setup_teams = self.setup_helper.generate_teams()
+        ctf_json["teams"] = ctf_json_teams
+        self.teams = setup_teams
 
         # Add services to ctf.json
         ctf_json["services"].clear()
@@ -165,7 +153,7 @@ class Setup:
         print(Fore.GREEN + "[+] Configuration complete\n")
 
     def build_infra(self):
-        _run_shell_script(f"{self.setup_path}/build.sh", "")
+        # _run_shell_script(f"{self.setup_path}/build.sh", "")
 
         # Get ip addresses from terraform output
         public_ips, private_ips = self.setup_helper.get_ip_addresses()
