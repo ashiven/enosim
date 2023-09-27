@@ -8,7 +8,7 @@ class Simulation:
 
     def run(self):
         self.orchestrator.update_teams()
-        pass
+        self.setup.info()
 
 
 """
