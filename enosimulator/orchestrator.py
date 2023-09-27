@@ -81,12 +81,12 @@ class Orchestrator:
         self.session.mount("http://", HTTPAdapter(max_retries=retry_strategy))
 
     def update_teams(self):
-        for settings in self.setup.services.values():
+        for service, settings in self.setup.services.items():
             # Get service info from checker
             checker_address = settings["checkers"][0]
             response = self.session.get(f"{checker_address}/service")
             if response.status_code != 200:
-                raise Exception("Failed to get service info from checker")
+                raise Exception(f"Failed to get {service}-info")
             info: CheckerInfoMessage = jsons.loads(
                 response.content,
                 CheckerInfoMessage,
@@ -97,12 +97,12 @@ class Orchestrator:
             for settings in self.setup.teams.values():
                 settings["exploiting"].update({info.service_name: {}})
                 settings["patched"].update({info.service_name: {}})
-                for flagstore_id in range(1, info.exploit_variants + 1):
+                for flagstore_id in range(info.exploit_variants):
                     settings["exploiting"][info.service_name].update(
-                        {f"Flag{flagstore_id}": False}
+                        {f"Flagstore{flagstore_id}": False}
                     )
                     settings["patched"][info.service_name].update(
-                        {f"Flag{flagstore_id}": False}
+                        {f"Flagstore{flagstore_id}": False}
                     )
 
     def send_exploit(source_team, target_team, service, flagstore):
