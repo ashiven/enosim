@@ -169,7 +169,7 @@ class Setup:
                     service["checkers"].append(f"http://{ip_address}:{checker_port}")
             self.services[service["name"]] = service
 
-        # Add ip addresses for teams to ctf.json
+        # Add ip addresses for teams to ctf.json and self.teams
         for id, team in enumerate(ctf_json["teams"]):
             vulnboxes = self.config["settings"]["vulnboxes"]
             vulnbox_id = (id % vulnboxes) + 1
