@@ -33,6 +33,8 @@ TEAM_NAMES = [
 
 
 class Experience(Enum):
+    """An enum representing the experience level of a team. The value stands for the probability of the team exploiting / patching a vulnerability."""
+
     NOOB = 0.01
     BEGINNER = 0.05
     INTERMEDIATE = 0.1
