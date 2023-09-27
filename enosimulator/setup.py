@@ -28,6 +28,8 @@ def _create_file(path):
 
 def _delete_files(path):
     for file in os.listdir(path):
+        if file == ".gitkeep":
+            continue
         file_path = os.path.join(path, file)
         if os.path.isfile(file_path):
             os.remove(file_path)
@@ -161,7 +163,7 @@ class Setup:
 
     def build_infra(self):
         # TODO: - uncomment in production
-        # _run_shell_script(f"{self.setup_path}/build.sh", "")
+        _run_shell_script(f"{self.setup_path}/build.sh", "")
 
         # Get ip addresses from terraform output
         public_ips, private_ips = self.setup_helper.get_ip_addresses()

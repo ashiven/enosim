@@ -49,12 +49,12 @@ def main():
     setup.configure()
     setup.build_infra()
     # TODO: - uncomment in production
-    # setup.deploy()
+    setup.deploy()
 
     simulation = Simulation(setup)
     simulation.run()
 
-    # setup.destroy()
+    setup.destroy()
 
 
 if __name__ == "__main__":
