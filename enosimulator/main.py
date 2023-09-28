@@ -50,7 +50,7 @@ async def main():
     await setup.configure()
     await setup.build_infra()
     # TODO: - uncomment in production
-    # setup.deploy()
+    setup.deploy()
 
     simulation = await Simulation.new(setup)
     simulation.run()
