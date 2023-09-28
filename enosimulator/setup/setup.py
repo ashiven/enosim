@@ -1,12 +1,21 @@
+import asyncio
+import concurrent.futures
 import json
 import os
 import pprint
 from subprocess import PIPE, STDOUT, CalledProcessError, Popen
 
+import aiofiles
 from colorama import Fore
 from shelp import SetupHelper
 
 ####  Helpers ####
+
+
+async def _async_exec(f, *args, **kwargs):
+    loop = asyncio.get_event_loop()
+    with concurrent.futures.ThreadPoolExecutor() as pool:
+        return await loop.run_in_executor(pool, f, *args, **kwargs)
 
 
 def _kebab_to_camel(s):
@@ -14,25 +23,52 @@ def _kebab_to_camel(s):
     return words[0] + "".join(w.title() for w in words[1:])
 
 
-def _parse_json(path):
-    with open(path, "r") as json_file:
-        return json.load(json_file)
+async def _parse_json(path):
+    loop = asyncio.get_event_loop()
+    with concurrent.futures.ThreadPoolExecutor() as pool:
+        async with aiofiles.open(path, "r") as json_file:
+            data = await loop.run_in_executor(pool, json.load, json_file)
+            return data
 
 
-def _create_file(path):
+async def _create_file(path):
     if os.path.exists(path):
         os.remove(path)
-    with open(path, "w") as file:
-        file.write("")
+    async with aiofiles.open(path, "w") as file:
+        await file.write("")
 
 
-def _delete_files(path):
-    for file in os.listdir(path):
+async def _delete_files(path):
+    async def delete_file(path):
+        if os.path.isfile(path):
+            os.remove(path)
+
+    async def is_file(path):
+        return os.path.isfile(path)
+
+    async def list_dir(path):
+        return os.listdir(path)
+
+    for file in await list_dir(path):
         if file == ".gitkeep":
             continue
         file_path = os.path.join(path, file)
-        if os.path.isfile(file_path):
-            os.remove(file_path)
+        if await _async_exec(is_file, file_path):
+            await _async_exec(delete_file, file_path)
+
+
+async def _dirname(path):
+    async def os_dirname(path):
+        return os.path.dirname(path)
+
+    return await _async_exec(os_dirname, path)
+
+
+async def _abspath(path):
+    async def os_abspath(path):
+        return os.path.abspath(path)
+
+    return await _async_exec(os_abspath, path)
 
 
 def _run_shell_script(script_path, args):
@@ -95,14 +131,15 @@ def _generate_service(id, service, checker_port):
 
 
 class Setup:
-    def __init__(self, config_path, secrets_path, verbose=False):
+    async def __init__(self, config_path, secrets_path, verbose=False):
         self.ips = dict()
         self.teams = dict()
         self.services = dict()
         self.verbose = verbose
-        self.config = _parse_json(config_path)
-        self.secrets = _parse_json(secrets_path)
-        dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
+        self.config = await _parse_json(config_path)
+        self.secrets = await _parse_json(secrets_path)
+        dir_path = await _dirname(await _abspath(__file__))
+        dir_path = dir_path.replace("\\", "/")
         self.setup_path = f"{dir_path}/../test-setup/{self.config['setup']['location']}"
         self.setup_helper = SetupHelper(self.config, self.secrets)
 
@@ -116,16 +153,19 @@ class Setup:
         p.pprint(self.ips)
         print("\n")
 
-    def configure(self):
+    async def configure(self):
         # Create services.txt
-        _create_file(f"{self.setup_path}/config/services.txt")
-        with open(f"{self.setup_path}/config/services.txt", "r+") as service_file:
+        await _create_file(f"{self.setup_path}/config/services.txt")
+        async with aiofiles.open(
+            f"{self.setup_path}/config/services.txt", "r+"
+        ) as service_file:
             for service in self.config["settings"]["services"]:
-                service_file.write(f"{service}\n")
+                await service_file.write(f"{service}\n")
             if self.verbose:
                 print(Fore.GREEN + "[+] Created services.txt")
-                service_file.seek(0)
-                print(service_file.read())
+                await service_file.seek(0)
+                content = await service_file.read()
+                print(content)
 
         # Configure ctf.json from config.json
         ctf_json = _generate_ctf_json()
@@ -147,21 +187,23 @@ class Setup:
             self.services[service] = new_service
 
         # Create ctf.json
-        _create_file(f"{self.setup_path}/config/ctf.json")
-        with open(f"{self.setup_path}/config/ctf.json", "r+") as ctf_file:
-            json.dump(ctf_json, ctf_file, indent=4)
+        await _create_file(f"{self.setup_path}/config/ctf.json")
+        async with aiofiles.open(
+            f"{self.setup_path}/config/ctf.json", "r+"
+        ) as ctf_file:
+            await ctf_file.write(json.dumps(ctf_json, indent=4))
             if self.verbose:
                 print(Fore.GREEN + "[+] Created ctf.json")
-                ctf_file.seek(0)
+                await ctf_file.seek(0)
                 print(ctf_file.read())
 
         # Convert template files (terraform, deploy.sh, build.sh, etc.) according to config
-        self.setup_helper.convert_templates()
+        await self.setup_helper.convert_templates()
 
         self.info()
         print(Fore.GREEN + "[+] Configuration complete\n")
 
-    def build_infra(self):
+    async def build_infra(self):
         # TODO: - uncomment in production
         _run_shell_script(f"{self.setup_path}/build.sh", "")
 
@@ -171,7 +213,7 @@ class Setup:
         self.ips["private_ip_addresses"] = private_ips
 
         # Add ip addresses for checkers to ctf.json
-        ctf_json = _parse_json(f"{self.setup_path}/config/ctf.json")
+        ctf_json = await _parse_json(f"{self.setup_path}/config/ctf.json")
         for service in ctf_json["services"]:
             checker_port = service["checkers"].pop()
             for name, ip_address in self.ips["public_ip_addresses"].items():
@@ -191,13 +233,14 @@ class Setup:
             self.teams[team["name"]]["teamSubnet"] = team["teamSubnet"]
 
         # Update ctf.json
-        _create_file(f"{self.setup_path}/config/ctf.json")
+        await _create_file(f"{self.setup_path}/config/ctf.json")
         with open(f"{self.setup_path}/config/ctf.json", "r+") as ctf_file:
-            json.dump(ctf_json, ctf_file, indent=4)
+            await ctf_file.write(json.dumps(ctf_json, indent=4))
             if self.verbose:
                 print(Fore.GREEN + "[+] Updated ctf.json")
-                ctf_file.seek(0)
-                print(ctf_file.read())
+                await ctf_file.seek(0)
+                content = await ctf_file.read()
+                print(content)
 
         self.info()
         print(Fore.GREEN + "[+] Infrastructure built successfully")
@@ -205,11 +248,11 @@ class Setup:
     def deploy(self):
         _run_shell_script(f"{self.setup_path}/deploy.sh", "")
 
-    def destroy(self):
+    async def destroy(self):
         _run_shell_script(f"{self.setup_path}/build.sh", "-d")
 
         # Delete all files created for this setup
-        _delete_files(f"{self.setup_path}")
-        _delete_files(f"{self.setup_path}/config")
-        _delete_files(f"{self.setup_path}/data")
-        _delete_files(f"{self.setup_path}/logs")
+        await _delete_files(f"{self.setup_path}")
+        await _delete_files(f"{self.setup_path}/config")
+        await _delete_files(f"{self.setup_path}/data")
+        await _delete_files(f"{self.setup_path}/logs")

@@ -80,11 +80,11 @@ class Orchestrator:
         )
         self.session.mount("http://", HTTPAdapter(max_retries=retry_strategy))
 
-    def update_teams(self):
+    async def update_teams(self):
         for service, settings in self.setup.services.items():
             # Get service info from checker
             checker_address = settings["checkers"][0]
-            response = self.session.get(f"{checker_address}/service")
+            response = await self.session.get(f"{checker_address}/service")
             if response.status_code != 200:
                 raise Exception(f"Failed to get {service}-info")
             info: CheckerInfoMessage = jsons.loads(

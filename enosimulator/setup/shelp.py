@@ -1,8 +1,11 @@
+import asyncio
+import concurrent.futures
 import os
 import re
 from abc import ABC, abstractmethod
 from enum import Enum
 
+import aiofiles
 from teamgen import TeamGenerator
 
 
@@ -23,50 +26,73 @@ class SetupVariant(Enum):
 ####  Helpers ####
 
 
-def _copy_file(src, dst):
-    if os.path.exists(src):
-        with open(src, "rb") as src_file:
-            with open(dst, "wb") as dst_file:
-                dst_file.write(src_file.read())
+async def _async_exec(f, *args, **kwargs):
+    loop = asyncio.get_event_loop()
+    with concurrent.futures.ThreadPoolExecutor() as pool:
+        return await loop.run_in_executor(pool, f, *args, **kwargs)
 
 
-def _replace_line(path, line_number, new_line):
-    with open(path, "rb+") as file:
-        lines = file.readlines()
+async def _copy_file(src, dst):
+    async def path_exists(src):
+        return os.path.exists(src)
+
+    if await path_exists(src):
+        async with aiofiles.open(src, "rb") as src_file:
+            async with aiofiles.open(dst, "wb") as dst_file:
+                await dst_file.write(src_file.read())
+
+
+async def _replace_line(path, line_number, new_line):
+    async with aiofiles.open(path, "rb+") as file:
+        lines = await file.readlines()
         lines[line_number] = new_line.replace("\\", "/").encode("utf-8")
-        file.seek(0)
-        file.writelines(lines)
-        file.truncate()
+        await file.seek(0)
+        await file.writelines(lines)
+        await file.truncate()
 
 
-def _insert_after(path, after, insert_lines):
+async def _insert_after(path, after, insert_lines):
     new_lines = []
-    with open(path, "rb") as file:
-        lines = file.readlines()
+    async with open(path, "rb") as file:
+        lines = await file.readlines()
         for line in lines:
             new_lines.append(line)
             if line.startswith(after.encode("utf-8")):
                 for insert_line in insert_lines:
                     new_lines.append(insert_line.encode("utf-8"))
-    with open(path, "wb") as file:
-        file.writelines(new_lines)
+    async with aiofiles.open(path, "wb") as file:
+        await file.writelines(new_lines)
 
 
-def _append_lines(path, append_lines):
-    with open(path, "ab") as file:
+async def _append_lines(path, append_lines):
+    async with open(path, "ab") as file:
         for line in append_lines:
-            file.write(line.encode("utf-8"))
+            await file.write(line.encode("utf-8"))
 
 
-def _delete_lines(path, delete_lines):
+async def _delete_lines(path, delete_lines):
     new_lines = []
-    with open(path, "rb") as file:
-        lines = file.readlines()
+    async with aiofiles.open(path, "rb") as file:
+        lines = await file.readlines()
         for index, line in enumerate(lines):
             if index not in delete_lines:
                 new_lines.append(line)
-    with open(path, "wb") as file:
-        file.writelines(new_lines)
+    async with aiofiles.open(path, "wb") as file:
+        await file.writelines(new_lines)
+
+
+async def _dirname(path):
+    async def os_dirname(path):
+        return os.path.dirname(path)
+
+    return await _async_exec(os_dirname, path)
+
+
+async def _abspath(path):
+    async def os_abspath(path):
+        return os.path.abspath(path)
+
+    return await _async_exec(os_abspath, path)
 
 
 #### End Helpers ####
@@ -95,16 +121,17 @@ class Helper(ABC):
 
 
 class AzureSetupHelper(Helper):
-    def __init__(self, config, secrets):
+    async def __init__(self, config, secrets):
         self.config = config
         self.secrets = secrets
-        dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
+        dir_path = await _dirname(await _abspath(__file__))
+        dir_path = dir_path.replace("\\", "/")
         self.setup_path = f"{dir_path}/../test-setup/{config['setup']['location']}"
         self.use_vm_images = False
 
-    def convert_buildscript(self):
+    async def convert_buildscript(self):
         # Copy build.sh template for configuration
-        _copy_file(
+        await _copy_file(
             f"{self.setup_path}/templates/build.sh",
             f"{self.setup_path}/build.sh",
         )
@@ -113,17 +140,17 @@ class AzureSetupHelper(Helper):
         ABSOLUTE_SETUP_PATH_LINE = 4
         SSH_CONFIG_PATH_LINE = 5
         SSH_PRIVATE_KEY_PATH_LINE = 6
-        _replace_line(
+        await _replace_line(
             f"{self.setup_path}/build.sh",
             ABSOLUTE_SETUP_PATH_LINE,
             f'setup_path="{os.path.abspath(self.setup_path)}"\n',
         )
-        _replace_line(
+        await _replace_line(
             f"{self.setup_path}/build.sh",
             SSH_CONFIG_PATH_LINE,
             f"ssh_config=\"{self.config['setup']['ssh-config-path']}\"\n",
         )
-        _replace_line(
+        await _replace_line(
             f"{self.setup_path}/build.sh",
             SSH_PRIVATE_KEY_PATH_LINE,
             f"ssh_private_key_path=\"{self.secrets['vm-secrets']['ssh-private-key-path']}\"\n",
@@ -135,7 +162,7 @@ class AzureSetupHelper(Helper):
             lines.append(
                 f'vulnbox{vulnbox_id}_ip=$(grep -oP "vulnbox{vulnbox_id}\s*=\s*\K[^\s]+" ./logs/ip_addresses.log)\n'
             )
-        _insert_after(f"{self.setup_path}/build.sh", "engine_ip=", lines)
+        await _insert_after(f"{self.setup_path}/build.sh", "engine_ip=", lines)
 
         # Configure writing ssh config
         lines = []
@@ -143,11 +170,13 @@ class AzureSetupHelper(Helper):
             lines.append(
                 f'echo -e "Host vulnbox{vulnbox_id}\\nUser groot\\nHostName ${{vulnbox{vulnbox_id}_ip}}\\nIdentityFile ${{ssh_private_key_path}}\\nStrictHostKeyChecking no\\n" >>${{ssh_config}}\n'
             )
-        _insert_after(f"{self.setup_path}/build.sh", 'echo -e "Host engine', lines)
+        await _insert_after(
+            f"{self.setup_path}/build.sh", 'echo -e "Host engine', lines
+        )
 
-    def convert_deploy_script(self):
+    async def convert_deploy_script(self):
         # Copy deploy.sh template for configuration
-        _copy_file(
+        await _copy_file(
             f"{self.setup_path}/templates/deploy.sh",
             f"{self.setup_path}/deploy.sh",
         )
@@ -155,12 +184,12 @@ class AzureSetupHelper(Helper):
         # Configure setup_path, ssh_config_path
         ABSOLUTE_SETUP_PATH_LINE = 4
         SSH_CONFIG_PATH_LINE = 5
-        _replace_line(
+        await _replace_line(
             f"{self.setup_path}/deploy.sh",
             ABSOLUTE_SETUP_PATH_LINE,
-            f'setup_path="{os.path.abspath(self.setup_path)}"\n',
+            f'setup_path="{await _abspath(self.setup_path)}"\n',
         )
-        _replace_line(
+        await _replace_line(
             f"{self.setup_path}/deploy.sh",
             SSH_CONFIG_PATH_LINE,
             f"ssh_config=\"{self.config['setup']['ssh-config-path']}\"\n",
@@ -184,25 +213,25 @@ class AzureSetupHelper(Helper):
             lines.append(
                 f'retry ssh -F ${{ssh_config}} vulnbox{vulnbox_id} "chmod +x vulnbox.sh && ./vulnbox.sh" | tee ./logs/vulnbox{vulnbox_id}_config.log 2>&1\n'
             )
-        _insert_after(
+        await _insert_after(
             f"{self.setup_path}/deploy.sh", "retry ssh -F ${ssh_config} checker", lines
         )
 
-    def convert_tf_files(self):
+    async def convert_tf_files(self):
         # Copy terraform file templates for configuration
-        _copy_file(
+        await _copy_file(
             f"{self.setup_path}/templates/versions.tf",
             f"{self.setup_path}/versions.tf",
         )
-        _copy_file(
+        await _copy_file(
             f"{self.setup_path}/templates/main.tf",
             f"{self.setup_path}/main.tf",
         )
-        _copy_file(
+        await _copy_file(
             f"{self.setup_path}/templates/variables.tf",
             f"{self.setup_path}/variables.tf",
         )
-        _copy_file(
+        await _copy_file(
             f"{self.setup_path}/templates/outputs.tf",
             f"{self.setup_path}/outputs.tf",
         )
@@ -212,12 +241,12 @@ class AzureSetupHelper(Helper):
         TF_CLIENT_ID_LINE = 12
         TF_CLIENT_SECRET_LINE = 13
         TF_TENANT_ID_LINE = 14
-        _replace_line(
+        await _replace_line(
             f"{self.setup_path}/versions.tf",
             TF_SUBSCRIPTION_ID_LINE,
             f"  subscription_id = \"{self.secrets['cloud-secrets']['azure-service-principal']['subscription-id']}\"\n",
         )
-        _replace_line(
+        await _replace_line(
             f"{self.setup_path}/versions.tf",
             TF_CLIENT_ID_LINE,
             f"  client_id       = \"{self.secrets['cloud-secrets']['azure-service-principal']['client-id']}\"\n",
@@ -235,7 +264,7 @@ class AzureSetupHelper(Helper):
 
         # Configure ssh key path in main.tf
         TF_LINE_SSH_KEY_PATH = 61
-        _replace_line(
+        await _replace_line(
             f"{self.setup_path}/main.tf",
             TF_LINE_SSH_KEY_PATH,
             f"    public_key = file(\"{self.secrets['vm-secrets']['ssh-public-key-path']}\")\n",
@@ -248,12 +277,12 @@ class AzureSetupHelper(Helper):
             for ref in self.config["setup"]["vm-image-references"].values()
         ):
             self.use_vm_images = True
-            _replace_line(
+            await _replace_line(
                 f"{self.setup_path}/main.tf",
                 TF_LINE_SOURCE_IMAGE,
                 "  source_image_id = each.value.source_image_id\n",
             )
-            _delete_lines(
+            await _delete_lines(
                 f"{self.setup_path}/main.tf",
                 [
                     line
@@ -265,7 +294,7 @@ class AzureSetupHelper(Helper):
 
         # Configure vulnbox count in variables.tf
         TF_LINE_COUNT = 2
-        _replace_line(
+        await _replace_line(
             f"{self.setup_path}/variables.tf",
             TF_LINE_COUNT,
             f"  default = {self.config['settings']['vulnboxes']}\n",
@@ -276,22 +305,22 @@ class AzureSetupHelper(Helper):
             sub_id = self.secrets["cloud-secrets"]["azure-service-principal"][
                 "subscription-id"
             ]
-            _insert_after(
+            await _insert_after(
                 f"{self.setup_path}/variables.tf",
                 "    name = string",
                 f"    source_image_id = string\n",
             )
-            _insert_after(
+            await _insert_after(
                 f"{self.setup_path}/variables.tf",
                 '      name = "engine"',
                 f'      source_image_id = "{self.config["setup"]["vm-image-references"]["engine"].replace("<sub-id>", sub_id)}"\n',
             )
-            _insert_after(
+            await _insert_after(
                 f"{self.setup_path}/variables.tf",
                 '      name = "checker"',
                 f'      source_image_id = "{self.config["setup"]["vm-image-references"]["checker"].replace("<sub-id>", sub_id)}"\n',
             )
-            _insert_after(
+            await _insert_after(
                 f"{self.setup_path}/variables.tf",
                 '        name = "vulnbox${vulnbox_id}"',
                 f'        source_image_id = "{self.config["setup"]["vm-image-references"]["vulnbox"].replace("<sub-id>", sub_id)}"\n',
@@ -303,19 +332,19 @@ class AzureSetupHelper(Helper):
             lines.append(
                 f'output "vulnbox{vulnbox_id}" {{\n  value = azurerm_public_ip.vm_pip["vulnbox{vulnbox_id}"].ip_address\n}}\n'
             )
-        _append_lines(f"{self.setup_path}/outputs.tf", lines)
+        await _append_lines(f"{self.setup_path}/outputs.tf", lines)
 
-    def convert_vm_scripts(self):
+    async def convert_vm_scripts(self):
         # Copy vm script templates for configuration
-        _copy_file(
+        await _copy_file(
             f"{self.setup_path}/templates/data/vulnbox.sh",
             f"{self.setup_path}/data/vulnbox.sh",
         )
-        _copy_file(
+        await _copy_file(
             f"{self.setup_path}/templates/data/checker.sh",
             f"{self.setup_path}/data/checker.sh",
         )
-        _copy_file(
+        await _copy_file(
             f"{self.setup_path}/templates/data/engine.sh",
             f"{self.setup_path}/data/engine.sh",
         )
@@ -323,17 +352,17 @@ class AzureSetupHelper(Helper):
         # Configure github personal access token
         PAT_LINE = 22
         PAT_LINE_ENGINE = 28
-        _replace_line(
+        await _replace_line(
             f"{self.setup_path}/data/vulnbox.sh",
             PAT_LINE,
             f"pat=\"{self.secrets['vm-secrets']['github-personal-access-token']}\"\n",
         )
-        _replace_line(
+        await _replace_line(
             f"{self.setup_path}/data/checker.sh",
             PAT_LINE,
             f"pat=\"{self.secrets['vm-secrets']['github-personal-access-token']}\"\n",
         )
-        _replace_line(
+        await _replace_line(
             f"{self.setup_path}/data/engine.sh",
             PAT_LINE_ENGINE,
             f"pat=\"{self.secrets['vm-secrets']['github-personal-access-token']}\"\n",
@@ -345,7 +374,7 @@ class AzureSetupHelper(Helper):
         ENGINE_CONFIG_LINES_START = 4
         ENGINE_CONFIG_LINES_END = 27
         if self.use_vm_images:
-            _delete_lines(
+            await _delete_lines(
                 f"{self.setup_path}/data/vulnbox.sh",
                 [
                     line
@@ -355,7 +384,7 @@ class AzureSetupHelper(Helper):
                     )
                 ],
             )
-            _delete_lines(
+            await _delete_lines(
                 f"{self.setup_path}/data/checker.sh",
                 [
                     line
@@ -365,7 +394,7 @@ class AzureSetupHelper(Helper):
                     )
                 ],
             )
-            _delete_lines(
+            await _delete_lines(
                 f"{self.setup_path}/data/engine.sh",
                 [
                     line
@@ -375,14 +404,14 @@ class AzureSetupHelper(Helper):
                 ],
             )
 
-    def get_ip_addresses(self):
+    async def get_ip_addresses(self):
         # Parse ip addresses from ip_addresses.log
         ip_addresses = dict()
-        with open(
+        async with aiofiles.open(
             f"{self.setup_path}/logs/ip_addresses.log",
             "r",
         ) as ip_file:
-            lines = ip_file.readlines()
+            lines = await ip_file.readlines()
             pattern = r"(\w+)\s*=\s*(.+)"
             for index, line in enumerate(lines):
                 m = re.match(pattern, line)
@@ -403,10 +432,11 @@ class AzureSetupHelper(Helper):
 # TODO:
 # - implement
 class LocalSetupHelper(Helper):
-    def __init__(self, config, secrets):
+    async def __init__(self, config, secrets):
         self.config = config
         self.secrets = secrets
-        dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
+        dir_path = await _dirname(await _abspath(__file__))
+        dir_path = dir_path.replace("\\", "/")
         self.setup_path = f"{dir_path}/../test-setup/{config['setup']['location']}"
 
     def convert_buildscript(self):
@@ -435,16 +465,16 @@ class SetupHelper:
         }
         self.team_gen = TeamGenerator(config)
 
-    def convert_templates(self):
+    async def convert_templates(self):
         helper = self.helpers[SetupVariant.from_str(self.config["setup"]["location"])]
-        helper.convert_buildscript()
-        helper.convert_deploy_script()
-        helper.convert_tf_files()
-        helper.convert_vm_scripts()
+        await helper.convert_buildscript()
+        await helper.convert_deploy_script()
+        await helper.convert_tf_files()
+        await helper.convert_vm_scripts()
 
-    def get_ip_addresses(self):
+    async def get_ip_addresses(self):
         helper = self.helpers[SetupVariant.from_str(self.config["setup"]["location"])]
-        return helper.get_ip_addresses()
+        return await helper.get_ip_addresses()
 
     def generate_teams(self):
         return self.team_gen.generate()

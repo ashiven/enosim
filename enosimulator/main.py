@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 import os
 
 from colorama import init
@@ -58,4 +59,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
