@@ -55,7 +55,7 @@ async def main():
     simulation = await Simulation.new(setup)
     simulation.run()
 
-    await setup.destroy()
+    setup.destroy()
 
 
 if __name__ == "__main__":

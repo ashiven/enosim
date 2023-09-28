@@ -118,7 +118,7 @@ class Setup:
         secrets = await _parse_json(secrets_path)
         dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
-        setup_path = f"{dir_path}/../test-setup/{config['setup']['location']}"
+        setup_path = f"{dir_path}/../../test-setup/{config['setup']['location']}"
         setup_helper = SetupHelper(config, secrets)
         return cls(config, secrets, setup_path, setup_helper, verbose)
 
@@ -174,7 +174,8 @@ class Setup:
             if self.verbose:
                 print(Fore.GREEN + "[+] Created ctf.json")
                 await ctf_file.seek(0)
-                print(ctf_file.read())
+                content = await ctf_file.read()
+                print(content)
 
         # Convert template files (terraform, deploy.sh, build.sh, etc.) according to config
         await self.setup_helper.convert_templates()
@@ -184,10 +185,10 @@ class Setup:
 
     async def build_infra(self):
         # TODO: - uncomment in production
-        _run_shell_script(f"{self.setup_path}/build.sh", "")
+        # _run_shell_script(f"{self.setup_path}/build.sh", "")
 
         # Get ip addresses from terraform output
-        public_ips, private_ips = self.setup_helper.get_ip_addresses()
+        public_ips, private_ips = await self.setup_helper.get_ip_addresses()
         self.ips["public_ip_addresses"] = public_ips
         self.ips["private_ip_addresses"] = private_ips
 
@@ -213,7 +214,9 @@ class Setup:
 
         # Update ctf.json
         await _create_file(f"{self.setup_path}/config/ctf.json")
-        with open(f"{self.setup_path}/config/ctf.json", "r+") as ctf_file:
+        async with aiofiles.open(
+            f"{self.setup_path}/config/ctf.json", "r+"
+        ) as ctf_file:
             await ctf_file.write(json.dumps(ctf_json, indent=4))
             if self.verbose:
                 print(Fore.GREEN + "[+] Updated ctf.json")
@@ -227,7 +230,7 @@ class Setup:
     def deploy(self):
         _run_shell_script(f"{self.setup_path}/deploy.sh", "")
 
-    async def destroy(self):
+    def destroy(self):
         _run_shell_script(f"{self.setup_path}/build.sh", "-d")
 
         # Delete all files created for this setup

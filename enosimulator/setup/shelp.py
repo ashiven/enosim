@@ -1,5 +1,3 @@
-import asyncio
-import concurrent.futures
 import os
 import re
 from abc import ABC, abstractmethod
@@ -26,20 +24,12 @@ class SetupVariant(Enum):
 ####  Helpers ####
 
 
-async def _async_exec(f, *args, **kwargs):
-    loop = asyncio.get_event_loop()
-    with concurrent.futures.ThreadPoolExecutor() as pool:
-        return await loop.run_in_executor(pool, f, *args, **kwargs)
-
-
 async def _copy_file(src, dst):
-    async def path_exists(src):
-        return os.path.exists(src)
-
-    if await path_exists(src):
+    if os.path.exists(src):
         async with aiofiles.open(src, "rb") as src_file:
             async with aiofiles.open(dst, "wb") as dst_file:
-                await dst_file.write(src_file.read())
+                content = await src_file.read()
+                await dst_file.write(content)
 
 
 async def _replace_line(path, line_number, new_line):
@@ -53,7 +43,7 @@ async def _replace_line(path, line_number, new_line):
 
 async def _insert_after(path, after, insert_lines):
     new_lines = []
-    async with open(path, "rb") as file:
+    async with aiofiles.open(path, "rb") as file:
         lines = await file.readlines()
         for line in lines:
             new_lines.append(line)
@@ -65,7 +55,7 @@ async def _insert_after(path, after, insert_lines):
 
 
 async def _append_lines(path, append_lines):
-    async with open(path, "ab") as file:
+    async with aiofiles.open(path, "ab") as file:
         for line in append_lines:
             await file.write(line.encode("utf-8"))
 
@@ -79,20 +69,6 @@ async def _delete_lines(path, delete_lines):
                 new_lines.append(line)
     async with aiofiles.open(path, "wb") as file:
         await file.writelines(new_lines)
-
-
-async def _dirname(path):
-    async def os_dirname(path):
-        return os.path.dirname(path)
-
-    return await _async_exec(os_dirname, path)
-
-
-async def _abspath(path):
-    async def os_abspath(path):
-        return os.path.abspath(path)
-
-    return await _async_exec(os_abspath, path)
 
 
 #### End Helpers ####
@@ -126,7 +102,7 @@ class AzureSetupHelper(Helper):
         self.secrets = secrets
         dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
-        self.setup_path = f"{dir_path}/../test-setup/{config['setup']['location']}"
+        self.setup_path = f"{dir_path}/../../test-setup/{config['setup']['location']}"
         self.use_vm_images = False
 
     async def convert_buildscript(self):
@@ -187,7 +163,7 @@ class AzureSetupHelper(Helper):
         await _replace_line(
             f"{self.setup_path}/deploy.sh",
             ABSOLUTE_SETUP_PATH_LINE,
-            f'setup_path="{await _abspath(self.setup_path)}"\n',
+            f'setup_path="{os.path.abspath(self.setup_path)}"\n',
         )
         await _replace_line(
             f"{self.setup_path}/deploy.sh",
@@ -251,12 +227,12 @@ class AzureSetupHelper(Helper):
             TF_CLIENT_ID_LINE,
             f"  client_id       = \"{self.secrets['cloud-secrets']['azure-service-principal']['client-id']}\"\n",
         )
-        _replace_line(
+        await _replace_line(
             f"{self.setup_path}/versions.tf",
             TF_CLIENT_SECRET_LINE,
             f"  client_secret   = \"{self.secrets['cloud-secrets']['azure-service-principal']['client-secret']}\"\n",
         )
-        _replace_line(
+        await _replace_line(
             f"{self.setup_path}/versions.tf",
             TF_TENANT_ID_LINE,
             f"  tenant_id       = \"{self.secrets['cloud-secrets']['azure-service-principal']['tenant-id']}\"\n",
@@ -437,7 +413,7 @@ class LocalSetupHelper(Helper):
         self.secrets = secrets
         dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
-        self.setup_path = f"{dir_path}/../test-setup/{config['setup']['location']}"
+        self.setup_path = f"{dir_path}/../../test-setup/{config['setup']['location']}"
         self.use_vm_images = False
 
     def convert_buildscript(self):
