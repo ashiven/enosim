@@ -29,6 +29,15 @@ optional() {
   fi
 }
 
+retry() {
+  local retries=3
+  until "$@" || [ "$retries" -eq 0 ]; do
+    echo -e "\033[31m[!] Retrying command ...\033[0m"
+    sleep 1
+    retries=$((retries - 1))
+  done
+}
+
 sed -i 's/^[[:space:]]*//;s/[[:space:]]*$//' services.txt
 
 while read -r service_name; do
@@ -36,7 +45,7 @@ while read -r service_name; do
 
   cd "${service_name}/checker"
   echo -e "\033[32m[+] Starting ${service_name}-checker..."
-  sudo docker compose up --build --force-recreate -d
+  retry sudo docker compose up --build --force-recreate -d
   cd ..
 
 done <"services.txt"
