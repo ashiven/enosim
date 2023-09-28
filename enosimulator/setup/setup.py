@@ -1,5 +1,3 @@
-import asyncio
-import concurrent.futures
 import json
 import os
 import pprint
@@ -18,12 +16,9 @@ def _kebab_to_camel(s):
 
 
 async def _parse_json(path):
-    loop = asyncio.get_event_loop()
-    with concurrent.futures.ThreadPoolExecutor() as pool:
-        async with aiofiles.open(path, "r") as json_file:
-            content = await json_file.read()
-            data = await loop.run_in_executor(pool, json.loads, content)
-            return data
+    async with aiofiles.open(path, "r") as json_file:
+        content = await json_file.read()
+        return json.loads(content)
 
 
 async def _create_file(path):
