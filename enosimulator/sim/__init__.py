@@ -1,2 +1,2 @@
-from orchestrator import *
-from sim import *
+from enosimulator.sim.orchestrator import *
+from enosimulator.sim.sim import *
