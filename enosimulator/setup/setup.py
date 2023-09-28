@@ -7,7 +7,7 @@ from subprocess import PIPE, STDOUT, CalledProcessError, Popen
 
 import aiofiles
 from colorama import Fore
-from shelp import SetupHelper
+from setup.shelp import SetupHelper
 
 ####  Helpers ####
 

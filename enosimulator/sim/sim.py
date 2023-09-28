@@ -2,7 +2,7 @@ import random
 from time import sleep
 
 from colorama import Fore
-from orchestrator import Orchestrator
+from sim.orchestrator import Orchestrator
 
 #### Helpers ####
 

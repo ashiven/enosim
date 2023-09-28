@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 
 import aiofiles
-from teamgen import TeamGenerator
+from setup.teamgen import TeamGenerator
 
 
 class SetupVariant(Enum):

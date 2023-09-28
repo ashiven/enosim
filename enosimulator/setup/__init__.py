@@ -1,3 +1,3 @@
-from enosimulator.setup.setup import *
-from enosimulator.setup.shelp import *
-from enosimulator.setup.teamgen import *
+from setup.setup import *
+from setup.shelp import *
+from setup.teamgen import *
