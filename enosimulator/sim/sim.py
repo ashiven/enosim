@@ -25,7 +25,7 @@ def _exploit_or_patch(team):
 
 
 class Simulation:
-    async def __init__(self, setup, orchestrator):
+    def __init__(self, setup, orchestrator):
         self.setup = setup
         self.orchestrator = orchestrator
 

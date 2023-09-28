@@ -1,9 +1,9 @@
 import secrets
 
 import jsons
+import requests_async as requests
 from enochecker_core import CheckerInfoMessage, CheckerMethod, CheckerTaskMessage
-from requests import Session
-from requests.adapters import HTTPAdapter, Retry
+from requests_async.adapters import HTTPAdapter
 
 #### Helpers ####
 
@@ -73,12 +73,8 @@ def _req_to_json(request_message):
 class Orchestrator:
     def __init__(self, setup):
         self.setup = setup
-        self.session = Session()
-        retry_strategy = Retry(
-            total=5,
-            backoff_factor=1,
-        )
-        self.session.mount("http://", HTTPAdapter(max_retries=retry_strategy))
+        self.session = requests.Session()
+        self.session.mount("http://", HTTPAdapter())
 
     async def update_teams(self):
         for service, settings in self.setup.services.items():
