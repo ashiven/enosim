@@ -121,18 +121,13 @@ class Helper(ABC):
 
 
 class AzureSetupHelper(Helper):
-    async def __init__(self, config, secrets, setup_path):
+    def __init__(self, config, secrets):
         self.config = config
         self.secrets = secrets
-        self.setup_path = setup_path
-        self.use_vm_images = False
-
-    @classmethod
-    async def new(cls, config, secrets):
-        dir_path = await _dirname(await _abspath(__file__))
+        dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
-        setup_path = f"{dir_path}/../test-setup/{config['setup']['location']}"
-        return cls(config, secrets, setup_path)
+        self.setup_path = f"{dir_path}/../test-setup/{config['setup']['location']}"
+        self.use_vm_images = False
 
     async def convert_buildscript(self):
         # Copy build.sh template for configuration
@@ -437,12 +432,13 @@ class AzureSetupHelper(Helper):
 # TODO:
 # - implement
 class LocalSetupHelper(Helper):
-    async def __init__(self, config, secrets):
+    def __init__(self, config, secrets):
         self.config = config
         self.secrets = secrets
-        dir_path = await _dirname(await _abspath(__file__))
+        dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
         self.setup_path = f"{dir_path}/../test-setup/{config['setup']['location']}"
+        self.use_vm_images = False
 
     def convert_buildscript(self):
         pass
@@ -461,21 +457,14 @@ class LocalSetupHelper(Helper):
 
 
 class SetupHelper:
-    def __init__(self, config, secrets, helpers):
+    def __init__(self, config, secrets):
         self.config = config
         self.secrets = secrets
-        self.helpers = helpers
-        self.team_gen = TeamGenerator(config)
-
-    @classmethod
-    async def new(cls, config, secrets):
-        dir_path = await _dirname(await _abspath(__file__))
-        dir_path = dir_path.replace("\\", "/")
-        helpers = {
-            SetupVariant.AZURE: await AzureSetupHelper.new(config, secrets),
-            SetupVariant.LOCAL: await LocalSetupHelper.new(config, secrets),
+        self.helpers = {
+            SetupVariant.AZURE: AzureSetupHelper(config, secrets),
+            SetupVariant.LOCAL: LocalSetupHelper(config, secrets),
         }
-        return cls(config, secrets, helpers)
+        self.team_gen = TeamGenerator(config)
 
     async def convert_templates(self):
         helper = self.helpers[SetupVariant.from_str(self.config["setup"]["location"])]

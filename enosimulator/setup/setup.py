@@ -12,12 +12,6 @@ from setup.shelp import SetupHelper
 ####  Helpers ####
 
 
-async def _async_exec(f, *args, **kwargs):
-    loop = asyncio.get_event_loop()
-    with concurrent.futures.ThreadPoolExecutor() as pool:
-        return await loop.run_in_executor(pool, f, *args, **kwargs)
-
-
 def _kebab_to_camel(s):
     words = s.split("-")
     return words[0] + "".join(w.title() for w in words[1:])
@@ -27,7 +21,8 @@ async def _parse_json(path):
     loop = asyncio.get_event_loop()
     with concurrent.futures.ThreadPoolExecutor() as pool:
         async with aiofiles.open(path, "r") as json_file:
-            data = await loop.run_in_executor(pool, json.load, json_file)
+            content = await json_file.read()
+            data = await loop.run_in_executor(pool, json.loads, content)
             return data
 
 
@@ -38,37 +33,13 @@ async def _create_file(path):
         await file.write("")
 
 
-async def _delete_files(path):
-    async def delete_file(path):
-        if os.path.isfile(path):
-            os.remove(path)
-
-    async def is_file(path):
-        return os.path.isfile(path)
-
-    async def list_dir(path):
-        return os.listdir(path)
-
-    for file in await list_dir(path):
+def _delete_files(path):
+    for file in os.listdir(path):
         if file == ".gitkeep":
             continue
         file_path = os.path.join(path, file)
-        if await _async_exec(is_file, file_path):
-            await _async_exec(delete_file, file_path)
-
-
-async def _dirname(path):
-    async def os_dirname(path):
-        return os.path.dirname(path)
-
-    return await _async_exec(os_dirname, path)
-
-
-async def _abspath(path):
-    async def os_abspath(path):
-        return os.path.abspath(path)
-
-    return await _async_exec(os_abspath, path)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
 
 
 def _run_shell_script(script_path, args):
@@ -131,24 +102,24 @@ def _generate_service(id, service, checker_port):
 
 
 class Setup:
-    async def __init__(self, config, secrets, setup_path, setup_helper, verbose):
+    def __init__(self, config, secrets, setup_path, setup_helper, verbose):
         self.ips = dict()
         self.teams = dict()
         self.services = dict()
         self.verbose = verbose
         self.config = config
         self.secrets = secrets
-        self.setup_path - setup_path
+        self.setup_path = setup_path
         self.setup_helper = setup_helper
 
     @classmethod
     async def new(cls, config_path, secrets_path, verbose=False):
         config = await _parse_json(config_path)
         secrets = await _parse_json(secrets_path)
-        dir_path = await _dirname(await _abspath(__file__))
+        dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
         setup_path = f"{dir_path}/../test-setup/{config['setup']['location']}"
-        setup_helper = await SetupHelper.new(config, secrets)
+        setup_helper = SetupHelper(config, secrets)
         return cls(config, secrets, setup_path, setup_helper, verbose)
 
     def info(self):
@@ -260,7 +231,7 @@ class Setup:
         _run_shell_script(f"{self.setup_path}/build.sh", "-d")
 
         # Delete all files created for this setup
-        await _delete_files(f"{self.setup_path}")
-        await _delete_files(f"{self.setup_path}/config")
-        await _delete_files(f"{self.setup_path}/data")
-        await _delete_files(f"{self.setup_path}/logs")
+        _delete_files(f"{self.setup_path}")
+        _delete_files(f"{self.setup_path}/config")
+        _delete_files(f"{self.setup_path}/data")
+        _delete_files(f"{self.setup_path}/logs")
