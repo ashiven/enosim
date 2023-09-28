@@ -131,17 +131,25 @@ def _generate_service(id, service, checker_port):
 
 
 class Setup:
-    async def __init__(self, config_path, secrets_path, verbose=False):
+    async def __init__(self, config, secrets, setup_path, setup_helper, verbose):
         self.ips = dict()
         self.teams = dict()
         self.services = dict()
         self.verbose = verbose
-        self.config = await _parse_json(config_path)
-        self.secrets = await _parse_json(secrets_path)
+        self.config = config
+        self.secrets = secrets
+        self.setup_path - setup_path
+        self.setup_helper = setup_helper
+
+    @classmethod
+    async def new(cls, config_path, secrets_path, verbose=False):
+        config = await _parse_json(config_path)
+        secrets = await _parse_json(secrets_path)
         dir_path = await _dirname(await _abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
-        self.setup_path = f"{dir_path}/../test-setup/{self.config['setup']['location']}"
-        self.setup_helper = SetupHelper(self.config, self.secrets)
+        setup_path = f"{dir_path}/../test-setup/{config['setup']['location']}"
+        setup_helper = await SetupHelper.new(config, secrets)
+        return cls(config, secrets, setup_path, setup_helper, verbose)
 
     def info(self):
         p = pprint.PrettyPrinter()

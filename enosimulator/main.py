@@ -8,7 +8,7 @@ from setup import Setup
 from sim import Simulation
 
 
-def main():
+async def main():
     load_dotenv()
     init(autoreset=True)
     dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
@@ -46,16 +46,16 @@ def main():
             "Please supply the path to a secrets file or set the ENOSIMULATOR_SECRETS environment variable"
         )
 
-    setup = Setup(args.config, args.secrets, verbose=False)
-    setup.configure()
-    setup.build_infra()
+    setup = await Setup.new(args.config, args.secrets, verbose=False)
+    await setup.configure()
+    await setup.build_infra()
     # TODO: - uncomment in production
     setup.deploy()
 
-    simulation = Simulation(setup)
+    simulation = await Simulation.new(setup)
     simulation.run()
 
-    setup.destroy()
+    await setup.destroy()
 
 
 if __name__ == "__main__":

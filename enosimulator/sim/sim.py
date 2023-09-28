@@ -25,10 +25,15 @@ def _exploit_or_patch(team):
 
 
 class Simulation:
-    async def __init__(self, setup):
+    async def __init__(self, setup, orchestrator):
         self.setup = setup
-        self.orchestrator = Orchestrator(setup)
-        await self.orchestrator.update_teams()
+        self.orchestrator = orchestrator
+
+    @classmethod
+    async def new(cls, setup):
+        orchestrator = Orchestrator(setup)
+        await orchestrator.update_teams()
+        return cls(setup, orchestrator)
 
     def run(self):
         for round_id in range(self.setup.config["settings"]["duration-in-minutes"]):
