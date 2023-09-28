@@ -1,9 +1,8 @@
 import secrets
 
+import httpx
 import jsons
-import requests_async as requests
 from enochecker_core import CheckerInfoMessage, CheckerMethod, CheckerTaskMessage
-from requests_async.adapters import HTTPAdapter
 
 #### Helpers ####
 
@@ -73,14 +72,13 @@ def _req_to_json(request_message):
 class Orchestrator:
     def __init__(self, setup):
         self.setup = setup
-        self.session = requests.Session()
-        self.session.mount("http://", HTTPAdapter())
+        self.client = httpx.AsyncClient()
 
     async def update_teams(self):
         for service, settings in self.setup.services.items():
             # Get service info from checker
             checker_address = settings["checkers"][0]
-            response = await self.session.get(f"{checker_address}/service")
+            response = await self.client.get(f"{checker_address}/service")
             if response.status_code != 200:
                 raise Exception(f"Failed to get {service}-info")
             info: CheckerInfoMessage = jsons.loads(

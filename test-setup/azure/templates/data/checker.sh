@@ -39,6 +39,10 @@ retry() {
 }
 
 sed -i 's/^[[:space:]]*//;s/[[:space:]]*$//' services.txt
+if [ -d "../packer" ]; then
+  sudo mv services.txt ../packer
+  cd ../packer
+fi
 
 while read -r service_name; do
   optional "${service_name}" sudo git clone "https://${pat}@github.com/enowars/${service_name}.git"
