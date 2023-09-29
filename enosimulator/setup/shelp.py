@@ -231,8 +231,7 @@ class AzureSetupHelper(Helper):
         # Configure vm image references in main.tf
         TF_LINE_SOURCE_IMAGE = 69
         if any(
-            ref != "<optional>"
-            for ref in self.config["setup"]["vm-image-references"].values()
+            ref != "" for ref in self.config["setup"]["vm-image-references"].values()
         ):
             self.use_vm_images = True
             await _replace_line(
