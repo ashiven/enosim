@@ -32,7 +32,7 @@ def _update_team(setup, team_name, variant, service, flagstore):
     elif variant == "patched":
         setup.teams[team_name].patched[service][flagstore] = True
         info_text = "patched"
-    print(Fore.GREEN + f"\n[+] Team {team_name} {info_text} {service}: {flagstore}\n")
+    print(Fore.YELLOW + f"\n[!] Team {team_name} {info_text} {service}: {flagstore}")
 
 
 #### End Helpers ####
@@ -52,10 +52,26 @@ class Simulation:
 
     def info(self):
         print(
-            Fore.BLUE + f"\n==================ROUND {self.round_id}==================\n"
+            Fore.BLUE + f"\n==================ROUND {self.round_id}=================="
         )
         for team in self.setup.teams.values():
-            print(f"{team.name}:\n    Exploiting: \n    Patched: \n")
+            print(Fore.CYAN + f"\nTeam {team.name} - {str(team.experience)}")
+            exploiting = []
+            for service, flagstores in team.exploiting.items():
+                for flagstore, do_exploit in flagstores.items():
+                    if do_exploit:
+                        exploiting.append("> " + service + "-" + flagstore)
+            print(Fore.RED + f"\n    Exploiting:")
+            for exploit_info in exploiting:
+                print(f"        {exploit_info}")
+            patched = []
+            for service, flagstores in team.patched.items():
+                for flagstore, do_patch in flagstores.items():
+                    if do_patch:
+                        patched.append("> " + service + "-" + flagstore)
+            print(Fore.GREEN + f"\n    Patched:")
+            for patch_info in patched:
+                print(f"        {patch_info}")
 
     async def run(self):
         for round_id in range(self.setup.config["settings"]["duration-in-minutes"]):

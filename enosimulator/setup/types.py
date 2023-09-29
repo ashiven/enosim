@@ -27,6 +27,8 @@ class Experience(Enum):
     PRO = 0.3
     HAXXOR = 1
 
+    __str__ = lambda self: self.name.lower().capitalize()
+
     @staticmethod
     def from_str(s):
         if s == "noob":
