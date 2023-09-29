@@ -1,5 +1,5 @@
+import asyncio
 import random
-from time import sleep
 
 from colorama import Fore
 from sim.orchestrator import Orchestrator
@@ -25,16 +25,11 @@ def _exploit_or_patch(team):
     return random_variant, random_service, random_flagstore
 
 
-def _adjust_team(setup, team_name, variant, service, flagstore):
-    if (
-        variant == "exploiting"
-        and not setup.teams[team_name].exploiting[service][flagstore]
-    ):
+def _update_team(setup, team_name, variant, service, flagstore):
+    if variant == "exploiting":
         setup.teams[team_name].exploiting[service][flagstore] = True
         info_text = "started exploiting"
-    elif (
-        variant == "patched" and not setup.teams[team_name].patched[service][flagstore]
-    ):
+    elif variant == "patched":
         setup.teams[team_name].patched[service][flagstore] = True
         info_text = "patched"
     print(Fore.GREEN + f"\n[+] Team {team_name} {info_text} {service}: {flagstore}\n")
@@ -54,7 +49,7 @@ class Simulation:
         await orchestrator.update_teams()
         return cls(setup, orchestrator)
 
-    def run(self):
+    async def run(self):
         for round_id in range(self.setup.config["settings"]["duration-in-minutes"]):
             print(
                 Fore.BLUE + f"\n==================ROUND {round_id}==================\n"
@@ -64,11 +59,18 @@ class Simulation:
             for team_name, team in self.setup.teams.items():
                 if _random_test(team):
                     variant, service, flagstore = _exploit_or_patch(team)
-                    _adjust_team(self.setup, team_name, variant, service, flagstore)
+                    _update_team(self.setup, team_name, variant, service, flagstore)
 
             # TODO:
             # - it may be a good idea to do this concurrently for each team
             # - for this i could use the threading library and spawn a thread for each team
             # Instruct orchestrator to send out exploit requests
+            async with asyncio.TaskGroup() as task_group:
+                for team in self.setup.teams.values():
+                    task_group.create_task(
+                        self.orchestrator.send_exploits(
+                            round_id, team, self.setup.teams.values()
+                        )
+                    )
 
-            sleep(60)
+            await asyncio.sleep(2)

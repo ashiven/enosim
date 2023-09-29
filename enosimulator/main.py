@@ -53,7 +53,7 @@ async def main():
     # setup.deploy()
 
     simulation = await Simulation.new(setup)
-    simulation.run()
+    await simulation.run()
 
     setup.destroy()
 

@@ -2,13 +2,18 @@ import secrets
 
 import httpx
 import jsons
-from enochecker_core import CheckerInfoMessage, CheckerMethod, CheckerTaskMessage
+from enochecker_core import (
+    CheckerInfoMessage,
+    CheckerMethod,
+    CheckerResultMessage,
+    CheckerTaskMessage,
+    CheckerTaskResult,
+)
 
 #### Helpers ####
 
 
 FLAG_REGEX_ASCII = r"ENO[A-Za-z0-9+\/=]{48}"
-FLAG_REGEX_UTF8 = r"🥺[A-Za-z0-9+\/=]{48}🥺🥺"
 REQUEST_TIMEOUT = 10
 CHAIN_ID_PREFIX = secrets.token_hex(20)
 
@@ -66,6 +71,47 @@ def _req_to_json(request_message):
     )
 
 
+def _create_exploit_requests(round_id, team, all_teams):
+    exploit_requests = dict()
+    other_teams = [other_team for other_team in all_teams if other_team != team]
+    for service, flagstores in team.exploiting.items():
+        for flagstore_id, (flagstore, do_exploit) in enumerate(flagstores.items()):
+            if do_exploit:
+                for other_team in other_teams:
+                    exploit_request = _checker_request(
+                        method="exploit",
+                        round_id=round_id,
+                        variant_id=flagstore_id,
+                        service_address=other_team.address,
+                        flag_regex=FLAG_REGEX_ASCII,
+                        # TODO: - figure out real values for these fields
+                        flag="hmmmmmm",
+                        flag_hash="hmmmmmmmmmm",
+                        unique_variant_index="hmmmmmm",
+                        attack_info="hmmmmmmmmmmmmmmmmmmmm",
+                    )
+                    exploit_requests[
+                        other_team.name, service, flagstore
+                    ] = exploit_request
+    return exploit_requests
+
+
+def _update_exploit_requests(exploit_requests, team, all_teams):
+    other_teams = [other_team for other_team in all_teams if other_team != team]
+    for other_team in other_teams:
+        for service, flagstores in other_team.patched.items():
+            for flagstore, do_patch in flagstores.items():
+                if do_patch:
+                    exploit_requests.pop((other_team.name, service, flagstore), None)
+
+
+def _service_checker_ports(config):
+    service_checker_ports = dict()
+    for index, service in config["settings"]["services"]:
+        service_checker_ports[service] = config["settings"]["checker-ports"][index]
+    return service_checker_ports
+
+
 #### End Helpers ####
 
 
@@ -99,47 +145,41 @@ class Orchestrator:
                         {f"Flagstore{flagstore_id}": False}
                     )
 
-    def send_exploit(source_team, target_team, service, flagstore):
-        pass
+    async def send_exploits(self, round_id, team, all_teams):
+        # Create exploit requests for each service/flagstore that the team is exploiting
+        exploit_requests = _create_exploit_requests(round_id, team, all_teams)
 
+        # Remove exploit requests for each service/flagstore that the other team has patched
+        _update_exploit_requests(exploit_requests, team, all_teams)
 
-"""
-def _exploit(
-    round_id,
-    variant_id,
-    service_address,
-    flag_hash,
-    flag_regex,
-    attack_info,
-    checker_address,
-):
-    task_request = _create_request_message(
-        method="exploit",
-        round_id=round_id,
-        variant_id=variant_id,
-        service_address=service_address,
-        flag_hash=flag_hash,
-        flag_regex=flag_regex,
-        attack_info=attack_info,
-    )
-    # gotta bring this into json format for the http request to the checker
-    task_request = _jsonify_request_message(task_request)
-    # now i'll send this request to the checker to instruct it to exploit the service
-    response = requests.post(
-        checker_address,
-        data=task_request,
-        headers={"Content-Type": "application/json"},
-        timeout=REQUEST_TIMEOUT,
-    )
-    # extract the task result from the checker out of the http response
-    task_result = jsons.loads(
-        response.content,
-        CheckerResultMessage,
-        key_transformer=jsons.KEY_TRANSFORMER_SNAKECASE,
-    )
-    # something went wrong exploiting
-    if CheckerTaskResult(task_result.result) is not CheckerTaskResult.OK:
-        print(task_result.message)
-    # thats the flag we got through the exploit
-    print(task_result.flag)
-"""
+        # Send exploit requests to the teams exploit-checker
+        service_checker_ports = _service_checker_ports(self.setup.config)
+        for (
+            _team_name,
+            service,
+            _flagstore,
+            exploit_request,
+        ) in exploit_requests.items():
+            exploit_checker_ip = team.address
+            exploit_checker_port = service_checker_ports[service]
+            exploit_checker_address = (
+                f"http://{exploit_checker_ip}:{exploit_checker_port}"
+            )
+
+            r = await self.client.post(
+                exploit_checker_address,
+                data=_req_to_json(exploit_request),
+                headers={"Content-Type": "application/json"},
+                timeout=REQUEST_TIMEOUT,
+            )
+
+            exploit_result = jsons.loads(
+                r.content,
+                CheckerResultMessage,
+                key_transformer=jsons.KEY_TRANSFORMER_SNAKECASE,
+            )
+
+            if CheckerTaskResult(exploit_result.result) is not CheckerTaskResult.OK:
+                print(exploit_result.message)
+
+            print(exploit_result.flag)
