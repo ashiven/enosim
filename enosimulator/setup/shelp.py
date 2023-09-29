@@ -1,25 +1,10 @@
 import os
 import re
 from abc import ABC, abstractmethod
-from enum import Enum
 
 import aiofiles
 from setup.teamgen import TeamGenerator
-
-
-class SetupVariant(Enum):
-    AZURE = "azure"
-    LOCAL = "local"
-
-    @staticmethod
-    def from_str(s):
-        if s == "azure":
-            return SetupVariant.AZURE
-        elif s == "local":
-            return SetupVariant.LOCAL
-        else:
-            raise NotImplementedError
-
+from setup.types import SetupVariant
 
 ####  Helpers ####
 

@@ -1,4 +1,4 @@
-from enum import Enum
+from setup.types import Experience
 
 TEAM_NAMES = [
     "Kleinmazama",
@@ -30,34 +30,6 @@ TEAM_NAMES = [
     "Sangai",
     "Indian hog deer",
 ]
-
-
-class Experience(Enum):
-    """An enum representing the experience level of a team. The value stands for the probability of the team exploiting / patching a vulnerability."""
-
-    NOOB = 0.01
-    BEGINNER = 0.05
-    INTERMEDIATE = 0.1
-    ADVANCED = 0.2
-    PRO = 0.3
-    HAXXOR = 1
-
-    @staticmethod
-    def from_str(s):
-        if s == "noob":
-            return Experience.NOOB
-        elif s == "beginner":
-            return Experience.BEGINNER
-        elif s == "intermediate":
-            return Experience.INTERMEDIATE
-        elif s == "advanced":
-            return Experience.ADVANCED
-        elif s == "pro":
-            return Experience.PRO
-        elif s == "haxxor":
-            return Experience.HAXXOR
-        else:
-            raise NotImplementedError
 
 
 #### Helpers ####
