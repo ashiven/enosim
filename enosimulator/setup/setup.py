@@ -244,13 +244,16 @@ class Setup:
                 print(content)
 
         self.info()
-        print(Fore.GREEN + "[+] Infrastructure built successfully")
+        print(Fore.GREEN + "[+] Infrastructure built successfully\n")
 
     def deploy(self):
+        print(Fore.GREEN + "[+] Configuring infrastructure ...")
+        print(Fore.YELLOW + "[!] This may take a while ...\n")
+
         # TODO: - uncomment in production
         # _run_shell_script(f"{self.setup_path}/deploy.sh", "")
 
-        print(Fore.GREEN + "[+] Deployment complete")
+        print(Fore.GREEN + "[+] Infrastructure configured successfully")
 
     def destroy(self):
         _run_shell_script(f"{self.setup_path}/build.sh", "-d")

@@ -42,6 +42,7 @@ class Simulation:
     def __init__(self, setup, orchestrator):
         self.setup = setup
         self.orchestrator = orchestrator
+        self.round_id = 0
 
     @classmethod
     async def new(cls, setup):
@@ -49,11 +50,16 @@ class Simulation:
         await orchestrator.update_teams()
         return cls(setup, orchestrator)
 
+    def info(self):
+        print(
+            Fore.BLUE + f"\n==================ROUND {self.round_id}==================\n"
+        )
+        for team in self.setup.teams.values():
+            print(f"{team.name}:\n    Exploiting: \n    Patched: \n")
+
     async def run(self):
         for round_id in range(self.setup.config["settings"]["duration-in-minutes"]):
-            print(
-                Fore.BLUE + f"\n==================ROUND {round_id}==================\n"
-            )
+            self.info()
 
             # Go through all teams and perform the random test
             for team_name, team in self.setup.teams.items():
@@ -70,4 +76,5 @@ class Simulation:
                         )
                     )
 
+            self.round_id += 1
             await asyncio.sleep(2)

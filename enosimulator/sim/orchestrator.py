@@ -2,13 +2,7 @@ import secrets
 
 import httpx
 import jsons
-from enochecker_core import (
-    CheckerInfoMessage,
-    CheckerMethod,
-    CheckerResultMessage,
-    CheckerTaskMessage,
-    CheckerTaskResult,
-)
+from enochecker_core import CheckerInfoMessage, CheckerMethod, CheckerTaskMessage
 
 #### Helpers ####
 
@@ -154,6 +148,7 @@ class Orchestrator:
 
         # TODO: - implement / test
         # Send exploit requests to the teams exploit-checker
+        """
         service_checker_ports = _service_checker_ports(self.setup.config)
         for (
             _team_name,
@@ -184,3 +179,4 @@ class Orchestrator:
                 print(exploit_result.message)
 
             print(exploit_result.flag)
+        """
