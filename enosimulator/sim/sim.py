@@ -61,9 +61,6 @@ class Simulation:
                     variant, service, flagstore = _exploit_or_patch(team)
                     _update_team(self.setup, team_name, variant, service, flagstore)
 
-            # TODO:
-            # - it may be a good idea to do this concurrently for each team
-            # - for this i could use the threading library and spawn a thread for each team
             # Instruct orchestrator to send out exploit requests
             async with asyncio.TaskGroup() as task_group:
                 for team in self.setup.teams.values():

@@ -49,8 +49,7 @@ async def main():
     setup = await Setup.new(args.config, args.secrets, verbose=False)
     await setup.configure()
     await setup.build_infra()
-    # TODO: - uncomment in production
-    # setup.deploy()
+    setup.deploy()
 
     simulation = await Simulation.new(setup)
     await simulation.run()

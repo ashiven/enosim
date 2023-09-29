@@ -247,7 +247,10 @@ class Setup:
         print(Fore.GREEN + "[+] Infrastructure built successfully")
 
     def deploy(self):
-        _run_shell_script(f"{self.setup_path}/deploy.sh", "")
+        # TODO: - uncomment in production
+        # _run_shell_script(f"{self.setup_path}/deploy.sh", "")
+
+        print(Fore.GREEN + "[+] Deployment complete")
 
     def destroy(self):
         _run_shell_script(f"{self.setup_path}/build.sh", "-d")
@@ -257,3 +260,5 @@ class Setup:
         _delete_files(f"{self.setup_path}/config")
         _delete_files(f"{self.setup_path}/data")
         _delete_files(f"{self.setup_path}/logs")
+
+        print(Fore.RED + "[-] Infrastructure destroyed successfully")
