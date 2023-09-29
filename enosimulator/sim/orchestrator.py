@@ -152,6 +152,7 @@ class Orchestrator:
         # Remove exploit requests for each service/flagstore that the other team has patched
         _update_exploit_requests(exploit_requests, team, all_teams)
 
+        # TODO: - implement / test
         # Send exploit requests to the teams exploit-checker
         service_checker_ports = _service_checker_ports(self.setup.config)
         for (
