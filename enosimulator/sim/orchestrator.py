@@ -89,13 +89,13 @@ class Orchestrator:
 
             # Update Exploiting / Patched categories for each team
             for settings in self.setup.teams.values():
-                settings["exploiting"].update({info.service_name: {}})
-                settings["patched"].update({info.service_name: {}})
+                settings.exploiting.update({info.service_name: {}})
+                settings.patched.update({info.service_name: {}})
                 for flagstore_id in range(info.exploit_variants):
-                    settings["exploiting"][info.service_name].update(
+                    settings.exploiting[info.service_name].update(
                         {f"Flagstore{flagstore_id}": False}
                     )
-                    settings["patched"][info.service_name].update(
+                    settings.patched[info.service_name].update(
                         {f"Flagstore{flagstore_id}": False}
                     )
 

@@ -6,6 +6,7 @@ from subprocess import PIPE, STDOUT, CalledProcessError, Popen
 import aiofiles
 from colorama import Fore
 from setup.shelp import SetupHelper
+from setup.types import Service
 
 ####  Helpers ####
 
@@ -80,7 +81,7 @@ def _generate_ctf_json():
     return new_ctf_json
 
 
-def _generate_service(id, service, checker_port):
+def _generate_service(id, service, checker_port, simulation_type):
     new_service = {
         "id": id,
         "name": service,
@@ -90,6 +91,24 @@ def _generate_service(id, service, checker_port):
         "weightFactor": 1,
         "checkers": [str(checker_port)],
     }
+    if simulation_type == "stress-test":
+        new_service["flagsPerRoundMultiplier"] = 10
+        new_service["noisesPerRoundMultiplier"] = 10
+        new_service["havocsPerRoundMultiplier"] = 10
+        new_service["weightFactor"] = 1
+    return new_service
+
+
+def _to_service_data(service):
+    new_service = Service(
+        id=service["id"],
+        name=service["name"],
+        flags_per_round_multiplier=service["flagsPerRoundMultiplier"],
+        noises_per_round_multiplier=service["noisesPerRoundMultiplier"],
+        havocs_per_round_multiplier=service["havocsPerRoundMultiplier"],
+        weight_factor=service["weightFactor"],
+        checkers=service["checkers"],
+    )
     return new_service
 
 
@@ -156,9 +175,14 @@ class Setup:
         ctf_json["services"].clear()
         for id, service in enumerate(self.config["settings"]["services"]):
             checker_port = self.config["settings"]["checker-ports"][id]
-            new_service = _generate_service(id + 1, service, checker_port)
+            new_service = _generate_service(
+                id + 1,
+                service,
+                checker_port,
+                self.config["settings"]["simulation-type"],
+            )
             ctf_json["services"].append(new_service)
-            self.services[service] = new_service
+            self.services[service] = _to_service_data(new_service)
 
         # Create ctf.json
         await _create_file(f"{self.setup_path}/config/ctf.json")
@@ -180,7 +204,7 @@ class Setup:
 
     async def build_infra(self):
         # TODO: - uncomment in production
-        _run_shell_script(f"{self.setup_path}/build.sh", "")
+        # _run_shell_script(f"{self.setup_path}/build.sh", "")
 
         # Get ip addresses from terraform output
         public_ips, private_ips = await self.setup_helper.get_ip_addresses()
@@ -204,8 +228,8 @@ class Setup:
             team["teamSubnet"] = (
                 team["teamSubnet"].replace("<placeholder>", team["address"])[:-1] + "0"
             )
-            self.teams[team["name"]]["address"] = team["address"]
-            self.teams[team["name"]]["teamSubnet"] = team["teamSubnet"]
+            self.teams[team["name"]].address = team["address"]
+            self.teams[team["name"]].team_subnet = team["teamSubnet"]
 
         # Update ctf.json
         await _create_file(f"{self.setup_path}/config/ctf.json")

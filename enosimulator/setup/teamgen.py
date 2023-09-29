@@ -1,4 +1,4 @@
-from setup.types import Experience
+from setup.types import Experience, Team
 
 TEAM_NAMES = [
     "Kleinmazama",
@@ -47,15 +47,15 @@ def _generate_ctf_team(id):
 
 def _generate_setup_team(id, experience):
     new_team = {
-        TEAM_NAMES[id - 1]: {
-            "id": id,
-            "name": TEAM_NAMES[id - 1],
-            "teamSubnet": "::ffff:<placeholder>",
-            "address": "<placeholder>",
-            "experience": experience,
-            "exploiting": dict(),
-            "patched": dict(),
-        }
+        TEAM_NAMES[id - 1]: Team(
+            id=id,
+            name=TEAM_NAMES[id - 1],
+            team_subnet="::ffff:<placeholder>",
+            address="<placeholder>",
+            experience=experience,
+            exploiting=dict(),
+            patched=dict(),
+        )
     }
     return new_team
 

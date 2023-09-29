@@ -8,15 +8,19 @@ from sim.orchestrator import Orchestrator
 
 
 def _random_test(team):
-    probability = team["experience"].value
+    probability = team.experience.value
     random_value = random.random()
     return random_value < probability
 
 
 def _exploit_or_patch(team):
     random_variant = random.choice(["exploiting", "patched"])
-    random_service = random.choice(list(team[random_variant]))
-    random_flagstore = random.choice(list(team[random_variant][random_service]))
+    if random_variant == "exploiting":
+        random_service = random.choice(list(team.exploiting))
+        random_flagstore = random.choice(list(team.exploiting[random_service]))
+    else:
+        random_service = random.choice(list(team.patched))
+        random_flagstore = random.choice(list(team.patched[random_service]))
 
     return random_variant, random_service, random_flagstore
 
@@ -42,20 +46,29 @@ class Simulation:
             )
 
             # Go through all teams and perform the random test
-            for team, settings in self.setup.teams.items():
-                if _random_test(settings):
-                    variant, service, flagstore = _exploit_or_patch(settings)
-                    if not self.setup.teams[team][variant][service][flagstore]:
-                        self.setup.teams[team][variant][service][flagstore] = True
-                        info_text = (
-                            "started exploiting"
-                            if variant == "exploiting"
-                            else "patched"
-                        )
-                        print(
-                            Fore.GREEN
-                            + f"\n[+] Team {team} {info_text} {service}: {flagstore}\n"
-                        )
+            for team_name, team in self.setup.teams.items():
+                if _random_test(team):
+                    variant, service, flagstore = _exploit_or_patch(team)
+                    if (
+                        variant == "exploiting"
+                        and not self.setup.teams[team_name].exploiting[service][
+                            flagstore
+                        ]
+                    ):
+                        self.setup.teams[team_name].exploiting[service][
+                            flagstore
+                        ] = True
+                        info_text = "started exploiting"
+                    elif (
+                        variant == "patched"
+                        and not self.setup.teams[team_name].patched[service][flagstore]
+                    ):
+                        self.setup.teams[team_name].patched[service][flagstore] = True
+                        info_text = "patched"
+                    print(
+                        Fore.GREEN
+                        + f"\n[+] Team {team_name} {info_text} {service}: {flagstore}\n"
+                    )
 
             # TODO:
             # - it may be a good idea to do this concurrently for each team
