@@ -1,8 +1,15 @@
 import secrets
+import urllib
 
 import httpx
 import jsons
-from enochecker_core import CheckerInfoMessage, CheckerMethod, CheckerTaskMessage
+from enochecker_core import (
+    CheckerInfoMessage,
+    CheckerMethod,
+    CheckerResultMessage,
+    CheckerTaskMessage,
+    CheckerTaskResult,
+)
 
 #### Helpers ####
 
@@ -15,6 +22,8 @@ CHAIN_ID_PREFIX = secrets.token_hex(20)
 def _checker_request(
     method,
     round_id,
+    team_id,
+    team_name,
     variant_id,
     service_address,
     flag,
@@ -41,8 +50,8 @@ def _checker_request(
         task_id=round_id,
         method=CheckerMethod(method),
         address=service_address,
-        team_id=0,
-        team_name="teamname",
+        team_id=team_id,
+        team_name=team_name,
         current_round_id=round_id,
         related_round_id=round_id,
         flag=flag,
@@ -75,6 +84,8 @@ def _create_exploit_requests(round_id, team, all_teams):
                     exploit_request = _checker_request(
                         method="exploit",
                         round_id=round_id,
+                        team_id=other_team.id,
+                        team_name=other_team.name,
                         variant_id=flagstore_id,
                         service_address=other_team.address,
                         flag_regex=FLAG_REGEX_ASCII,
@@ -99,11 +110,10 @@ def _update_exploit_requests(exploit_requests, team, all_teams):
                     exploit_requests.pop((other_team.name, service, flagstore), None)
 
 
-def _service_checker_ports(config):
-    service_checker_ports = dict()
-    for index, service in config["settings"]["services"]:
-        service_checker_ports[service] = config["settings"]["checker-ports"][index]
-    return service_checker_ports
+def _port_from_address(address):
+    url = urllib.parse.urlparse(address)
+    host, _, port = url.netloc.partition(":")
+    return port
 
 
 #### End Helpers ####
@@ -113,6 +123,7 @@ class Orchestrator:
     def __init__(self, setup):
         self.setup = setup
         self.client = httpx.AsyncClient()
+        self.service_checker_ports = dict()
 
     async def update_teams(self):
         for service, settings in self.setup.services.items():
@@ -125,6 +136,11 @@ class Orchestrator:
                 response.content,
                 CheckerInfoMessage,
                 key_transformer=jsons.KEY_TRANSFORMER_SNAKECASE,
+            )
+
+            # Store service checker port for later use
+            self.service_checker_ports[info.service_name] = _port_from_address(
+                checker_address
             )
 
             # Update Exploiting / Patched categories for each team
@@ -146,21 +162,24 @@ class Orchestrator:
         # Remove exploit requests for each service/flagstore that the other team has patched
         _update_exploit_requests(exploit_requests, team, all_teams)
 
-        # TODO: - implement / test
         # Send exploit requests to the teams exploit-checker
-        """
-        service_checker_ports = _service_checker_ports(self.setup.config)
         for (
-            _team_name,
-            service,
-            _flagstore,
+            (_team_name, service, _flagstore),
             exploit_request,
         ) in exploit_requests.items():
             exploit_checker_ip = team.address
-            exploit_checker_port = service_checker_ports[service]
+            exploit_checker_port = self.service_checker_ports[service]
             exploit_checker_address = (
                 f"http://{exploit_checker_ip}:{exploit_checker_port}"
             )
+
+            """    
+            print(
+                f"[!] {team.name} exploiting {_team_name} on {service}-{_flagstore}..."
+            )
+            print(f"[!] Sending exploit request to {exploit_checker_address}...")
+            print(f"[!] {exploit_request}")
+            """
 
             r = await self.client.post(
                 exploit_checker_address,
@@ -178,5 +197,7 @@ class Orchestrator:
             if CheckerTaskResult(exploit_result.result) is not CheckerTaskResult.OK:
                 print(exploit_result.message)
 
+            # TODO:
+            # - flags that have been gathered from exploits should be saved in some list and returned
+            # - they can then be used in in the run() method to be sent to the teams flag-checker
             print(exploit_result.flag)
-        """
