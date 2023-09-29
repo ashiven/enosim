@@ -84,13 +84,20 @@ class Simulation:
                     _update_team(self.setup, team_name, variant, service, flagstore)
 
             # Instruct orchestrator to send out exploit requests
+            team_flags = dict()
             async with asyncio.TaskGroup() as task_group:
                 for team in self.setup.teams.values():
-                    task_group.create_task(
-                        self.orchestrator.send_exploits(
+                    flags = await task_group.create_task(
+                        self.orchestrator.exploit(
                             round_id, team, self.setup.teams.values()
                         )
                     )
+                    team_flags[team.name] = flags
+
+            # Instruct orchestrator to commit flags
+            async with asyncio.TaskGroup() as task_group:
+                for team, flags in team_flags.items():
+                    task_group.create_task(self.orchestrator.commit_flags(team, flags))
 
             self.round_id += 1
             await asyncio.sleep(2)

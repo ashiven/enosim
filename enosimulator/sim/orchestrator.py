@@ -11,12 +11,11 @@ from enochecker_core import (
     CheckerTaskResult,
 )
 
-#### Helpers ####
-
-
 FLAG_REGEX_ASCII = r"ENO[A-Za-z0-9+\/=]{48}"
-REQUEST_TIMEOUT = 10
 CHAIN_ID_PREFIX = secrets.token_hex(20)
+REQUEST_TIMEOUT = 10
+
+#### Helpers ####
 
 
 def _checker_request(
@@ -74,42 +73,6 @@ def _req_to_json(request_message):
     )
 
 
-def _create_exploit_requests(round_id, team, all_teams):
-    exploit_requests = dict()
-    other_teams = [other_team for other_team in all_teams if other_team != team]
-    for service, flagstores in team.exploiting.items():
-        for flagstore_id, (flagstore, do_exploit) in enumerate(flagstores.items()):
-            if do_exploit:
-                for other_team in other_teams:
-                    exploit_request = _checker_request(
-                        method="exploit",
-                        round_id=round_id,
-                        team_id=other_team.id,
-                        team_name=other_team.name,
-                        variant_id=flagstore_id,
-                        service_address=other_team.address,
-                        flag_regex=FLAG_REGEX_ASCII,
-                        # TODO: - figure out real values for these fields
-                        flag="hmmmmmm",
-                        flag_hash="hmmmmmmmmmm",
-                        unique_variant_index="hmmmmmm",
-                        attack_info="hmmmmmmmmmmmmmmmmmmmm",
-                    )
-                    exploit_requests[
-                        other_team.name, service, flagstore
-                    ] = exploit_request
-    return exploit_requests
-
-
-def _update_exploit_requests(exploit_requests, team, all_teams):
-    other_teams = [other_team for other_team in all_teams if other_team != team]
-    for other_team in other_teams:
-        for service, flagstores in other_team.patched.items():
-            for flagstore, do_patch in flagstores.items():
-                if do_patch:
-                    exploit_requests.pop((other_team.name, service, flagstore), None)
-
-
 def _port_from_address(address):
     url = urllib.parse.urlparse(address)
     host, _, port = url.netloc.partition(":")
@@ -155,14 +118,62 @@ class Orchestrator:
                         {f"Flagstore{flagstore_id}": False}
                     )
 
-    async def send_exploits(self, round_id, team, all_teams):
+    async def exploit(self, round_id, team, all_teams):
         # Create exploit requests for each service/flagstore that the team is exploiting
-        exploit_requests = _create_exploit_requests(round_id, team, all_teams)
+        exploit_requests = self._create_exploit_requests(round_id, team, all_teams)
 
         # Remove exploit requests for each service/flagstore that the other team has patched
-        _update_exploit_requests(exploit_requests, team, all_teams)
+        self._update_exploit_requests(exploit_requests, team, all_teams)
 
         # Send exploit requests to the teams exploit-checker
+        flags = await self._send_exploit_requests(team, exploit_requests)
+
+        return flags
+
+    # TODO:
+    # - we should implement a method called commit_flags() for the orchestrator
+    # - that will called after all exploit requests have been sent and the flags have been accumulated
+    def _commit_flags(team, flags):
+        pass
+
+    def _create_exploit_requests(self, round_id, team, all_teams):
+        exploit_requests = dict()
+        other_teams = [other_team for other_team in all_teams if other_team != team]
+        for service, flagstores in team.exploiting.items():
+            for flagstore_id, (flagstore, do_exploit) in enumerate(flagstores.items()):
+                if do_exploit:
+                    for other_team in other_teams:
+                        exploit_request = _checker_request(
+                            method="exploit",
+                            round_id=round_id,
+                            team_id=other_team.id,
+                            team_name=other_team.name,
+                            variant_id=flagstore_id,
+                            service_address=other_team.address,
+                            flag_regex=FLAG_REGEX_ASCII,
+                            # TODO: - figure out real values for these fields
+                            flag="hmmmmmm",
+                            flag_hash="hmmmmmmmmmm",
+                            unique_variant_index="hmmmmmm",
+                            attack_info="hmmmmmmmmmmmmmmmmmmmm",
+                        )
+                        exploit_requests[
+                            other_team.name, service, flagstore
+                        ] = exploit_request
+        return exploit_requests
+
+    def _update_exploit_requests(self, exploit_requests, team, all_teams):
+        other_teams = [other_team for other_team in all_teams if other_team != team]
+        for other_team in other_teams:
+            for service, flagstores in other_team.patched.items():
+                for flagstore, do_patch in flagstores.items():
+                    if do_patch:
+                        exploit_requests.pop(
+                            (other_team.name, service, flagstore), None
+                        )
+
+    async def _send_exploit_requests(self, team, exploit_requests):
+        flags = []
         for (
             (_team_name, service, _flagstore),
             exploit_request,
@@ -196,8 +207,6 @@ class Orchestrator:
 
             if CheckerTaskResult(exploit_result.result) is not CheckerTaskResult.OK:
                 print(exploit_result.message)
-
-            # TODO:
-            # - flags that have been gathered from exploits should be saved in some list and returned
-            # - they can then be used in in the run() method to be sent to the teams flag-checker
-            print(exploit_result.flag)
+            else:
+                flags.append(exploit_result.flag)
+        return flags
