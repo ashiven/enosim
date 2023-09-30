@@ -143,6 +143,8 @@ class Orchestrator:
             for flagstore_id, (flagstore, do_exploit) in enumerate(flagstores.items()):
                 if do_exploit:
                     for other_team in other_teams:
+                        if other_team.patched[service][flagstore]:
+                            continue
                         exploit_request = _checker_request(
                             method="exploit",
                             round_id=round_id,
