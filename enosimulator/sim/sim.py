@@ -65,7 +65,7 @@ class Simulation:
 
     async def run(self):
         for _ in range(self.setup.config["settings"]["duration-in-minutes"]):
-            self.round_id = self.orchestrator.get_round_info()
+            self.round_id = await self.orchestrator.get_round_info()
             self.round_info()
 
             # Go through all teams and perform the random test

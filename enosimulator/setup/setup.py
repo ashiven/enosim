@@ -204,7 +204,7 @@ class Setup:
 
     async def build_infra(self):
         # TODO: - uncomment in production
-        _run_shell_script(f"{self.setup_path}/build.sh", "")
+        # _run_shell_script(f"{self.setup_path}/build.sh", "")
 
         # Get ip addresses from terraform output
         public_ips, private_ips = await self.setup_helper.get_ip_addresses()
@@ -251,7 +251,7 @@ class Setup:
         print(Fore.YELLOW + "[!] This may take a while ...\n")
 
         # TODO: - uncomment in production
-        _run_shell_script(f"{self.setup_path}/deploy.sh", "")
+        # _run_shell_script(f"{self.setup_path}/deploy.sh", "")
 
         print(Fore.GREEN + "[+] Infrastructure configured successfully")
 
