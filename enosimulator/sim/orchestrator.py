@@ -90,12 +90,12 @@ class Orchestrator:
         self.attack_info = None
 
     async def update_team_info(self):
-        for service, settings in self.setup.services.items():
+        for service_name, service in self.setup.services.items():
             # Get service info from checker
-            checker_address = settings["checkers"][0]
+            checker_address = service["checkers"][0]
             response = await self.client.get(f"{checker_address}/service")
             if response.status_code != 200:
-                raise Exception(f"Failed to get {service}-info")
+                raise Exception(f"Failed to get {service_name}-info")
             info: CheckerInfoMessage = jsons.loads(
                 response.content,
                 CheckerInfoMessage,
@@ -108,14 +108,14 @@ class Orchestrator:
             )
 
             # Update Exploiting / Patched categories for each team
-            for settings in self.setup.teams.values():
-                settings.exploiting.update({info.service_name: {}})
-                settings.patched.update({info.service_name: {}})
+            for team in self.setup.teams.values():
+                team.exploiting.update({info.service_name: {}})
+                team.patched.update({info.service_name: {}})
                 for flagstore_id in range(info.exploit_variants):
-                    settings.exploiting[info.service_name].update(
+                    team.exploiting[info.service_name].update(
                         {f"Flagstore{flagstore_id}": False}
                     )
-                    settings.patched[info.service_name].update(
+                    team.patched[info.service_name].update(
                         {f"Flagstore{flagstore_id}": False}
                     )
 
