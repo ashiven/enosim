@@ -83,11 +83,11 @@ class Simulation:
                             self.round_id, team, self.setup.teams.values()
                         )
                     )
-                    team_flags[team] = flags
+                    team_flags[team.name] = (team, flags)
 
             # Instruct orchestrator to commit flags
             async with asyncio.TaskGroup() as task_group:
-                for team, flags in team_flags.items():
+                for team, flags in team_flags.values():
                     task_group.create_task(self.orchestrator.submit_flags(team, flags))
 
             await asyncio.sleep(2)

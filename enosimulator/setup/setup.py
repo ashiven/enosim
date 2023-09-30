@@ -251,7 +251,7 @@ class Setup:
         print(Fore.YELLOW + "[!] This may take a while ...\n")
 
         # TODO: - uncomment in production
-        # _run_shell_script(f"{self.setup_path}/deploy.sh", "")
+        _run_shell_script(f"{self.setup_path}/deploy.sh", "")
 
         print(Fore.GREEN + "[+] Infrastructure configured successfully")
 
