@@ -122,9 +122,6 @@ class Orchestrator:
         # Create exploit requests for each service/flagstore that the team is exploiting
         exploit_requests = self._create_exploit_requests(round_id, team, all_teams)
 
-        # Remove exploit requests for each service/flagstore that the other team has patched
-        self._update_exploit_requests(exploit_requests, team, all_teams)
-
         # Send exploit requests to the teams exploit-checker
         flags = await self._send_exploit_requests(team, exploit_requests)
 
@@ -133,7 +130,13 @@ class Orchestrator:
     # TODO:
     # - we should implement a method called commit_flags() for the orchestrator
     # - that will called after all exploit requests have been sent and the flags have been accumulated
-    def _commit_flags(team, flags):
+    async def submit_flags(team, flags):
+        pass
+
+    # TODO:
+    # - parse the round_id from the scoreboard and return it
+    # - parse the attack info and set it for self.attack_info
+    async def get_round_info(self):
         pass
 
     def _create_exploit_requests(self, round_id, team, all_teams):
@@ -163,16 +166,6 @@ class Orchestrator:
                             other_team.name, service, flagstore
                         ] = exploit_request
         return exploit_requests
-
-    def _update_exploit_requests(self, exploit_requests, team, all_teams):
-        other_teams = [other_team for other_team in all_teams if other_team != team]
-        for other_team in other_teams:
-            for service, flagstores in other_team.patched.items():
-                for flagstore, do_patch in flagstores.items():
-                    if do_patch:
-                        exploit_requests.pop(
-                            (other_team.name, service, flagstore), None
-                        )
 
     async def _send_exploit_requests(self, team, exploit_requests):
         flags = []

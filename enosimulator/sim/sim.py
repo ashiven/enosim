@@ -25,16 +25,6 @@ def _exploit_or_patch(team):
     return random_variant, random_service, random_flagstore
 
 
-def _update_team(setup, team_name, variant, service, flagstore):
-    if variant == "exploiting":
-        setup.teams[team_name].exploiting[service][flagstore] = True
-        info_text = "started exploiting"
-    elif variant == "patched":
-        setup.teams[team_name].patched[service][flagstore] = True
-        info_text = "patched"
-    print(Fore.YELLOW + f"\n[!] Team {team_name} {info_text} {service}: {flagstore}")
-
-
 #### End Helpers ####
 
 
@@ -50,7 +40,7 @@ class Simulation:
         await orchestrator.update_teams()
         return cls(setup, orchestrator)
 
-    def info(self):
+    def round_info(self):
         print(
             Fore.BLUE + f"\n==================ROUND {self.round_id}=================="
         )
@@ -75,15 +65,14 @@ class Simulation:
 
     async def run(self):
         for _ in range(self.setup.config["settings"]["duration-in-minutes"]):
-            self.round_id = self.orchestrator.get_round_id()
-            self.attack_info = self.orchestrator.get_attack_info()
-            self.info()
+            self.round_id = self.orchestrator.get_round_info()
+            self.round_info()
 
             # Go through all teams and perform the random test
             for team_name, team in self.setup.teams.items():
                 if _random_test(team):
                     variant, service, flagstore = _exploit_or_patch(team)
-                    _update_team(self.setup, team_name, variant, service, flagstore)
+                    self._update_team(team_name, variant, service, flagstore)
 
             # Instruct orchestrator to send out exploit requests
             team_flags = dict()
@@ -91,7 +80,7 @@ class Simulation:
                 for team in self.setup.teams.values():
                     flags = await task_group.create_task(
                         self.orchestrator.exploit(
-                            round_id, team, self.setup.teams.values()
+                            self.round_id, team, self.setup.teams.values()
                         )
                     )
                     team_flags[team.name] = flags
@@ -102,3 +91,14 @@ class Simulation:
                     task_group.create_task(self.orchestrator.commit_flags(team, flags))
 
             await asyncio.sleep(2)
+
+    def _update_team(self, team_name, variant, service, flagstore):
+        if variant == "exploiting":
+            self.setup.teams[team_name].exploiting[service][flagstore] = True
+            info_text = "started exploiting"
+        elif variant == "patched":
+            self.setup.teams[team_name].patched[service][flagstore] = True
+            info_text = "patched"
+        print(
+            Fore.YELLOW + f"\n[!] Team {team_name} {info_text} {service}: {flagstore}"
+        )
