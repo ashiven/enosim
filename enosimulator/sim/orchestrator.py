@@ -87,6 +87,7 @@ class Orchestrator:
         self.setup = setup
         self.client = httpx.AsyncClient()
         self.service_checker_ports = dict()
+        self.attack_info = None
 
     async def update_teams(self):
         for service, settings in self.setup.services.items():
