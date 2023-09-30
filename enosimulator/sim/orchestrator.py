@@ -128,8 +128,7 @@ class Orchestrator:
         return flags
 
     # TODO:
-    # - we should implement a method called commit_flags() for the orchestrator
-    # - that will called after all exploit requests have been sent and the flags have been accumulated
+    # - implement
     async def submit_flags(team, flags):
         pass
 
