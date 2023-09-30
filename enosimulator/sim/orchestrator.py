@@ -120,9 +120,11 @@ class Orchestrator:
                     )
 
     # TODO:
-    # - parse the round_id from the scoreboard and return it
-    # - parse the attack_info and set it for self.attack_info
     # - before i can do these things i need to make sure that the enolandingpage gets launched on the engine
+    # - parse the round_id from the scoreboard and return it
+    # - if it is too much effort to set up the scoreboard, the round_id is probably not
+    # - that important for now (flag validity is not dependent on round_id)
+    # - parse the attack_info and set it for self.attack_info
     async def get_round_info(self):
         pass
 
