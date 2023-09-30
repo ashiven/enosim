@@ -129,7 +129,7 @@ class Orchestrator:
 
     # TODO:
     # - implement
-    async def submit_flags(team, flags):
+    async def submit_flags(self, team, flags):
         pass
 
     # TODO:
