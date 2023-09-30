@@ -88,7 +88,9 @@ class AzureSetupHelper(Helper):
         dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
         self.setup_path = f"{dir_path}/../../test-setup/{config['setup']['location']}"
-        self.use_vm_images = False
+        self.use_vm_images = any(
+            ref != "" for ref in self.config["setup"]["vm-image-references"].values()
+        )
 
     async def convert_buildscript(self):
         # Copy build.sh template for configuration
@@ -230,10 +232,7 @@ class AzureSetupHelper(Helper):
 
         # Configure vm image references in main.tf
         TF_LINE_SOURCE_IMAGE = 69
-        if any(
-            ref != "" for ref in self.config["setup"]["vm-image-references"].values()
-        ):
-            self.use_vm_images = True
+        if self.use_vm_images:
             await _replace_line(
                 f"{self.setup_path}/main.tf",
                 TF_LINE_SOURCE_IMAGE,
