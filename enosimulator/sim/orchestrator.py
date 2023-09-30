@@ -151,10 +151,10 @@ class Orchestrator:
                             variant_id=flagstore_id,
                             service_address=other_team.address,
                             flag_regex=FLAG_REGEX_ASCII,
-                            # TODO: - figure out real values for these fields
-                            flag="hmmmmmm",
-                            flag_hash="hmmmmmmmmmm",
-                            unique_variant_index="hmmmmmm",
+                            flag=None,
+                            flag_hash="simulation",
+                            unique_variant_index=None,
+                            # TODO: - figure out how to get attack info
                             attack_info="hmmmmmmmmmmmmmmmmmmmm",
                         )
                         exploit_requests[
