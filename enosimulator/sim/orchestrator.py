@@ -89,7 +89,7 @@ class Orchestrator:
         self.service_checker_ports = dict()
         self.attack_info = None
 
-    async def update_teams(self):
+    async def update_team_info(self):
         for service, settings in self.setup.services.items():
             # Get service info from checker
             checker_address = settings["checkers"][0]
@@ -119,6 +119,12 @@ class Orchestrator:
                         {f"Flagstore{flagstore_id}": False}
                     )
 
+    # TODO:
+    # - parse the round_id from the scoreboard and return it
+    # - parse the attack info and set it for self.attack_info
+    async def get_round_info(self):
+        pass
+
     async def exploit(self, round_id, team, all_teams):
         # Create exploit requests for each service/flagstore that the team is exploiting
         exploit_requests = self._create_exploit_requests(round_id, team, all_teams)
@@ -131,12 +137,6 @@ class Orchestrator:
     # TODO:
     # - implement
     async def submit_flags(self, team, flags):
-        pass
-
-    # TODO:
-    # - parse the round_id from the scoreboard and return it
-    # - parse the attack info and set it for self.attack_info
-    async def get_round_info(self):
         pass
 
     def _create_exploit_requests(self, round_id, team, all_teams):

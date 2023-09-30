@@ -37,7 +37,7 @@ class Simulation:
     @classmethod
     async def new(cls, setup):
         orchestrator = Orchestrator(setup)
-        await orchestrator.update_teams()
+        await orchestrator.update_team_info()
         return cls(setup, orchestrator)
 
     def round_info(self):
