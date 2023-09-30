@@ -88,7 +88,7 @@ class Simulation:
             # Instruct orchestrator to commit flags
             async with asyncio.TaskGroup() as task_group:
                 for team, flags in team_flags.items():
-                    task_group.create_task(self.orchestrator.commit_flags(team, flags))
+                    task_group.create_task(self.orchestrator.submit_flags(team, flags))
 
             await asyncio.sleep(2)
 
