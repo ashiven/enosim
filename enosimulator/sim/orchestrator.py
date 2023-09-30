@@ -154,8 +154,7 @@ class Orchestrator:
                             flag=None,
                             flag_hash="simulation",
                             unique_variant_index=None,
-                            # TODO: - figure out how to get attack info
-                            attack_info="hmmmmmmmmmmmmmmmmmmmm",
+                            attack_info=self.attack_info[service][flagstore],
                         )
                         exploit_requests[
                             other_team.name, service, flagstore
