@@ -138,7 +138,8 @@ class Orchestrator:
         return flags
 
     # TODO:
-    # - implement
+    # - maybe i can set up an ssh tunnel in a subprocess on a separate thread
+    # - and then i can simply send the flags to localhost:1337 through a websocket
     async def submit_flags(self, team, flags):
         pass
 
