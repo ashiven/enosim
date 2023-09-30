@@ -74,7 +74,9 @@ class Simulation:
                 print(f"        {patch_info}")
 
     async def run(self):
-        for round_id in range(self.setup.config["settings"]["duration-in-minutes"]):
+        for _ in range(self.setup.config["settings"]["duration-in-minutes"]):
+            self.round_id = self.orchestrator.get_round_id()
+            self.attack_info = self.orchestrator.get_attack_info()
             self.info()
 
             # Go through all teams and perform the random test
@@ -99,5 +101,4 @@ class Simulation:
                 for team, flags in team_flags.items():
                     task_group.create_task(self.orchestrator.commit_flags(team, flags))
 
-            self.round_id += 1
             await asyncio.sleep(2)
