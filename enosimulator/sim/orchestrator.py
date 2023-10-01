@@ -163,7 +163,7 @@ class Orchestrator:
                             flag=None,
                             flag_hash="simulation",
                             unique_variant_index=None,
-                            attack_info=self.attack_info[service][flagstore],
+                            attack_info=self.attack_info,
                         )
                         exploit_requests[
                             other_team.name, service, flagstore

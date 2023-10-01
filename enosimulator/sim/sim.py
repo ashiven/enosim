@@ -1,5 +1,6 @@
 import asyncio
 import random
+import threading
 
 from colorama import Fore
 from sim.orchestrator import Orchestrator
@@ -85,10 +86,16 @@ class Simulation:
                     )
                     team_flags[team.name] = (team, flags)
 
+            # async with asyncio.TaskGroup() as task_group:
+            #     for team, flags in team_flags.values():
+            #         task_group.create_task(self.orchestrator.submit_flags(team, flags))
+
             # Instruct orchestrator to commit flags
-            async with asyncio.TaskGroup() as task_group:
-                for team, flags in team_flags.values():
-                    task_group.create_task(self.orchestrator.submit_flags(team, flags))
+            for team, flags in team_flags.values():
+                t = threading.Thread(
+                    target=self.orchestrator.submit_flags, args=(team, flags)
+                )
+                t.start()
 
             await asyncio.sleep(2)
 
