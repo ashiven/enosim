@@ -3,13 +3,7 @@ import urllib
 
 import httpx
 import jsons
-from enochecker_core import (
-    CheckerInfoMessage,
-    CheckerMethod,
-    CheckerResultMessage,
-    CheckerTaskMessage,
-    CheckerTaskResult,
-)
+from enochecker_core import CheckerInfoMessage, CheckerMethod, CheckerTaskMessage
 from sim.flagsubmitter import FlagSubmitter
 
 FLAG_REGEX_ASCII = r"ENO[A-Za-z0-9+\/=]{48}"
@@ -139,7 +133,6 @@ class Orchestrator:
 
         return flags
 
-    # TODO: - test
     def submit_flags(self, team_address, flags):
         self.flag_submitter.submit_flags(team_address, flags)
 
@@ -182,7 +175,6 @@ class Orchestrator:
                 f"http://{exploit_checker_ip}:{exploit_checker_port}"
             )
 
-            """
             print(
                 f"[!] {team.name} exploiting {_team_name} on {service}-{_flagstore}..."
             )
@@ -207,5 +199,5 @@ class Orchestrator:
                 print(exploit_result.message)
             else:
                 flags.append(exploit_result.flag)
-
+            """
         return flags

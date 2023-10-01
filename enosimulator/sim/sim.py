@@ -86,21 +86,13 @@ class Simulation:
                     )
                     team_flags[team.name] = (team.address, flags)
 
-            # async with asyncio.TaskGroup() as task_group:
-            #     for team, flags in team_flags.values():
-            #         task_group.create_task(self.orchestrator.submit_flags(team, flags))
-
-            # for team, flags in team_flags.values():
-            #     t = threading.Thread(
-            #         target=self.orchestrator.submit_flags, args=(team, flags)
-            #     )
-            #     t.start()
             # Instruct orchestrator to commit flags
             with ThreadPoolExecutor(max_workers=20) as executor:
-                for team, flags in team_flags.values():
-                    executor.submit(self.orchestrator.submit_flags, team, flags)
+                for team_address, flags in team_flags.values():
+                    # if flags:
+                    executor.submit(self.orchestrator.submit_flags, team_address, flags)
 
-            await asyncio.sleep(2)
+            await asyncio.sleep(5)
 
     def _update_team(self, team_name, variant, service, flagstore):
         if variant == "exploiting":
