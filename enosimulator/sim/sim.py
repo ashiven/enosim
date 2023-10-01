@@ -1,6 +1,6 @@
 import asyncio
 import random
-import threading
+from concurrent.futures import ThreadPoolExecutor
 
 from colorama import Fore
 from sim.orchestrator import Orchestrator
@@ -90,12 +90,15 @@ class Simulation:
             #     for team, flags in team_flags.values():
             #         task_group.create_task(self.orchestrator.submit_flags(team, flags))
 
+            # for team, flags in team_flags.values():
+            #     t = threading.Thread(
+            #         target=self.orchestrator.submit_flags, args=(team, flags)
+            #     )
+            #     t.start()
             # Instruct orchestrator to commit flags
-            for team, flags in team_flags.values():
-                t = threading.Thread(
-                    target=self.orchestrator.submit_flags, args=(team, flags)
-                )
-                t.start()
+            with ThreadPoolExecutor(max_workers=20) as executor:
+                for team, flags in team_flags.values():
+                    executor.submit(self.orchestrator.submit_flags, team, flags)
 
             await asyncio.sleep(2)
 
