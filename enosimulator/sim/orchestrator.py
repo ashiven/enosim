@@ -156,6 +156,7 @@ class Orchestrator:
                             flag=None,
                             flag_hash="simulation",
                             unique_variant_index=None,
+                            # TODO: - specify attack info for service / flagstore
                             attack_info=self.attack_info,
                         )
                         exploit_requests[
@@ -180,6 +181,7 @@ class Orchestrator:
             )
             print(f"[!] Sending exploit request to {exploit_checker_address}...")
             print(f"[!] {exploit_request}")
+            # TODO: - uncomment below code in production and remove above print statements
             """
 
             r = await self.client.post(

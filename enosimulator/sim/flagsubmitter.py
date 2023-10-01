@@ -17,7 +17,8 @@ def _public_ip(setup, team_address):
 class FlagSubmitter:
     def __init__(self, setup):
         self.setup = setup
-
+    
+    # TODO: - figure out why the connection fails
     def submit_flags(self, team_address, flags):
         flag_str = "testtesttesttest"  # "\n".join(flags)
 

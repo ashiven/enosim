@@ -89,6 +89,7 @@ class Simulation:
             # Instruct orchestrator to commit flags
             with ThreadPoolExecutor(max_workers=20) as executor:
                 for team_address, flags in team_flags.values():
+                    # TODO: - uncomment in production
                     # if flags:
                     executor.submit(self.orchestrator.submit_flags, team_address, flags)
 
