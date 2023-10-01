@@ -4,7 +4,7 @@ resource "hcloud_ssh_key" "ssh_key" {
 }
 
 resource "hcloud_network" "vnet" {
-  name     = "network"
+  name     = "simulation-network"
   ip_range = "10.0.0.0/16"
 }
 
@@ -15,7 +15,9 @@ resource "hcloud_network_subnet" "snet" {
   ip_range     = "10.0.2.0/24"
 }
 
-# creating a server auto-assigns a public ip
+# TODO: 
+# - create nodes for engine, checker, vulnboxes
+# - make sure that packer images can be used to create vms
 resource "hcloud_server" "vm" {
   name        = "server"
   server_type = "cx11"
@@ -26,6 +28,7 @@ resource "hcloud_server" "vm" {
     hcloud_ssh_key.ssh_key.id
   ]
 
+   # creating a server auto-assigns a private and public ip
   network {
     network_id = hcloud_network.vnet.id
   }
