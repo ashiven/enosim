@@ -18,11 +18,11 @@ class FlagSubmitter:
     def __init__(self, setup):
         self.setup = setup
 
-    def submit_flags(self, team, flags):
-        flag_str = "\n".join(flags)
+    def submit_flags(self, team_address, flags):
+        flag_str = "testtesttesttest"  # "\n".join(flags)
 
         with sshtunnel.open_tunnel(
-            (_public_ip(self.setup, team.address), 22),
+            (_public_ip(self.setup, team_address), 22),
             ssh_username="groot",
             ssh_pkey=self.setup.secrets["vm-secrets"]["ssh-private-key-path"],
             remote_bind_address=(

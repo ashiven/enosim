@@ -140,8 +140,8 @@ class Orchestrator:
         return flags
 
     # TODO: - test
-    def submit_flags(self, team, flags):
-        self.flag_submitter.submit_flags(team, flags)
+    def submit_flags(self, team_address, flags):
+        self.flag_submitter.submit_flags(team_address, flags)
 
     def _create_exploit_requests(self, round_id, team, all_teams):
         exploit_requests = dict()

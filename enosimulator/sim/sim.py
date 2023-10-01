@@ -84,7 +84,7 @@ class Simulation:
                             self.round_id, team, self.setup.teams.values()
                         )
                     )
-                    team_flags[team.name] = (team, flags)
+                    team_flags[team.name] = (team.address, flags)
 
             # async with asyncio.TaskGroup() as task_group:
             #     for team, flags in team_flags.values():
