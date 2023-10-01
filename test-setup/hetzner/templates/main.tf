@@ -1,3 +1,8 @@
+resource "hcloud_ssh_key" "ssh_key" {
+  name       = _placeholder_
+  public_key = file(_placeholder_)
+}
+
 resource "hcloud_network" "vnet" {
   name     = "network"
   ip_range = "10.0.0.0/16"
@@ -11,7 +16,7 @@ resource "hcloud_network_subnet" "snet" {
 }
 
 # creating a server auto-assigns a public ip
-resource "hcloud_server" "server" {
+resource "hcloud_server" "vm" {
   name        = "server"
   server_type = "cx11"
   image       = "ubuntu-20.04"
