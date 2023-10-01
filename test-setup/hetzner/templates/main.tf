@@ -22,6 +22,10 @@ resource "hcloud_server" "vm" {
   image       = "ubuntu-20.04"
   location    = "nbg1"
 
+  ssh_keys = [
+    hcloud_ssh_key.ssh_key.id
+  ]
+
   network {
     network_id = hcloud_network.vnet.id
   }
