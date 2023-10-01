@@ -10,6 +10,7 @@ from enochecker_core import (
     CheckerTaskMessage,
     CheckerTaskResult,
 )
+from sim.flagsubmitter import FlagSubmitter
 
 FLAG_REGEX_ASCII = r"ENO[A-Za-z0-9+\/=]{48}"
 CHAIN_ID_PREFIX = secrets.token_hex(20)
@@ -86,6 +87,7 @@ class Orchestrator:
     def __init__(self, setup):
         self.setup = setup
         self.client = httpx.AsyncClient()
+        self.flag_submitter = FlagSubmitter(setup)
         self.service_checker_ports = dict()
         self.attack_info = None
 
@@ -137,11 +139,9 @@ class Orchestrator:
 
         return flags
 
-    # TODO:
-    # - maybe i can set up an ssh tunnel in a subprocess on a separate thread
-    # - and then i can simply send the flags to localhost:1337 through a websocket
-    async def submit_flags(self, team, flags):
-        pass
+    # TODO: - test
+    def submit_flags(self, team, flags):
+        self.flag_submitter.submit_flags(team, flags)
 
     def _create_exploit_requests(self, round_id, team, all_teams):
         exploit_requests = dict()
