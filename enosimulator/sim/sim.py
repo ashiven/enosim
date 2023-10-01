@@ -86,12 +86,13 @@ class Simulation:
                     )
                     team_flags[team.name] = (team.address, flags)
 
-            # Instruct orchestrator to commit flags
+            # Instruct orchestrator to submit flags
             with ThreadPoolExecutor(max_workers=20) as executor:
                 for team_address, flags in team_flags.values():
-                    # TODO: - uncomment in production
-                    # if flags:
-                    executor.submit(self.orchestrator.submit_flags, team_address, flags)
+                    if flags:
+                        executor.submit(
+                            self.orchestrator.submit_flags, team_address, flags
+                        )
 
             await asyncio.sleep(5)
 
