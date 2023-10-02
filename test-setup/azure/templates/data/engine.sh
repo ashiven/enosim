@@ -44,9 +44,11 @@ if [ -d "../packer" ]; then
 fi
 
 optional EnoEngine sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"
+
 if [ -f "./ctf.json" ]; then
   sudo mv ctf.json ./EnoEngine
 fi
+
 optional data sudo mkdir data
 cd EnoEngine
 
@@ -55,4 +57,5 @@ sudo docker compose up -d
 sudo dotnet run --project EnoConfig apply
 sudo dotnet run -c Release --project EnoLauncher &
 sudo dotnet run -c Release --project EnoFlagSink &
+sleep 3
 sudo dotnet run -c Release --project EnoEngine &
