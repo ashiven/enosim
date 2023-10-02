@@ -50,7 +50,7 @@ fi
 optional data sudo mkdir data
 cd EnoEngine
 
-echo -e "\033[32m[+] Starting EnoEngine..."
+echo -e "\033[32m[+] Starting EnoEngine...\033[0m"
 sudo docker compose up -d
 sudo dotnet run --project EnoConfig apply
 sudo dotnet run -c Release --project EnoLauncher &

@@ -48,11 +48,11 @@ while read -r service_name; do
   optional "${service_name}" sudo git clone "https://${pat}@github.com/enowars/${service_name}.git"
 
   cd "${service_name}/service"
-  echo -e "\033[32m[+] Starting ${service_name}-service..."
+  echo -e "\033[32m[+] Starting ${service_name}-service...\033[0m"
   retry sudo docker compose up --build --force-recreate -d
 
   cd "../checker"
-  echo -e "\033[32m[+] Starting ${service_name}-exploiter..."
+  echo -e "\033[32m[+] Starting ${service_name}-exploiter...\033[0m"
   retry sudo docker compose up --build --force-recreate -d
   cd ..
 
