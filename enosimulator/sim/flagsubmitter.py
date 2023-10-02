@@ -17,12 +17,12 @@ class FlagSubmitter:
         self.setup = setup
 
     def submit_flags(self, team_address, flags):
-        flag_str = "\n".join(flags)
+        flag_str = "\n".join(flags) + "\n"
 
         with paramiko.SSHClient() as client:
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             client.connect(
-                hostname=_private_to_public_ip(team_address),
+                hostname=_private_to_public_ip(self.setup, team_address),
                 username="groot",
                 pkey=paramiko.RSAKey.from_private_key_file(
                     self.setup.secrets["vm-secrets"]["ssh-private-key-path"]

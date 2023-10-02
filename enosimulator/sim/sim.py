@@ -75,7 +75,7 @@ class Simulation:
                             self.orchestrator.submit_flags, team_address, flags
                         )
 
-            await asyncio.sleep(5)
+            await asyncio.sleep(60)
 
     def round_info(self):
         os.system("cls" if sys.platform == "win32" else "clear")
