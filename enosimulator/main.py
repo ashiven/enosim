@@ -33,6 +33,18 @@ async def main():
             "ENOSIMULATOR_SECRETS", f"{dir_path}/../config/secrets.json"
         ),
     )
+    parser.add_argument(
+        "-d",
+        "--destroy",
+        action="store_true",
+        help="Explicitly destroy all infrastructure",
+    )
+    parser.add_argument(
+        "-S",
+        "--skip_infra",
+        action="store_true",
+        help="Skip building and configuring infrastructure if it has already been built",
+    )
     args = parser.parse_args()
 
     if not args.config:
@@ -45,8 +57,12 @@ async def main():
         raise Exception(
             "Please supply the path to a secrets file or set the ENOSIMULATOR_SECRETS environment variable"
         )
+    if args.destroy:
+        setup = await Setup.new(args.config, args.secrets, verbose=False)
+        setup.destroy()
+        return
 
-    setup = await Setup.new(args.config, args.secrets, verbose=False)
+    setup = await Setup.new(args.config, args.secrets, args.skip_infra, verbose=False)
     await setup.configure()
     await setup.build_infra()
     setup.deploy()

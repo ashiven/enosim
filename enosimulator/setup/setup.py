@@ -119,26 +119,27 @@ def _to_service_data(service):
 
 
 class Setup:
-    def __init__(self, config, secrets, setup_path, setup_helper, verbose):
+    def __init__(self, config, secrets, skip_infra, setup_path, setup_helper, verbose):
         self.ips = dict()
         self.teams = dict()
         self.services = dict()
         self.verbose = verbose
         self.config = config
         self.secrets = secrets
+        self.skip_infra = skip_infra
         self.setup_path = setup_path
         self.setup_helper = setup_helper
         self.console = Console()
 
     @classmethod
-    async def new(cls, config_path, secrets_path, verbose=False):
+    async def new(cls, config_path, secrets_path, skip_infra, verbose=False):
         config = await _parse_json(config_path)
         secrets = await _parse_json(secrets_path)
         dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
         setup_path = f"{dir_path}/../../test-setup/{config['setup']['location']}"
         setup_helper = SetupHelper(config, secrets)
-        return cls(config, secrets, setup_path, setup_helper, verbose)
+        return cls(config, secrets, skip_infra, setup_path, setup_helper, verbose)
 
     def info(self):
         table = Table(title="Teams")
@@ -238,14 +239,15 @@ class Setup:
         # Convert template files (terraform, deploy.sh, build.sh, etc.) according to config
         await self.setup_helper.convert_templates()
 
-        self.info()
         self.console.print("\n[bold cyan][+] Configuration complete\n")
 
     async def build_infra(self):
-        with self.console.status("[bold green]Building infrastructure ..."):
-            # TODO: - uncomment in production
-            # _run_shell_script(f"{self.setup_path}/build.sh", "")
-            pass
+        if not self.skip_infra:
+            with self.console.status("[bold green]Building infrastructure ..."):
+                _run_shell_script(f"{self.setup_path}/build.sh", "")
+                self.console.print(
+                    "\n[bold cyan][+] Infrastructure built successfully\n"
+                )
 
         # Get ip addresses from terraform output
         public_ips, private_ips = await self.setup_helper.get_ip_addresses()
@@ -285,15 +287,14 @@ class Setup:
                 self.console.print(content)
 
         self.info()
-        self.console.print("\n[bold cyan][+] Infrastructure built successfully\n")
 
     def deploy(self):
-        with self.console.status("[bold green]Configuring infrastructure ..."):
-            # TODO: - uncomment in production
-            # _run_shell_script(f"{self.setup_path}/deploy.sh", "")
-            pass
-
-        self.console.print("\n[bold cyan][+] Infrastructure configured successfully\n")
+        if not self.skip_infra:
+            with self.console.status("[bold green]Configuring infrastructure ..."):
+                _run_shell_script(f"{self.setup_path}/deploy.sh", "")
+                self.console.print(
+                    "\n[bold cyan][+] Infrastructure configured successfully\n"
+                )
 
     def destroy(self):
         with self.console.status("[bold red]Destroying infrastructure ..."):

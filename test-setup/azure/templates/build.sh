@@ -9,7 +9,6 @@ ssh_private_key_path=_placeholder_
 cd ${setup_path}
 
 if [ -n "${1-}" ] && [ "$1" == "-d" ]; then
-    echo -e "\033[31m[-] Destroying infrastructure ...\033[0m"
     terraform destroy -auto-approve
     exit 0
 fi
