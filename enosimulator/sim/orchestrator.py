@@ -92,7 +92,7 @@ class Orchestrator:
     async def update_team_info(self):
         for service_name, service in self.setup.services.items():
             # Get service info from checker
-            checker_address = service["checkers"][0]
+            checker_address = service.checkers[0]
             response = await self.client.get(f"{checker_address}/service")
             if response.status_code != 200:
                 raise Exception(f"Failed to get {service_name}-info")

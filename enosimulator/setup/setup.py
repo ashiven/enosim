@@ -1,10 +1,10 @@
 import json
 import os
-import pprint
 from subprocess import PIPE, STDOUT, CalledProcessError, Popen
 
 import aiofiles
-from colorama import Fore
+from rich.console import Console
+from rich.table import Table
 from setup.shelp import SetupHelper
 from setup.types import Service
 
@@ -60,7 +60,10 @@ def _run_shell_script(script_path, args):
 
         p.wait()
         if p.returncode != 0:
-            print(Fore.RED + f"[!] Process exited with return code: {p.returncode}")
+            c = Console()
+            c.print(
+                f"\n[bold red][!] Process exited with return code: {p.returncode}\n"
+            )
 
     except CalledProcessError as e:
         print(e)
@@ -125,6 +128,7 @@ class Setup:
         self.secrets = secrets
         self.setup_path = setup_path
         self.setup_helper = setup_helper
+        self.console = Console()
 
     @classmethod
     async def new(cls, config_path, secrets_path, verbose=False):
@@ -137,14 +141,49 @@ class Setup:
         return cls(config, secrets, setup_path, setup_helper, verbose)
 
     def info(self):
-        p = pprint.PrettyPrinter()
-        print(Fore.BLUE + f"\n==================SERVICES==================\n")
-        p.pprint(self.services)
-        print(Fore.BLUE + f"\n==================TEAMS=====================\n")
-        p.pprint(self.teams)
-        print(Fore.BLUE + f"\n==================HOSTNAMES=================\n")
-        p.pprint(self.ips)
-        print("\n")
+        table = Table(title="Teams")
+        table.add_column("ID", justify="center", style="magenta")
+        table.add_column("Name", justify="center", style="magenta")
+        table.add_column("Subnet", justify="center", style="magenta")
+        table.add_column("Address", justify="center", style="magenta")
+        table.add_column("Experience", justify="center", style="magenta")
+        for team_name, team in self.teams.items():
+            table.add_row(
+                str(team.id),
+                team_name,
+                team.team_subnet,
+                team.address,
+                str(team.experience),
+            )
+        self.console.print(table)
+
+        table = Table(title="Services")
+        table.add_column("ID", justify="center", style="magenta")
+        table.add_column("Name", justify="center", style="magenta")
+        table.add_column("Checkers", justify="center", style="magenta")
+        for service_name, service in self.services.items():
+            table.add_row(
+                str(service.id),
+                service_name,
+                str(service.checkers),
+            )
+        self.console.print(table)
+
+        table = Table(title="Public IP Addresses")
+        table.add_column("Name", justify="center", style="magenta")
+        table.add_column("IP Address", justify="center", style="magenta")
+        public_ips = self.ips.get("public_ip_addresses", dict())
+        for name, ip_address in public_ips.items():
+            table.add_row(name, ip_address)
+        self.console.print(table)
+
+        table = Table(title="Private IP Addresses")
+        table.add_column("Name", justify="center", style="magenta")
+        table.add_column("IP Address", justify="center", style="magenta")
+        private_ips = self.ips.get("private_ip_addresses", dict())
+        for name, ip_address in private_ips.items():
+            table.add_row(name, ip_address)
+        self.console.print(table)
 
     async def configure(self):
         # Create services.txt
@@ -155,10 +194,10 @@ class Setup:
             for service in self.config["settings"]["services"]:
                 await service_file.write(f"{service}\n")
             if self.verbose:
-                print(Fore.GREEN + "[+] Created services.txt")
+                self.console.print("\n[bold cyan][+] Created services.txt\n")
                 await service_file.seek(0)
                 content = await service_file.read()
-                print(content)
+                self.console.print(content)
 
         # Configure ctf.json from config.json
         ctf_json = _generate_ctf_json()
@@ -191,20 +230,22 @@ class Setup:
         ) as ctf_file:
             await ctf_file.write(json.dumps(ctf_json, indent=4))
             if self.verbose:
-                print(Fore.GREEN + "[+] Created ctf.json")
+                self.console.print("\n[bold cyan] [+] Created ctf.json\n")
                 await ctf_file.seek(0)
                 content = await ctf_file.read()
-                print(content)
+                self.console.print(content)
 
         # Convert template files (terraform, deploy.sh, build.sh, etc.) according to config
         await self.setup_helper.convert_templates()
 
         self.info()
-        print(Fore.GREEN + "[+] Configuration complete\n")
+        self.console.print("\n[bold cyan][+] Configuration complete\n")
 
     async def build_infra(self):
-        # TODO: - uncomment in production
-        _run_shell_script(f"{self.setup_path}/build.sh", "")
+        with self.console.status("[bold green]Building infrastructure ..."):
+            # TODO: - uncomment in production
+            # _run_shell_script(f"{self.setup_path}/build.sh", "")
+            pass
 
         # Get ip addresses from terraform output
         public_ips, private_ips = await self.setup_helper.get_ip_addresses()
@@ -218,7 +259,7 @@ class Setup:
             for name, ip_address in self.ips["public_ip_addresses"].items():
                 if name.startswith("checker"):
                     service["checkers"].append(f"http://{ip_address}:{checker_port}")
-            self.services[service["name"]] = service
+            self.services[service["name"]] = _to_service_data(service)
 
         # Add ip addresses for teams to ctf.json and self.teams
         for id, team in enumerate(ctf_json["teams"]):
@@ -238,25 +279,25 @@ class Setup:
         ) as ctf_file:
             await ctf_file.write(json.dumps(ctf_json, indent=4))
             if self.verbose:
-                print(Fore.GREEN + "[+] Updated ctf.json")
+                self.console.print("\n[bold cyan][+] Updated ctf.json\n")
                 await ctf_file.seek(0)
                 content = await ctf_file.read()
-                print(content)
+                self.console.print(content)
 
         self.info()
-        print(Fore.GREEN + "[+] Infrastructure built successfully\n")
+        self.console.print("\n[bold cyan][+] Infrastructure built successfully\n")
 
     def deploy(self):
-        print(Fore.GREEN + "[+] Configuring infrastructure ...")
-        print(Fore.YELLOW + "[!] This may take a while ...\n")
+        with self.console.status("[bold green]Configuring infrastructure ..."):
+            # TODO: - uncomment in production
+            # _run_shell_script(f"{self.setup_path}/deploy.sh", "")
+            pass
 
-        # TODO: - uncomment in production
-        _run_shell_script(f"{self.setup_path}/deploy.sh", "")
-
-        print(Fore.GREEN + "[+] Infrastructure configured successfully")
+        self.console.print("\n[bold cyan][+] Infrastructure configured successfully\n")
 
     def destroy(self):
-        _run_shell_script(f"{self.setup_path}/build.sh", "-d")
+        with self.console.status("[bold red]Destroying infrastructure ..."):
+            _run_shell_script(f"{self.setup_path}/build.sh", "-d")
 
         # Delete all files created for this setup
         _delete_files(f"{self.setup_path}")
@@ -264,4 +305,4 @@ class Setup:
         _delete_files(f"{self.setup_path}/data")
         _delete_files(f"{self.setup_path}/logs")
 
-        print(Fore.RED + "[-] Infrastructure destroyed successfully")
+        self.console.print("\n[bold red][-] Infrastructure destroyed successfully\n")
