@@ -3,13 +3,7 @@ import urllib
 
 import httpx
 import jsons
-from enochecker_core import (
-    CheckerInfoMessage,
-    CheckerMethod,
-    CheckerResultMessage,
-    CheckerTaskMessage,
-    CheckerTaskResult,
-)
+from enochecker_core import CheckerInfoMessage, CheckerMethod, CheckerTaskMessage
 
 FLAG_REGEX_ASCII = r"ENO[A-Za-z0-9+\/=]{48}"
 CHAIN_ID_PREFIX = secrets.token_hex(20)
@@ -163,7 +157,8 @@ class Orchestrator:
                             flag=None,
                             flag_hash="simulation",
                             unique_variant_index=None,
-                            attack_info=self.attack_info[service][flagstore],
+                            # TODO: enter real attack info for the service-flagstore
+                            attack_info=self.attack_info,
                         )
                         exploit_requests[
                             other_team.name, service, flagstore
@@ -182,7 +177,6 @@ class Orchestrator:
                 f"http://{exploit_checker_ip}:{exploit_checker_port}"
             )
 
-            """
             print(
                 f"[!] {team.name} exploiting {_team_name} on {service}-{_flagstore}..."
             )
@@ -207,5 +201,6 @@ class Orchestrator:
                 print(exploit_result.message)
             else:
                 flags.append(exploit_result.flag)
+            """
 
         return flags

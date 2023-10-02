@@ -3,14 +3,14 @@ import asyncio
 import os
 
 from dotenv import load_dotenv
-from rich.traceback import install
 from setup import Setup
 from sim import Simulation
 
 
 async def main():
     load_dotenv()
-    install(show_locals=True)
+    # uncomment this line to enable rich traceback
+    # install(show_locals=True)
     dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
 
     parser = argparse.ArgumentParser(
