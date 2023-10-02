@@ -35,13 +35,18 @@ optional() {
   fi
 }
 
-if [ -d "../packer" ]; then
+if [ -d "../packer" ] && [ -f "ctf.json" ]; then
   sudo mv ctf.json ../packer
+fi
+
+if [ -d "../packer" ]; then
   cd ../packer
 fi
 
 optional EnoEngine sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"
-sudo mv ctf.json ./EnoEngine
+if [ -f "./ctf.json" ]; then
+  sudo mv ctf.json ./EnoEngine
+fi
 optional data sudo mkdir data
 cd EnoEngine
 

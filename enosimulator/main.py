@@ -2,7 +2,6 @@ import argparse
 import asyncio
 import os
 
-from colorama import init
 from dotenv import load_dotenv
 from setup import Setup
 from sim import Simulation
@@ -10,7 +9,8 @@ from sim import Simulation
 
 async def main():
     load_dotenv()
-    init(autoreset=True)
+    # uncomment this line to enable rich traceback
+    # install(show_locals=True)
     dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
 
     parser = argparse.ArgumentParser(

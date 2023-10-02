@@ -14,7 +14,6 @@ if [ -n "${1-}" ] && [ "$1" == "-d" ]; then
     exit 0
 fi
 
-echo -e "\033[32m[+] Building infrastructure ...\033[0m"
 terraform init
 terraform validate
 terraform apply -auto-approve

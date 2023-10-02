@@ -1,8 +1,11 @@
 import asyncio
+import os
 import random
+import sys
 from concurrent.futures import ThreadPoolExecutor
 
-from colorama import Fore
+from rich.console import Console
+from rich.table import Table
 from sim.orchestrator import Orchestrator
 
 #### Helpers ####
@@ -34,35 +37,13 @@ class Simulation:
         self.setup = setup
         self.orchestrator = orchestrator
         self.round_id = 0
+        self.console = Console()
 
     @classmethod
     async def new(cls, setup):
         orchestrator = Orchestrator(setup)
         await orchestrator.update_team_info()
         return cls(setup, orchestrator)
-
-    def round_info(self):
-        print(
-            Fore.BLUE + f"\n==================ROUND {self.round_id}=================="
-        )
-        for team in self.setup.teams.values():
-            print(Fore.CYAN + f"\nTeam {team.name} - {str(team.experience)}")
-            exploiting = []
-            for service, flagstores in team.exploiting.items():
-                for flagstore, do_exploit in flagstores.items():
-                    if do_exploit:
-                        exploiting.append("> " + service + "-" + flagstore)
-            print(Fore.RED + f"\n    Exploiting:")
-            for exploit_info in exploiting:
-                print(f"        {exploit_info}")
-            patched = []
-            for service, flagstores in team.patched.items():
-                for flagstore, do_patch in flagstores.items():
-                    if do_patch:
-                        patched.append("> " + service + "-" + flagstore)
-            print(Fore.GREEN + f"\n    Patched:")
-            for patch_info in patched:
-                print(f"        {patch_info}")
 
     async def run(self):
         for _ in range(self.setup.config["settings"]["duration-in-minutes"]):
@@ -96,6 +77,44 @@ class Simulation:
 
             await asyncio.sleep(5)
 
+    def round_info(self):
+        os.system("cls" if sys.platform == "win32" else "clear")
+        self.console.print("\n")
+        self.console.log(f"[bold blue]Round {self.round_id} info:\n")
+
+        for team in self.setup.teams.values():
+            table = Table(
+                title=f"Team {team.name} - {str(team.experience)}",
+                title_style="bold magenta",
+                title_justify="left",
+            )
+            table.add_column("Exploiting", justify="center", style="magenta")
+            table.add_column("Patched", justify="center", style="cyan")
+
+            exploiting = []
+            for service, flagstores in team.exploiting.items():
+                for flagstore, do_exploit in flagstores.items():
+                    if do_exploit:
+                        exploiting.append(service + "-" + flagstore)
+
+            patched = []
+            for service, flagstores in team.patched.items():
+                for flagstore, do_patch in flagstores.items():
+                    if do_patch:
+                        patched.append(service + "-" + flagstore)
+            max_len = max(len(exploiting), len(patched))
+            info_list = [
+                (
+                    exploiting[i] if i < len(exploiting) else None,
+                    patched[i] if i < len(patched) else None,
+                )
+                for i in range(max_len)
+            ]
+
+            for exploit_info, patch_info in info_list:
+                table.add_row(exploit_info, patch_info)
+            self.console.print(table)
+
     def _update_team(self, team_name, variant, service, flagstore):
         if variant == "exploiting":
             self.setup.teams[team_name].exploiting[service][flagstore] = True
@@ -103,6 +122,6 @@ class Simulation:
         elif variant == "patched":
             self.setup.teams[team_name].patched[service][flagstore] = True
             info_text = "patched"
-        print(
-            Fore.YELLOW + f"\n[!] Team {team_name} {info_text} {service}: {flagstore}"
+        self.console.print(
+            f"[bold yellow][!] Team {team_name} {info_text} {service}: {flagstore}"
         )
