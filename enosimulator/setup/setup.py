@@ -306,4 +306,4 @@ class Setup:
         _delete_files(f"{self.setup_path}/data")
         _delete_files(f"{self.setup_path}/logs")
 
-        self.console.print("\n[bold red][-] Infrastructure destroyed successfully\n")
+        self.console.print("\n[bold red][-] Setup destroyed successfully\n")

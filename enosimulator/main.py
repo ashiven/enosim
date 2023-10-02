@@ -37,7 +37,7 @@ async def main():
         "-d",
         "--destroy",
         action="store_true",
-        help="Explicitly destroy all infrastructure",
+        help="Explicitly destroy the setup including all infrastructure",
     )
     parser.add_argument(
         "-S",
