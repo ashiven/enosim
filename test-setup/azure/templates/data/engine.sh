@@ -57,5 +57,5 @@ sudo docker compose up -d
 sudo dotnet run --project EnoConfig apply
 sudo dotnet run -c Release --project EnoLauncher &
 sudo dotnet run -c Release --project EnoFlagSink &
-sleep 3
+sleep 6
 sudo dotnet run -c Release --project EnoEngine &
