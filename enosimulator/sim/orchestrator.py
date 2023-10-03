@@ -160,7 +160,7 @@ class Orchestrator:
                             service_address=other_team.address,
                             flag_regex=FLAG_REGEX_ASCII,
                             flag=None,
-                            flag_hash="simulation",
+                            flag_hash="ignore_flag_hash",
                             unique_variant_index=None,
                             # TODO: enter real attack info for the service-flagstore
                             attack_info=self.attack_info,
