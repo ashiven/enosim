@@ -1,4 +1,3 @@
-
 resource "azurerm_resource_group" "rg" {
   name     = "simulation-setup"
   location = "West Europe"
