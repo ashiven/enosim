@@ -239,15 +239,10 @@ class Setup:
         # Convert template files (terraform, deploy.sh, build.sh, etc.) according to config
         await self.setup_helper.convert_templates()
 
-        self.console.print("\n[bold cyan][+] Configuration complete\n")
-
     async def build_infra(self):
         if not self.skip_infra:
             with self.console.status("[bold green]Building infrastructure ..."):
                 _run_shell_script(f"{self.setup_path}/build.sh", "")
-                self.console.print(
-                    "\n[bold cyan][+] Infrastructure built successfully\n"
-                )
 
         # Get ip addresses from terraform output
         public_ips, private_ips = await self.setup_helper.get_ip_addresses()
@@ -292,9 +287,6 @@ class Setup:
         if not self.skip_infra:
             with self.console.status("[bold green]Configuring infrastructure ..."):
                 _run_shell_script(f"{self.setup_path}/deploy.sh", "")
-                self.console.print(
-                    "\n[bold cyan][+] Infrastructure configured successfully\n"
-                )
 
     def destroy(self):
         with self.console.status("[bold red]Destroying infrastructure ..."):
@@ -305,5 +297,3 @@ class Setup:
         _delete_files(f"{self.setup_path}/config")
         _delete_files(f"{self.setup_path}/data")
         _delete_files(f"{self.setup_path}/logs")
-
-        self.console.print("\n[bold red][-] Setup destroyed successfully\n")

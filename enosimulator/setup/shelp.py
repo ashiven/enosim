@@ -263,7 +263,9 @@ class AzureSetupHelper(Helper):
         await _insert_after(
             f"{self.setup_path}/variables.tf",
             "    name = string",
-            f"    subnet_id = number\n" + "    source_image_id = string\n"
+            "    subnet_id = number\n"
+            + "    size = string\n"
+            + "    source_image_id = string\n"
             if self.use_vm_images
             else "",
         )
@@ -271,6 +273,7 @@ class AzureSetupHelper(Helper):
             f"{self.setup_path}/variables.tf",
             '      name = "engine"',
             f'      subnet_id = {self.config["settings"]["vulnboxes"] + 2}\n'
+            + f'      size = {self.config["setup"]["vm-size"]}\n'
             + f'      source_image_id = "{self.config["setup"]["vm-image-references"]["engine"].replace("<sub-id>", sub_id)}"\n'
             if self.use_vm_images
             else "",
@@ -279,6 +282,7 @@ class AzureSetupHelper(Helper):
             f"{self.setup_path}/variables.tf",
             '      name = "checker"',
             f'      subnet_id = {self.config["settings"]["vulnboxes"] + 1}\n'
+            + f'      size = {self.config["setup"]["vm-size"]}\n'
             + f'      source_image_id = "{self.config["setup"]["vm-image-references"]["checker"].replace("<sub-id>", sub_id)}"\n'
             if self.use_vm_images
             else "",
@@ -287,6 +291,7 @@ class AzureSetupHelper(Helper):
             f"{self.setup_path}/variables.tf",
             '        name = "vulnbox${vulnbox_id}"',
             f"        subnet_id = vulnbox_id\n"
+            + f'        size = {self.config["setup"]["vm-size"]}\n'
             + f'        source_image_id = "{self.config["setup"]["vm-image-references"]["vulnbox"].replace("<sub-id>", sub_id)}"\n'
             if self.use_vm_images
             else "",
