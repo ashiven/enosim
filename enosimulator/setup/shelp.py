@@ -400,6 +400,128 @@ class AzureSetupHelper(Helper):
         return ip_addresses, private_ip_addresses
 
 
+class HetznerSetupHelper(Helper):
+    def __init__(self, config, secrets):
+        self.config = config
+        self.secrets = secrets
+        dir_path = os.path.dirname(os.path.abspath(__file__))
+        dir_path = dir_path.replace("\\", "/")
+        self.setup_path = f"{dir_path}/../../test-setup/{config['setup']['location']}"
+        self.use_vm_images = any(
+            ref != "" for ref in self.config["setup"]["vm-image-references"].values()
+        )
+
+    def convert_buildscript(self):
+        pass
+
+    def convert_deploy_script(self):
+        pass
+
+    async def convert_tf_files(self):
+        # Copy terraform file templates for configuration
+        await _copy_file(
+            f"{self.setup_path}/templates/versions.tf",
+            f"{self.setup_path}/versions.tf",
+        )
+        await _copy_file(
+            f"{self.setup_path}/templates/main.tf",
+            f"{self.setup_path}/main.tf",
+        )
+        await _copy_file(
+            f"{self.setup_path}/templates/variables.tf",
+            f"{self.setup_path}/variables.tf",
+        )
+        await _copy_file(
+            f"{self.setup_path}/templates/outputs.tf",
+            f"{self.setup_path}/outputs.tf",
+        )
+
+        # Configure ssh key path in main.tf
+        TF_LINE_SSH_KEY_PATH = 2
+        await _replace_line(
+            f"{self.setup_path}/main.tf",
+            TF_LINE_SSH_KEY_PATH,
+            f"  public_key = file(\"{self.secrets['vm-secrets']['ssh-public-key-path']}\")\n",
+        )
+
+        # Add subnet resources to main.tf
+        lines = []
+        lines.append(
+            'resource "hcloud_network_subnet" "checker_snet" {\n'
+            '  type = "cloud"\n'
+            + "  network_id = hcloud_network.vnet.id\n"
+            + '  network_zone = "eu-central"\n'
+            + f'  ip_range = "10.1.{self.config["settings"]["vulnboxes"] + 1}.0/24"\n'
+            + "}\n"
+        )
+        lines.append(
+            'resource "hcloud_network_subnet" "engine_snet" {\n'
+            '  type = "cloud"\n'
+            + "  network_id = hcloud_network.vnet.id\n"
+            + '  network_zone = "eu-central"\n'
+            + f'  ip_range = "10.1.{self.config["settings"]["vulnboxes"] + 2}.0/24"\n'
+            + "}\n"
+        )
+        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
+            lines.append(
+                f'resource "hcloud_network_subnet" "vulnbox{vulnbox_id}_snet" {{\n'
+                '  type = "cloud"\n'
+                + "  network_id = hcloud_network.vnet.id\n"
+                + '  network_zone = "eu-central"\n'
+                + f'  ip_range = "10.1.{vulnbox_id}.0/24"\n'
+                + "}\n"
+            )
+        await _append_lines(
+            f"{self.setup_path}/main.tf", "############# Subnets #############", lines
+        )
+
+        # Add vm resources to main.tf
+        lines = []
+        lines.append(
+            'resource "hcloud_server" "vm" {\n'
+            '  name = "checker"\n'
+            + f'  server_type = "{self.config["setup"]["vm-size"]}"\n'
+            + '  image = "ubuntu-20.04"\n'
+            + '  location = "nbg1"\n'
+            + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
+            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = 10.1.{self.config["settings"]["vulnboxes"] + 1}.1\n  }}\n'
+            + f"  depends_on = [\n    hcloud_network_subnet.checker_snet\n  ]\n"
+            + "}\n"
+        )
+        lines.append(
+            'resource "hcloud_server" "vm" {\n'
+            '  name = "engine"\n'
+            + f'  server_type = "{self.config["setup"]["vm-size"]}"\n'
+            + '  image = "ubuntu-20.04"\n'
+            + '  location = "nbg1"\n'
+            + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
+            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = 10.1.{self.config["settings"]["vulnboxes"] + 2}.1\n  }}\n'
+            + f"  depends_on = [\n    hcloud_network_subnet.engine_snet\n  ]\n"
+            + "}\n"
+        )
+        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
+            lines.append(
+                'resource "hcloud_server" "vm" {\n'
+                f'  name = "vulnbox{vulnbox_id}"\n'
+                + f'  server_type = "{self.config["setup"]["vm-size"]}"\n'
+                + '  image = "ubuntu-20.04"\n'
+                + '  location = "nbg1"\n'
+                + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
+                + f"  network {{\n    network_id = hcloud_network.vnet.id\n    ip = 10.1.{vulnbox_id}.1\n  }}\n"
+                + f"  depends_on = [\n    hcloud_network_subnet.vulnbox{vulnbox_id}_snet\n  ]\n"
+                + "}\n"
+            )
+        await _insert_after(
+            f"{self.setup_path}/main.tf", "############# VMs #############", lines
+        )
+
+    def convert_vm_scripts(self):
+        pass
+
+    def get_ip_addresses(self):
+        pass
+
+
 # TODO:
 # - implement
 class LocalSetupHelper(Helper):
@@ -409,7 +531,9 @@ class LocalSetupHelper(Helper):
         dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
         self.setup_path = f"{dir_path}/../../test-setup/{config['setup']['location']}"
-        self.use_vm_images = False
+        self.use_vm_images = any(
+            ref != "" for ref in self.config["setup"]["vm-image-references"].values()
+        )
 
     def convert_buildscript(self):
         pass
@@ -433,9 +557,13 @@ class SetupHelper:
         self.secrets = secrets
         self.helpers = {
             SetupVariant.AZURE: AzureSetupHelper(config, secrets),
+            SetupVariant.HETZNER: HetznerSetupHelper(config, secrets),
             SetupVariant.LOCAL: LocalSetupHelper(config, secrets),
         }
         self.team_gen = TeamGenerator(config)
+
+    def generate_teams(self):
+        return self.team_gen.generate()
 
     async def convert_templates(self):
         helper = self.helpers[SetupVariant.from_str(self.config["setup"]["location"])]
@@ -447,6 +575,3 @@ class SetupHelper:
     async def get_ip_addresses(self):
         helper = self.helpers[SetupVariant.from_str(self.config["setup"]["location"])]
         return await helper.get_ip_addresses()
-
-    def generate_teams(self):
-        return self.team_gen.generate()

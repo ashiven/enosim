@@ -5,12 +5,15 @@ from attr import dataclass
 
 class SetupVariant(Enum):
     AZURE = "azure"
+    HETZNER = "hetzner"
     LOCAL = "local"
 
     @staticmethod
     def from_str(s):
         if s == "azure":
             return SetupVariant.AZURE
+        elif s == "hetzner":
+            return SetupVariant.HETZNER
         elif s == "local":
             return SetupVariant.LOCAL
         else:
