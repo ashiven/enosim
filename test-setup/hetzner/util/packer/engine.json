@@ -1,0 +1,22 @@
+{
+   "builders": [
+      {
+         "type": "hcloud",
+         "token": "<insert-your-token-here>",
+         "image": "ubuntu-20.04",
+         "location": "nbg1",
+         "server_type": "cx11",
+         "snapshot_name": "engine",
+         "snapshot_labels": {
+            "name": "engine"
+         },
+         "ssh_username": "root"
+      }
+   ],
+   "provisioners": [
+      {
+         "type": "shell",
+         "script": "./engine.sh"
+      }
+   ]
+}

@@ -1,0 +1,34 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+
+echo "Installing necessary dependencies..."
+sudo apt-get update
+sudo apt-get install ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+echo \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" |
+  sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+
+sudo wget https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+sudo rm packages-microsoft-prod.deb
+
+sudo apt-get update
+sudo apt-get install -y docker.io
+sudo apt-get install -y dotnet-sdk-6.0
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo apt-get install -y docker-compose-plugin
+sudo apt-get install -y pass gnupg2
+export DOCKER_BUILDKIT=0
+
+pat="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"
+
+sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"
+sudo mkdir data
+cd EnoEngine
+sudo docker compose up -d

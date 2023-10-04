@@ -1,0 +1,22 @@
+{
+   "builders": [
+      {
+         "type": "hcloud",
+         "token": "<insert-your-token-here>",
+         "image": "ubuntu-20.04",
+         "location": "nbg1",
+         "server_type": "cx11",
+         "snapshot_name": "vulnbox-checker-CVExchange-bollwerk-expenses",
+         "snapshot_labels": {
+            "name": "vulnbox-checker-CVExchange-bollwerk-expenses"
+         },
+         "ssh_username": "root"
+      }
+   ],
+   "provisioners": [
+      {
+         "type": "shell",
+         "script": "./vulnbox.sh"
+      }
+   ]
+}
