@@ -472,18 +472,18 @@ class HetznerSetupHelper(Helper):
         # Add vm resources to main.tf
         lines = []
         lines.append(
-            'resource "hcloud_server" "vm" {\n'
+            'resource "hcloud_server" "checker_vm" {\n'
             '  name = "checker"\n'
             + f'  server_type = "{self.config["setup"]["vm-size"]}"\n'
             + '  image = "ubuntu-20.04"\n'
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
             + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config["settings"]["vulnboxes"] + 1}.1"\n  }}\n'
-            + f'  depends_on = [\n    hcloud_network_subnet.snet[{self.config["settings"]["vulnboxes"] + 1}].id\n  ]\n'
+            + f'  depends_on = [\n    hcloud_network_subnet.snet[{self.config["settings"]["vulnboxes"]}].id\n  ]\n'
             + "}\n"
         )
         lines.append(
-            'resource "hcloud_server" "vm" {\n'
+            'resource "hcloud_server" "engine_vm" {\n'
             '  name = "engine"\n'
             + f'  server_type = "{self.config["setup"]["vm-size"]}"\n'
             + '  image = "ubuntu-20.04"\n'
@@ -494,7 +494,7 @@ class HetznerSetupHelper(Helper):
             + "}\n"
         )
         lines.append(
-            'resource "hcloud_server" "vm" {\n'
+            'resource "hcloud_server" "vulnbox_vm" {\n'
             f'  count = {self.config["settings"]["vulnboxes"]}\n'
             f'  name = "vulnbox${{count.index + 1}}"\n'
             + f'  server_type = "{self.config["setup"]["vm-size"]}"\n'
@@ -502,7 +502,7 @@ class HetznerSetupHelper(Helper):
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
             + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.${{count.index + 1}}.1"\n  }}\n'
-            + f"  depends_on = [\n    hcloud_network_subnet.snet[count.index + 1].id\n  ]\n"
+            + f"  depends_on = [\n    hcloud_network_subnet.snet\n  ]\n"
             + "}\n"
         )
         await _insert_after(
