@@ -436,6 +436,14 @@ class HetznerSetupHelper(Helper):
             f"{self.setup_path}/outputs.tf",
         )
 
+        # Add hetzner api token to versions.tf
+        TF_LINE_HETZNER_API_TOKEN = 10
+        await _replace_line(
+            f"{self.setup_path}/versions.tf",
+            TF_LINE_HETZNER_API_TOKEN,
+            f"  token = \"{self.secrets['cloud-secrets']['hetzner-api-token']}\"\n",
+        )
+
         # Configure ssh key path in main.tf
         TF_LINE_SSH_KEY_PATH = 2
         await _replace_line(
