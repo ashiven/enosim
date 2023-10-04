@@ -1,0 +1,26 @@
+{
+   "setup": {
+      "ssh-config-path": "C:/Users/janni/.ssh/simconfig",
+      "location": "hetzner",
+      "vm-size": "cx11",
+      "vm-image-references": {
+         "vulnbox": "",
+         "checker": "",
+         "engine": ""
+      }
+   },
+   "settings": {
+      "duration-in-minutes": 30,
+      "teams": 5,
+      "vulnboxes": 2,
+      "services": ["enowars7-service-CVExchange"],
+      "checker-ports": [7331],
+      "simulation-type": "realistic"
+   },
+   "ctf-json": {
+      "title": "ctf-sim",
+      "flag-validity-in-rounds": 2,
+      "checked-rounds-per-round": 3,
+      "round-length-in-seconds": 60
+   }
+}
