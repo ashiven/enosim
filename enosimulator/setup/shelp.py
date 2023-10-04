@@ -479,7 +479,7 @@ class HetznerSetupHelper(Helper):
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
             + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config["settings"]["vulnboxes"] + 1}.1"\n  }}\n'
-            + f'  depends_on = [\n    hcloud_network_subnet.snet[{self.config["settings"]["vulnboxes"]}].id\n  ]\n'
+            + f"  depends_on = [\n    hcloud_network_subnet.snet\n  ]\n"
             + "}\n"
         )
         lines.append(
@@ -490,7 +490,7 @@ class HetznerSetupHelper(Helper):
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
             + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config["settings"]["vulnboxes"] + 2}.1"\n  }}\n'
-            + f'  depends_on = [\n    hcloud_network_subnet.snet[{self.config["settings"]["vulnboxes"] + 1}].id\n  ]\n'
+            + f"  depends_on = [\n    hcloud_network_subnet.snet\n  ]\n"
             + "}\n"
         )
         lines.append(
