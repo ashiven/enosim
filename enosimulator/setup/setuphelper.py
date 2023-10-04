@@ -3,9 +3,8 @@ import re
 from abc import ABC, abstractmethod
 
 import aiofiles
-
-from enosimulator.setup.teamgen import TeamGenerator
-from enosimulator.setup.types import SetupVariant
+from setup.teamgen import TeamGenerator
+from setup.types import SetupVariant
 
 ####  Helpers ####
 

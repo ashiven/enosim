@@ -1,4 +1,4 @@
-from enosimulator.setup.types import Experience, Team
+from setup.types import Experience, Team
 
 TEAM_NAMES = [
     "Kleinmazama",
