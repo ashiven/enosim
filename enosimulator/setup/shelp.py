@@ -439,7 +439,14 @@ class HetznerSetupHelper(Helper):
             f"ssh_private_key_path=\"{self.secrets['vm-secrets']['ssh-private-key-path']}\"\n",
         )
 
-        # TODO: - figure out ip address parsing
+        # Insert engine private ip
+        ENGINE_PRIVATE_IP_LINE = 21
+        await _replace_line(
+            f"{self.setup_path}/build.sh",
+            ENGINE_PRIVATE_IP_LINE,
+            f'engine_private_ip="10.1.{self.config["settings"]["vulnboxes"] + 2}.1"',
+        )
+
         # Configure ip address parsing
         lines = []
         for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
@@ -658,9 +665,34 @@ class HetznerSetupHelper(Helper):
                 ],
             )
 
-    # TODO: - implement
     async def get_ip_addresses(self):
-        pass
+        # Parse public ip addresses from ip_addresses.log
+        ip_addresses = dict()
+        async with aiofiles.open(
+            f"{self.setup_path}/logs/ip_addresses.log",
+            "r",
+        ) as ip_file:
+            lines = await ip_file.readlines()
+            pattern = r"(\w+)\s*=\s*(.+)"
+            for line in lines:
+                m = re.match(pattern, line)
+                if m:
+                    key = m.group(1)
+                    value = m.group(2).strip().replace('"', "")
+                    ip_addresses[key] = value
+
+        # Set private ip addresses
+        private_ip_addresses = dict()
+        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
+            private_ip_addresses[f"vulnbox{vulnbox_id}"] = f"10.1.{vulnbox_id}.1"
+        private_ip_addresses[
+            "checker"
+        ] = f"10.1.{self.config['settings']['vulnboxes'] + 1}.1"
+        private_ip_addresses[
+            "engine"
+        ] = f"10.1.{self.config['settings']['vulnboxes'] + 2}.1"
+
+        return ip_addresses, private_ip_addresses
 
 
 # TODO:

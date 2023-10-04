@@ -18,9 +18,8 @@ terraform validate
 terraform apply -auto-approve
 terraform output >./logs/ip_addresses.log
 
-# TODO: - figure out how to parse ips from output correctly
 checker_ip=$(grep -oP "checker\s*=\s*\K[^\s]+" ./logs/ip_addresses.log | sed 's/"//g')
-engine_private_ip=$(grep -oP "\s*\"engine\"\s*=\s*\K[^\s]+" ./logs/ip_addresses.log | sed 's/"//g')
+engine_private_ip=_placeholder_
 engine_ip=$(grep -oP "engine\s*=\s*\K[^\s]+" ./logs/ip_addresses.log | sed 's/"//g')
 
 rm -f ${ssh_config}
