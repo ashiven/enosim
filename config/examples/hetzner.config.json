@@ -11,7 +11,7 @@
    },
    "settings": {
       "duration-in-minutes": 30,
-      "teams": 5,
+      "teams": 2,
       "vulnboxes": 2,
       "services": ["enowars7-service-CVExchange"],
       "checker-ports": [7331],

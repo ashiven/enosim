@@ -450,7 +450,7 @@ class HetznerSetupHelper(Helper):
         lines = []
         for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
             lines.append(
-                f'vulnbox{vulnbox_id}_ip=$(grep -oP "vulnbox{vulnbox_id}\s*=\s*\K[^\s]+" ./logs/ip_addresses.log | sed \'s/"//g\')\n'
+                f"vulnbox{vulnbox_id}_ip=$(grep -oP '\"vulnbox{vulnbox_id}\"\s*=\s*\K[^\s]+' ./logs/ip_addresses.log | sed 's/\"//g')\n"
             )
         await _insert_after(f"{self.setup_path}/build.sh", "engine_ip=", lines)
 
@@ -492,10 +492,10 @@ class HetznerSetupHelper(Helper):
                 f'\necho -e "\\n\\033[32m[+] Configuring vulnbox{vulnbox_id} ...\\033[0m"\n'
             )
             lines.append(
-                f"retry scp -F ${{ssh_config}} ./data/vulnbox.sh vulnbox{vulnbox_id}:/home/root/vulnbox.sh\n"
+                f"retry scp -F ${{ssh_config}} ./data/vulnbox.sh vulnbox{vulnbox_id}:/root/vulnbox.sh\n"
             )
             lines.append(
-                f"retry scp -F ${{ssh_config}} ./config/services.txt vulnbox{vulnbox_id}:/home/root/services.txt\n"
+                f"retry scp -F ${{ssh_config}} ./config/services.txt vulnbox{vulnbox_id}:/root/services.txt\n"
             )
             lines.append(
                 f'retry ssh -F ${{ssh_config}} vulnbox{vulnbox_id} "chmod +x vulnbox.sh && ./vulnbox.sh" > ./logs/vulnbox{vulnbox_id}_config.log 2>&1 &\n'
@@ -672,13 +672,13 @@ class HetznerSetupHelper(Helper):
             "r",
         ) as ip_file:
             lines = await ip_file.readlines()
-            pattern = r"(\w+)\s*=\s*(.+)"
             for line in lines:
-                m = re.match(pattern, line)
-                if m:
-                    key = m.group(1)
-                    value = m.group(2).strip().replace('"', "")
-                    ip_addresses[key] = value
+                if line.startswith("vulnbox") or line.startswith("}"):
+                    continue
+                parts = line.split("=")
+                key = parts[0].strip().replace('"', "")
+                value = parts[1].strip().replace('"', "")
+                ip_addresses[key] = value
 
         # Set private ip addresses
         private_ip_addresses = dict()
