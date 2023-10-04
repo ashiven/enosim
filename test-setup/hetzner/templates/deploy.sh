@@ -17,13 +17,13 @@ retry() {
 }
 
 echo -e "\n\033[32m[+] Configuring checker ...\033[0m"
-retry scp -F ${ssh_config} ./data/checker.sh checker:/home/groot/checker.sh
-retry scp -F ${ssh_config} ./config/services.txt checker:/home/groot/services.txt
+retry scp -F ${ssh_config} ./data/checker.sh checker:/home/root/checker.sh
+retry scp -F ${ssh_config} ./config/services.txt checker:/home/root/services.txt
 retry ssh -F ${ssh_config} checker "chmod +x checker.sh && ./checker.sh" >./logs/checker_config.log 2>&1 &
 
 wait -n
 
 echo -e "\n\033[32m[+] Configuring engine ...\033[0m"
-retry scp -F ${ssh_config} ./data/engine.sh engine:/home/groot/engine.sh
-retry scp -F ${ssh_config} ./config/ctf.json engine:/home/groot/ctf.json
+retry scp -F ${ssh_config} ./data/engine.sh engine:/home/root/engine.sh
+retry scp -F ${ssh_config} ./config/ctf.json engine:/home/root/ctf.json
 retry ssh -F ${ssh_config} engine "chmod +x engine.sh && ./engine.sh" | tee ./logs/engine_config.log 2>&1
