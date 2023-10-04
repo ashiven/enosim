@@ -4,9 +4,9 @@
       "location": "hetzner",
       "vm-size": "cx11",
       "vm-image-references": {
-         "vulnbox": "",
-         "checker": "",
-         "engine": ""
+         "vulnbox": "vulnbox-checker-CVExchange-bollwerk-expenses",
+         "checker": "vulnbox-checker-CVExchange-bollwerk-expenses",
+         "engine": "engine"
       }
    },
    "settings": {

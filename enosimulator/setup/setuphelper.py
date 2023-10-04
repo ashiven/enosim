@@ -595,6 +595,46 @@ class HetznerSetupHelper(Helper):
             f"{self.setup_path}/main.tf", "############# VMs #############", lines
         )
 
+        # Include vm image references in variables.tf
+        if self.use_vm_images:
+            lines = []
+            lines.append(
+                'data "hcloud_image" "engine" {\n'
+                + f'  selector = "name={self.config["setup"]["vm-image-references"]["engine"]}"\n'
+                + "}\n"
+            )
+            lines.append(
+                'data "hcloud_image" "checker" {\n'
+                + f'  selector = "name={self.config["setup"]["vm-image-references"]["checker"]}"\n'
+                + "}\n"
+            )
+            lines.append(
+                'data "hcloud_image" "vulnbox" {\n'
+                + f'  selector = "name={self.config["setup"]["vm-image-references"]["vulnbox"]}"\n'
+                + "}\n"
+            )
+            await _append_lines(f"{self.setup_path}/variables.tf", lines)
+
+            TF_LINE_CHECKER_IMAGE = 23
+            TF_LINE_ENGINE_IMAGE = 39
+            TF_LINE_VULNBOX_IMAGE = 56
+
+            await _replace_line(
+                f"{self.setup_path}/main.tf",
+                TF_LINE_CHECKER_IMAGE,
+                "  image = data.hcloud_image.checker.id\n",
+            )
+            await _replace_line(
+                f"{self.setup_path}/main.tf",
+                TF_LINE_ENGINE_IMAGE,
+                "  image = data.hcloud_image.engine.id\n",
+            )
+            await _replace_line(
+                f"{self.setup_path}/main.tf",
+                TF_LINE_VULNBOX_IMAGE,
+                "  image = data.hcloud_image.vulnbox.id\n",
+            )
+
     async def convert_vm_scripts(self):
         # Copy vm script templates for configuration
         await _copy_file(
