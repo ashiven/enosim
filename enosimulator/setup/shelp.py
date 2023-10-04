@@ -456,25 +456,8 @@ class HetznerSetupHelper(Helper):
         # Add subnet resources to main.tf
         lines = []
         lines.append(
-            'resource "hcloud_network_subnet" "checker_snet" {\n'
-            '  type = "cloud"\n'
-            + "  network_id = hcloud_network.vnet.id\n"
-            + '  network_zone = "eu-central"\n'
-            + f'  ip_range = "10.1.{self.config["settings"]["vulnboxes"] + 1}.0/24"\n'
-            + "}\n"
-        )
-        lines.append(
-            'resource "hcloud_network_subnet" "engine_snet" {\n'
-            '  type = "cloud"\n'
-            + "  network_id = hcloud_network.vnet.id\n"
-            + '  network_zone = "eu-central"\n'
-            + f'  ip_range = "10.1.{self.config["settings"]["vulnboxes"] + 2}.0/24"\n'
-            + "}\n"
-        )
-
-        lines.append(
             f'resource "hcloud_network_subnet" "snet" {{\n'
-            f'  count = {self.config["settings"]["vulnboxes"]}\n'
+            f'  count = {self.config["settings"]["vulnboxes"] + 2}\n'
             '  type = "cloud"\n'
             + "  network_id = hcloud_network.vnet.id\n"
             + '  network_zone = "eu-central"\n'
@@ -495,8 +478,8 @@ class HetznerSetupHelper(Helper):
             + '  image = "ubuntu-20.04"\n'
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
-            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = 10.1.{self.config["settings"]["vulnboxes"] + 1}.1\n  }}\n'
-            + f"  depends_on = [\n    hcloud_network_subnet.checker_snet\n  ]\n"
+            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config["settings"]["vulnboxes"] + 1}.1"\n  }}\n'
+            + f'  depends_on = [\n    hcloud_network_subnet.snet[{self.config["settings"]["vulnboxes"] + 1}].id\n  ]\n'
             + "}\n"
         )
         lines.append(
@@ -506,8 +489,8 @@ class HetznerSetupHelper(Helper):
             + '  image = "ubuntu-20.04"\n'
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
-            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = 10.1.{self.config["settings"]["vulnboxes"] + 2}.1\n  }}\n'
-            + f"  depends_on = [\n    hcloud_network_subnet.engine_snet\n  ]\n"
+            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config["settings"]["vulnboxes"] + 2}.1"\n  }}\n'
+            + f'  depends_on = [\n    hcloud_network_subnet.snet[{self.config["settings"]["vulnboxes"] + 1}].id\n  ]\n'
             + "}\n"
         )
         lines.append(
@@ -519,7 +502,7 @@ class HetznerSetupHelper(Helper):
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
             + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.${{count.index + 1}}.1"\n  }}\n'
-            + f"  depends_on = [\n    hcloud_network_subnet.vulnbox${{count.index + 1}}_snet\n  ]\n"
+            + f"  depends_on = [\n    hcloud_network_subnet.snet[count.index + 1].id\n  ]\n"
             + "}\n"
         )
         await _insert_after(
