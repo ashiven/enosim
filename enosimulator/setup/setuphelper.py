@@ -260,6 +260,7 @@ class AzureSetupHelper(Helper):
         sub_id = self.secrets["cloud-secrets"]["azure-service-principal"][
             "subscription-id"
         ]
+        basepath = f"/subscriptions/{sub_id}/resourceGroups/vm-images/providers/Microsoft.Compute/images"
         await _insert_after(
             f"{self.setup_path}/variables.tf",
             "    name = string",
@@ -274,7 +275,7 @@ class AzureSetupHelper(Helper):
             '      name = "engine"',
             f'      subnet_id = {self.config["settings"]["vulnboxes"] + 2}\n'
             + f'      size = "{self.config["setup"]["vm-size"]}"\n'
-            + f'      source_image_id = "{self.config["setup"]["vm-image-references"]["engine"].replace("<sub-id>", sub_id)}"\n'
+            + f'      source_image_id = "{basepath}/{self.config["setup"]["vm-image-references"]["engine"]}"\n'
             if self.use_vm_images
             else "",
         )
@@ -283,7 +284,7 @@ class AzureSetupHelper(Helper):
             '      name = "checker"',
             f'      subnet_id = {self.config["settings"]["vulnboxes"] + 1}\n'
             + f'      size = "{self.config["setup"]["vm-size"]}"\n'
-            + f'      source_image_id = "{self.config["setup"]["vm-image-references"]["checker"].replace("<sub-id>", sub_id)}"\n'
+            + f'      source_image_id = "{basepath}/{self.config["setup"]["vm-image-references"]["checker"]}"\n'
             if self.use_vm_images
             else "",
         )
@@ -292,7 +293,7 @@ class AzureSetupHelper(Helper):
             '        name = "vulnbox${vulnbox_id}"',
             f"        subnet_id = vulnbox_id\n"
             + f'        size = "{self.config["setup"]["vm-size"]}"\n'
-            + f'        source_image_id = "{self.config["setup"]["vm-image-references"]["vulnbox"].replace("<sub-id>", sub_id)}"\n'
+            + f'        source_image_id = "{basepath}/{self.config["setup"]["vm-image-references"]["vulnbox"]}"\n'
             if self.use_vm_images
             else "",
         )
