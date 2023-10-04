@@ -65,9 +65,7 @@ async def main():
         return
 
     setup = await Setup.new(args.config, args.secrets, args.skip_infra, verbose=False)
-    await setup.configure()
-    await setup.build_infra()
-    setup.deploy()
+    await setup.build()
 
     simulation = await Simulation.new(setup)
     await simulation.run()

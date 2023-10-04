@@ -186,6 +186,11 @@ class Setup:
             table.add_row(name, ip_address)
         self.console.print(table)
 
+    async def build(self):
+        await self.configure()
+        await self.build_infra()
+        self.deploy()
+
     async def configure(self):
         # Create services.txt
         await _create_file(f"{self.setup_path}/config/services.txt")
