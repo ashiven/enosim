@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from rich.console import Console
 from rich.table import Table
-from sim.orchestrator import Orchestrator
+from simulation.orchestrator import Orchestrator
 
 #### Helpers ####
 

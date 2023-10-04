@@ -4,7 +4,7 @@ import os
 
 from dotenv import load_dotenv
 from setup import Setup
-from sim import Simulation
+from simulation import Simulation
 
 
 async def main():
