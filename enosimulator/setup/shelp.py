@@ -444,7 +444,7 @@ class HetznerSetupHelper(Helper):
         await _replace_line(
             f"{self.setup_path}/build.sh",
             ENGINE_PRIVATE_IP_LINE,
-            f'engine_private_ip="10.1.{self.config["settings"]["vulnboxes"] + 2}.1"',
+            f'engine_private_ip="10.1.{self.config["settings"]["vulnboxes"] + 2}.1"\n',
         )
 
         # Configure ip address parsing
