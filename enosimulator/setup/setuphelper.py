@@ -600,17 +600,17 @@ class HetznerSetupHelper(Helper):
             lines = []
             lines.append(
                 'data "hcloud_image" "engine" {\n'
-                + f'  selector = "name={self.config["setup"]["vm-image-references"]["engine"]}"\n'
+                + f'  with_selector = "name={self.config["setup"]["vm-image-references"]["engine"]}"\n'
                 + "}\n"
             )
             lines.append(
                 'data "hcloud_image" "checker" {\n'
-                + f'  selector = "name={self.config["setup"]["vm-image-references"]["checker"]}"\n'
+                + f'  with_selector = "name={self.config["setup"]["vm-image-references"]["checker"]}"\n'
                 + "}\n"
             )
             lines.append(
                 'data "hcloud_image" "vulnbox" {\n'
-                + f'  selector = "name={self.config["setup"]["vm-image-references"]["vulnbox"]}"\n'
+                + f'  with_selector = "name={self.config["setup"]["vm-image-references"]["vulnbox"]}"\n'
                 + "}\n"
             )
             await _append_lines(f"{self.setup_path}/variables.tf", lines)
