@@ -615,10 +615,10 @@ class HetznerSetupHelper(Helper):
             )
             await _append_lines(f"{self.setup_path}/variables.tf", lines)
 
+            # Configure vm image references in main.tf
             TF_LINE_CHECKER_IMAGE = 23
             TF_LINE_ENGINE_IMAGE = 39
             TF_LINE_VULNBOX_IMAGE = 56
-
             await _replace_line(
                 f"{self.setup_path}/main.tf",
                 TF_LINE_CHECKER_IMAGE,
