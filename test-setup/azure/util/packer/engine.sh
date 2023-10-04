@@ -25,3 +25,10 @@ sudo systemctl enable docker
 sudo apt-get install -y docker-compose-plugin
 sudo apt-get install -y pass gnupg2
 export DOCKER_BUILDKIT=0
+
+pat="<insert-your-pat-here>"
+
+sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"
+sudo mkdir data
+cd EnoEngine
+sudo docker compose up -d
