@@ -1,23 +1,22 @@
-
 resource "azurerm_resource_group" "rg" {
   name     = "simulation-setup"
   location = "West Europe"
 }
 
 resource "azurerm_virtual_network" "vnet" {
-  name = "simulation-network"
-  # the last 16 bits are for addresses and the ones before are the network id
-  address_space       = ["10.0.0.0/16"]
+  name                = "simulation-network"
+  address_space       = ["10.1.0.0/16"]
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 }
 
 resource "azurerm_subnet" "snet" {
-  name                 = "internal"
+  for_each = local.vm_map
+
+  name                 = "${each.value.name}-snet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  # the last 8 bits are for addresses and the ones before are the network id
-  address_prefixes = ["10.0.2.0/24"]
+  address_prefixes     = ["10.1.${each.value.subnet_id}.0/24"]
 }
 
 resource "azurerm_public_ip" "vm_pip" {
@@ -38,11 +37,11 @@ resource "azurerm_network_interface" "vm_nic" {
 
   ip_configuration {
     name                          = "ipconfig"
-    subnet_id                     = azurerm_subnet.snet.id
-    private_ip_address_allocation = "Dynamic"
+    subnet_id                     = azurerm_subnet.snet[each.key].id
+    private_ip_address_allocation = "Static"
+    private_ip_address            = "10.1.${each.value.subnet_id}.4"
     public_ip_address_id          = azurerm_public_ip.vm_pip[each.key].id
   }
-
 }
 
 resource "azurerm_linux_virtual_machine" "vm" {
@@ -73,5 +72,4 @@ resource "azurerm_linux_virtual_machine" "vm" {
     sku       = "18.04-LTS"
     version   = "latest"
   }
-
 }
