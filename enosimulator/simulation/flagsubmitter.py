@@ -1,4 +1,5 @@
 import paramiko
+from setup.types import SetupVariant
 
 #### Helpers ####
 
@@ -15,6 +16,11 @@ def _private_to_public_ip(setup, team_address):
 class FlagSubmitter:
     def __init__(self, setup):
         self.setup = setup
+        self.usernames = {
+            SetupVariant.AZURE: "groot",
+            SetupVariant.HETZNER: "root",
+            SetupVariant.LOCAL: "root",
+        }
 
     def submit_flags(self, team_address, flags):
         flag_str = "\n".join(flags) + "\n"
@@ -23,7 +29,9 @@ class FlagSubmitter:
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             client.connect(
                 hostname=_private_to_public_ip(self.setup, team_address),
-                username="groot",
+                username=self.usernames[
+                    SetupVariant.from_str(self.setup.config["setup"]["location"])
+                ],
                 pkey=paramiko.RSAKey.from_private_key_file(
                     self.setup.secrets["vm-secrets"]["ssh-private-key-path"]
                 ),
