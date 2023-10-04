@@ -5,8 +5,9 @@ from subprocess import PIPE, STDOUT, CalledProcessError, Popen
 import aiofiles
 from rich.console import Console
 from rich.table import Table
-from setup.shelp import SetupHelper
-from setup.types import Service
+
+from enosimulator.setup.shelp import SetupHelper
+from enosimulator.setup.types import Service
 
 ####  Helpers ####
 

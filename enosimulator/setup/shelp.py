@@ -3,8 +3,9 @@ import re
 from abc import ABC, abstractmethod
 
 import aiofiles
-from setup.teamgen import TeamGenerator
-from setup.types import SetupVariant
+
+from enosimulator.setup.teamgen import TeamGenerator
+from enosimulator.setup.types import SetupVariant
 
 ####  Helpers ####
 
@@ -61,23 +62,23 @@ async def _delete_lines(path, delete_lines):
 
 class Helper(ABC):
     @abstractmethod
-    def convert_buildscript(self):
+    async def convert_buildscript(self):
         pass
 
     @abstractmethod
-    def convert_deploy_script(self):
+    async def convert_deploy_script(self):
         pass
 
     @abstractmethod
-    def convert_tf_files(self):
+    async def convert_tf_files(self):
         pass
 
     @abstractmethod
-    def convert_vm_scripts(self):
+    async def convert_vm_scripts(self):
         pass
 
     @abstractmethod
-    def get_ip_addresses(self):
+    async def get_ip_addresses(self):
         pass
 
 
@@ -411,10 +412,10 @@ class HetznerSetupHelper(Helper):
             ref != "" for ref in self.config["setup"]["vm-image-references"].values()
         )
 
-    def convert_buildscript(self):
+    async def convert_buildscript(self):
         pass
 
-    def convert_deploy_script(self):
+    async def convert_deploy_script(self):
         pass
 
     async def convert_tf_files(self):
@@ -470,16 +471,18 @@ class HetznerSetupHelper(Helper):
             + f'  ip_range = "10.1.{self.config["settings"]["vulnboxes"] + 2}.0/24"\n'
             + "}\n"
         )
-        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
-            lines.append(
-                f'resource "hcloud_network_subnet" "vulnbox{vulnbox_id}_snet" {{\n'
-                '  type = "cloud"\n'
-                + "  network_id = hcloud_network.vnet.id\n"
-                + '  network_zone = "eu-central"\n'
-                + f'  ip_range = "10.1.{vulnbox_id}.0/24"\n'
-                + "}\n"
-            )
-        await _append_lines(
+
+        lines.append(
+            f'resource "hcloud_network_subnet" "snet" {{\n'
+            f'  count = {self.config["settings"]["vulnboxes"]}\n'
+            '  type = "cloud"\n'
+            + "  network_id = hcloud_network.vnet.id\n"
+            + '  network_zone = "eu-central"\n'
+            + f'  ip_range = "10.1.${{count.index + 1}}.0/24"\n'
+            + "}\n"
+        )
+
+        await _insert_after(
             f"{self.setup_path}/main.tf", "############# Subnets #############", lines
         )
 
@@ -507,26 +510,26 @@ class HetznerSetupHelper(Helper):
             + f"  depends_on = [\n    hcloud_network_subnet.engine_snet\n  ]\n"
             + "}\n"
         )
-        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
-            lines.append(
-                'resource "hcloud_server" "vm" {\n'
-                f'  name = "vulnbox{vulnbox_id}"\n'
-                + f'  server_type = "{self.config["setup"]["vm-size"]}"\n'
-                + '  image = "ubuntu-20.04"\n'
-                + '  location = "nbg1"\n'
-                + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
-                + f"  network {{\n    network_id = hcloud_network.vnet.id\n    ip = 10.1.{vulnbox_id}.1\n  }}\n"
-                + f"  depends_on = [\n    hcloud_network_subnet.vulnbox{vulnbox_id}_snet\n  ]\n"
-                + "}\n"
-            )
+        lines.append(
+            'resource "hcloud_server" "vm" {\n'
+            f'  count = {self.config["settings"]["vulnboxes"]}\n'
+            f'  name = "vulnbox${{count.index + 1}}"\n'
+            + f'  server_type = "{self.config["setup"]["vm-size"]}"\n'
+            + '  image = "ubuntu-20.04"\n'
+            + '  location = "nbg1"\n'
+            + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
+            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.${{count.index + 1}}.1"\n  }}\n'
+            + f"  depends_on = [\n    hcloud_network_subnet.vulnbox${{count.index + 1}}_snet\n  ]\n"
+            + "}\n"
+        )
         await _insert_after(
             f"{self.setup_path}/main.tf", "############# VMs #############", lines
         )
 
-    def convert_vm_scripts(self):
+    async def convert_vm_scripts(self):
         pass
 
-    def get_ip_addresses(self):
+    async def get_ip_addresses(self):
         pass
 
 
