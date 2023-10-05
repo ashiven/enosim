@@ -45,6 +45,12 @@ async def main():
         action="store_true",
         help="Skip building and configuring infrastructure if it has already been built",
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Display additional information useful for debugging",
+    )
     args = parser.parse_args()
 
     if not args.config:
@@ -59,15 +65,17 @@ async def main():
         )
     if args.destroy:
         setup = await Setup.new(
-            args.config, args.secrets, args.skip_infra, verbose=False
+            args.config, args.secrets, args.skip_infra, verbose=args.verbose
         )
         setup.destroy()
         return
 
-    setup = await Setup.new(args.config, args.secrets, args.skip_infra, verbose=False)
+    setup = await Setup.new(
+        args.config, args.secrets, args.skip_infra, verbose=args.verbose
+    )
     await setup.build()
 
-    simulation = await Simulation.new(setup, verbose=True)
+    simulation = await Simulation.new(setup, verbose=args.verbose)
     await simulation.run()
 
     setup.destroy()

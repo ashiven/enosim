@@ -141,6 +141,108 @@ class Setup:
         setup_helper = SetupHelper(config, secrets)
         return cls(config, secrets, skip_infra, setup_path, setup_helper, verbose)
 
+    async def build(self):
+        await self.configure()
+        await self.build_infra()
+        self.deploy()
+
+    async def configure(self):
+        # Create services.txt
+        await _create_file(f"{self.setup_path}/config/services.txt")
+        async with aiofiles.open(
+            f"{self.setup_path}/config/services.txt", "r+"
+        ) as service_file:
+            for service in self.config["settings"]["services"]:
+                await service_file.write(f"{service}\n")
+
+        # Configure ctf.json from config.json
+        ctf_json = _generate_ctf_json()
+        for setting, value in self.config["ctf-json"].items():
+            ctf_json[_kebab_to_camel(setting)] = value
+
+        # Add teams to ctf.json
+        ctf_json["teams"].clear()
+        ctf_json_teams, setup_teams = self.setup_helper.generate_teams()
+        ctf_json["teams"] = ctf_json_teams
+        self.teams = setup_teams
+
+        # Add services to ctf.json
+        ctf_json["services"].clear()
+        for id, service in enumerate(self.config["settings"]["services"]):
+            checker_port = self.config["settings"]["checker-ports"][id]
+            new_service = _generate_service(
+                id + 1,
+                service,
+                checker_port,
+                self.config["settings"]["simulation-type"],
+            )
+            ctf_json["services"].append(new_service)
+            self.services[service] = _to_service_data(new_service)
+
+        # Create ctf.json
+        await _create_file(f"{self.setup_path}/config/ctf.json")
+        async with aiofiles.open(
+            f"{self.setup_path}/config/ctf.json", "r+"
+        ) as ctf_file:
+            await ctf_file.write(json.dumps(ctf_json, indent=4))
+
+        # Convert template files (terraform, deploy.sh, build.sh, etc.) according to config
+        await self.setup_helper.convert_templates()
+
+    async def build_infra(self):
+        if not self.skip_infra:
+            with self.console.status("[bold green]Building infrastructure ..."):
+                _run_shell_script(f"{self.setup_path}/build.sh", "")
+
+        # Get ip addresses from terraform output
+        public_ips, private_ips = await self.setup_helper.get_ip_addresses()
+        self.ips["public_ip_addresses"] = public_ips
+        self.ips["private_ip_addresses"] = private_ips
+
+        # Add ip addresses for checkers to ctf.json
+        ctf_json = await _parse_json(f"{self.setup_path}/config/ctf.json")
+        for service in ctf_json["services"]:
+            checker_port = service["checkers"].pop()
+            for name, ip_address in self.ips["public_ip_addresses"].items():
+                if name.startswith("checker"):
+                    service["checkers"].append(f"http://{ip_address}:{checker_port}")
+            self.services[service["name"]] = _to_service_data(service)
+
+        # Add ip addresses for teams to ctf.json and self.teams
+        for id, team in enumerate(ctf_json["teams"]):
+            vulnboxes = self.config["settings"]["vulnboxes"]
+            vulnbox_id = (id % vulnboxes) + 1
+            team["address"] = self.ips["private_ip_addresses"][f"vulnbox{vulnbox_id}"]
+            team["teamSubnet"] = (
+                team["teamSubnet"].replace("<placeholder>", team["address"])[:-1] + "0"
+            )
+            self.teams[team["name"]].address = team["address"]
+            self.teams[team["name"]].team_subnet = team["teamSubnet"]
+
+        # Update ctf.json
+        await _create_file(f"{self.setup_path}/config/ctf.json")
+        async with aiofiles.open(
+            f"{self.setup_path}/config/ctf.json", "r+"
+        ) as ctf_file:
+            await ctf_file.write(json.dumps(ctf_json, indent=4))
+
+        self.info()
+
+    def deploy(self):
+        if not self.skip_infra:
+            with self.console.status("[bold green]Configuring infrastructure ..."):
+                _run_shell_script(f"{self.setup_path}/deploy.sh", "")
+
+    def destroy(self):
+        with self.console.status("[bold red]Destroying infrastructure ..."):
+            _run_shell_script(f"{self.setup_path}/build.sh", "-d")
+
+        # Delete all files created for this setup
+        _delete_files(f"{self.setup_path}")
+        _delete_files(f"{self.setup_path}/config")
+        _delete_files(f"{self.setup_path}/data")
+        _delete_files(f"{self.setup_path}/logs")
+
     def info(self):
         table = Table(title="Teams")
         table.add_column("ID", justify="center", style="magenta")
@@ -185,120 +287,3 @@ class Setup:
         for name, ip_address in private_ips.items():
             table.add_row(name, ip_address)
         self.console.print(table)
-
-    async def build(self):
-        await self.configure()
-        await self.build_infra()
-        self.deploy()
-
-    async def configure(self):
-        # Create services.txt
-        await _create_file(f"{self.setup_path}/config/services.txt")
-        async with aiofiles.open(
-            f"{self.setup_path}/config/services.txt", "r+"
-        ) as service_file:
-            for service in self.config["settings"]["services"]:
-                await service_file.write(f"{service}\n")
-            if self.verbose:
-                self.console.print("\n[bold cyan][+] Created services.txt\n")
-                await service_file.seek(0)
-                content = await service_file.read()
-                self.console.print(content)
-
-        # Configure ctf.json from config.json
-        ctf_json = _generate_ctf_json()
-        for setting, value in self.config["ctf-json"].items():
-            ctf_json[_kebab_to_camel(setting)] = value
-
-        # Add teams to ctf.json
-        ctf_json["teams"].clear()
-        ctf_json_teams, setup_teams = self.setup_helper.generate_teams()
-        ctf_json["teams"] = ctf_json_teams
-        self.teams = setup_teams
-
-        # Add services to ctf.json
-        ctf_json["services"].clear()
-        for id, service in enumerate(self.config["settings"]["services"]):
-            checker_port = self.config["settings"]["checker-ports"][id]
-            new_service = _generate_service(
-                id + 1,
-                service,
-                checker_port,
-                self.config["settings"]["simulation-type"],
-            )
-            ctf_json["services"].append(new_service)
-            self.services[service] = _to_service_data(new_service)
-
-        # Create ctf.json
-        await _create_file(f"{self.setup_path}/config/ctf.json")
-        async with aiofiles.open(
-            f"{self.setup_path}/config/ctf.json", "r+"
-        ) as ctf_file:
-            await ctf_file.write(json.dumps(ctf_json, indent=4))
-            if self.verbose:
-                self.console.print("\n[bold cyan] [+] Created ctf.json\n")
-                await ctf_file.seek(0)
-                content = await ctf_file.read()
-                self.console.print(content)
-
-        # Convert template files (terraform, deploy.sh, build.sh, etc.) according to config
-        await self.setup_helper.convert_templates()
-
-    async def build_infra(self):
-        if not self.skip_infra:
-            with self.console.status("[bold green]Building infrastructure ..."):
-                _run_shell_script(f"{self.setup_path}/build.sh", "")
-
-        # Get ip addresses from terraform output
-        public_ips, private_ips = await self.setup_helper.get_ip_addresses()
-        self.ips["public_ip_addresses"] = public_ips
-        self.ips["private_ip_addresses"] = private_ips
-
-        # Add ip addresses for checkers to ctf.json
-        ctf_json = await _parse_json(f"{self.setup_path}/config/ctf.json")
-        for service in ctf_json["services"]:
-            checker_port = service["checkers"].pop()
-            for name, ip_address in self.ips["public_ip_addresses"].items():
-                if name.startswith("checker"):
-                    service["checkers"].append(f"http://{ip_address}:{checker_port}")
-            self.services[service["name"]] = _to_service_data(service)
-
-        # Add ip addresses for teams to ctf.json and self.teams
-        for id, team in enumerate(ctf_json["teams"]):
-            vulnboxes = self.config["settings"]["vulnboxes"]
-            vulnbox_id = (id % vulnboxes) + 1
-            team["address"] = self.ips["private_ip_addresses"][f"vulnbox{vulnbox_id}"]
-            team["teamSubnet"] = (
-                team["teamSubnet"].replace("<placeholder>", team["address"])[:-1] + "0"
-            )
-            self.teams[team["name"]].address = team["address"]
-            self.teams[team["name"]].team_subnet = team["teamSubnet"]
-
-        # Update ctf.json
-        await _create_file(f"{self.setup_path}/config/ctf.json")
-        async with aiofiles.open(
-            f"{self.setup_path}/config/ctf.json", "r+"
-        ) as ctf_file:
-            await ctf_file.write(json.dumps(ctf_json, indent=4))
-            if self.verbose:
-                self.console.print("\n[bold cyan][+] Updated ctf.json\n")
-                await ctf_file.seek(0)
-                content = await ctf_file.read()
-                self.console.print(content)
-
-        self.info()
-
-    def deploy(self):
-        if not self.skip_infra:
-            with self.console.status("[bold green]Configuring infrastructure ..."):
-                _run_shell_script(f"{self.setup_path}/deploy.sh", "")
-
-    def destroy(self):
-        with self.console.status("[bold red]Destroying infrastructure ..."):
-            _run_shell_script(f"{self.setup_path}/build.sh", "-d")
-
-        # Delete all files created for this setup
-        _delete_files(f"{self.setup_path}")
-        _delete_files(f"{self.setup_path}/config")
-        _delete_files(f"{self.setup_path}/data")
-        _delete_files(f"{self.setup_path}/logs")

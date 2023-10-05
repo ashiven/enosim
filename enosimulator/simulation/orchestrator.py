@@ -89,6 +89,12 @@ def _parse_rounds(attack_info):
     return prev_round, current_round
 
 
+def _private_to_public_ip(ip_addresses, team_address):
+    for name, ip_address in ip_addresses["private_ip_addresses"].items():
+        if ip_address == team_address:
+            return ip_addresses["public_ip_addresses"][name]
+
+
 #### End Helpers ####
 
 
@@ -97,7 +103,7 @@ class Orchestrator:
         self.setup = setup
         self.verbose = verbose
         self.client = httpx.AsyncClient()
-        self.flag_submitter = FlagSubmitter(setup)
+        self.flag_submitter = FlagSubmitter(setup, self.verbose)
         self.console = Console()
         self.service_info = dict()
         self.attack_info = None
@@ -158,6 +164,11 @@ class Orchestrator:
                     for other_team in other_teams:
                         if other_team.patched[service][flagstore]:
                             continue
+                        attack_info = ",".join(
+                            self.attack_info["services"][self.service_info[service][1]][
+                                other_team.address
+                            ][str(round_id)][str(flagstore_id)]
+                        )
                         exploit_request = _checker_request(
                             method="exploit",
                             round_id=round_id,
@@ -169,9 +180,7 @@ class Orchestrator:
                             flag=None,
                             flag_hash="ignore_flag_hash",
                             unique_variant_index=None,
-                            attack_info=self.attack_info["services"][
-                                self.service_info[service][1]
-                            ][str(round_id)][other_team.address][str(flagstore_id)],
+                            attack_info=attack_info,
                         )
                         exploit_requests[
                             other_team.name, service, flagstore
@@ -184,7 +193,7 @@ class Orchestrator:
             (_team_name, service, _flagstore),
             exploit_request,
         ) in exploit_requests.items():
-            exploit_checker_ip = team.address
+            exploit_checker_ip = _private_to_public_ip(self.setup.ips, team.address)
             exploit_checker_port = self.service_info[service][0]
             exploit_checker_address = (
                 f"http://{exploit_checker_ip}:{exploit_checker_port}"
@@ -192,12 +201,12 @@ class Orchestrator:
 
             if self.verbose:
                 self.console.log(
-                    f"[bold red][!] {team.name} exploiting {_team_name} on {service}-{_flagstore}..."
+                    f"[bold green]{team.name} >>> {_team_name} ({service}-{_flagstore})"
                 )
                 self.console.log(
-                    f"[bold red][!] Sending exploit request to {exploit_checker_address}..."
+                    f"[bold green]Sending request to {team.name}-exploiter ({exploit_checker_address})"
                 )
-                self.console.log(f"[bold red][!] {exploit_request}")
+                self.console.log(exploit_request)
 
             r = await self.client.post(
                 exploit_checker_address,
@@ -215,6 +224,8 @@ class Orchestrator:
             if CheckerTaskResult(exploit_result.result) is not CheckerTaskResult.OK:
                 print(exploit_result.message)
             else:
+                if self.verbose:
+                    self.console.log(f"[bold green]Got flag: {exploit_result.flag}\n")
                 flags.append(exploit_result.flag)
 
         return flags

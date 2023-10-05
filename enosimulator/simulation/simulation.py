@@ -14,7 +14,7 @@ from simulation.orchestrator import Orchestrator
 def _random_test(team):
     probability = team.experience.value
     random_value = random.random()
-    return True  # random_value < probability
+    return random_value < probability
 
 
 def _exploit_or_patch(team):
@@ -48,14 +48,19 @@ class Simulation:
 
     async def run(self):
         for _ in range(self.setup.config["settings"]["duration-in-minutes"]):
-            self.round_id = await self.orchestrator.get_round_info()
-            self.round_info()
-
             # Go through all teams and perform the random test
+            info_messages = []
             for team_name, team in self.setup.teams.items():
                 if _random_test(team):
                     variant, service, flagstore = _exploit_or_patch(team)
-                    self._update_team(team_name, variant, service, flagstore)
+                    info_message = self._update_team(
+                        team_name, variant, service, flagstore
+                    )
+                    info_messages.append(info_message)
+
+            # Display all info relevant to the current round
+            self.round_id = await self.orchestrator.get_round_info()
+            self.round_info(info_messages)
 
             # Instruct orchestrator to send out exploit requests
             team_flags = dict()
@@ -78,13 +83,15 @@ class Simulation:
 
             await asyncio.sleep(60)
 
-    def round_info(self):
+    def round_info(self, info_messages):
         os.system("cls" if sys.platform == "win32" else "clear")
         self.console.print("\n")
         self.console.log(f"[bold blue]Round {self.round_id} info:\n")
         if self.verbose:
-            self.console.print("[bold red]Attack info:")
+            self.setup.info()
+            self.console.print("\n[bold red]Attack info:")
             self.console.print(self.orchestrator.attack_info)
+            self.console.print("\n")
 
         for team in self.setup.teams.values():
             table = Table(
@@ -119,6 +126,12 @@ class Simulation:
                 table.add_row(exploit_info, patch_info)
             self.console.print(table)
 
+        if self.verbose:
+            self.console.print("\n")
+            for info_message in info_messages:
+                self.console.print(info_message)
+            self.console.print("\n")
+
     def _update_team(self, team_name, variant, service, flagstore):
         if variant == "exploiting":
             self.setup.teams[team_name].exploiting[service][flagstore] = True
@@ -126,6 +139,4 @@ class Simulation:
         elif variant == "patched":
             self.setup.teams[team_name].patched[service][flagstore] = True
             info_text = "patched"
-        self.console.print(
-            f"[bold yellow][!] Team {team_name} {info_text} {service}: {flagstore}"
-        )
+        return f"[bold red][!] Team {team_name} {info_text} {service}-{flagstore}"

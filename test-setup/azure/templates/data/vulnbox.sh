@@ -55,6 +55,6 @@ while read -r service_name; do
   cd "../checker"
   echo -e "\033[32m[+] Starting ${service_name}-exploiter...\033[0m"
   retry sudo docker compose up --build --force-recreate -d
-  cd ..
+  cd ../../
 
 done <"services.txt"
