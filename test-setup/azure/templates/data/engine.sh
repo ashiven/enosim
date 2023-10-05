@@ -69,3 +69,4 @@ sudo dotnet run -c Release --project EnoEngine &
 sleep 300
 cd ../EnoCTFPortal
 sudo docker compose up -d
+exit 0

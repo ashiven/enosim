@@ -27,4 +27,4 @@ echo -e "\n\033[32m[+] Configuring engine ...\033[0m"
 retry scp -F ${ssh_config} ./data/engine.sh engine:/home/groot/engine.sh
 retry scp -F ${ssh_config} ./data/docker-compose.yml engine:/home/groot/docker-compose.yml
 retry scp -F ${ssh_config} ./config/ctf.json engine:/home/groot/ctf.json
-retry ssh -F ${ssh_config} engine "chmod +x engine.sh && ./engine.sh" >./logs/engine_config.log 2>&1 &
+retry ssh -F ${ssh_config} engine "chmod +x engine.sh && ./engine.sh" | tee ./logs/engine_config.log 2>&1
