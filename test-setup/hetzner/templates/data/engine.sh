@@ -44,9 +44,14 @@ if [ -d "../packer" ]; then
 fi
 
 optional EnoEngine sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"
+optional EnoCTFPortal sudo git clone "https://${pat}@github.com/enowars/EnoCTFPortal.git"
 
 if [ -f "./ctf.json" ]; then
   sudo mv ctf.json ./EnoEngine
+fi
+
+if [ -f "./docker-compose.yml" ]; then
+  sudo mv docker-compose.yml ./EnoCTFPortal
 fi
 
 optional data sudo mkdir data
@@ -59,3 +64,8 @@ sudo dotnet run -c Release --project EnoLauncher &
 sudo dotnet run -c Release --project EnoFlagSink &
 sleep 6
 sudo dotnet run -c Release --project EnoEngine &
+
+# Wait 5 minutes for the engine to start before starting the scoreboard
+sleep 300
+cd ../EnoCTFPortal
+sudo docker compose up -d

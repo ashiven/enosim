@@ -131,7 +131,7 @@ class AzureSetupHelper(Helper):
         lines = []
         for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
             lines.append(
-                f'echo -e "Host vulnbox{vulnbox_id}\\nUser groot\\nHostName ${{vulnbox{vulnbox_id}_ip}}\\nIdentityFile ${{ssh_private_key_path}}\\nStrictHostKeyChecking no\\nLocalForward 1337 ${{engine_private_ip}}:1337" >>${{ssh_config}}\n'
+                f'echo -e "Host vulnbox{vulnbox_id}\\nUser groot\\nHostName ${{vulnbox{vulnbox_id}_ip}}\\nIdentityFile ${{ssh_private_key_path}}\\nStrictHostKeyChecking no\\nLocalForward 1337 ${{engine_private_ip}}:1337\\n" >>${{ssh_config}}\n'
             )
         await _insert_after(
             f"{self.setup_path}/build.sh", 'echo -e "Host engine', lines
@@ -459,7 +459,7 @@ class HetznerSetupHelper(Helper):
         lines = []
         for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
             lines.append(
-                f'echo -e "Host vulnbox{vulnbox_id}\\nUser root\\nHostName ${{vulnbox{vulnbox_id}_ip}}\\nIdentityFile ${{ssh_private_key_path}}\\nStrictHostKeyChecking no\\nLocalForward 1337 ${{engine_private_ip}}:1337" >>${{ssh_config}}\n'
+                f'echo -e "Host vulnbox{vulnbox_id}\\nUser root\\nHostName ${{vulnbox{vulnbox_id}_ip}}\\nIdentityFile ${{ssh_private_key_path}}\\nStrictHostKeyChecking no\\nLocalForward 1337 ${{engine_private_ip}}:1337\\n" >>${{ssh_config}}\n'
             )
         await _insert_after(
             f"{self.setup_path}/build.sh", 'echo -e "Host engine', lines
