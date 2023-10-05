@@ -39,7 +39,7 @@ retry sudo docker compose up --build --force-recreate -d
 
 cd "../checker"
 retry sudo docker compose up --build --force-recreate -d
-cd ..
+cd ../../
 
 sudo git clone "https://${pat}@github.com/enowars/enowars7-service-bollwerk.git"
 sudo find "enowars7-service-bollwerk" \( -name "requirements*" -o -name "Dockerfile*" \) -exec sed -i "s|enochecker3[^ ]*|git+https://github.com/ashiven/enochecker3|g" "{}" \;
@@ -49,7 +49,7 @@ retry sudo docker compose up --build --force-recreate -d
 
 cd "../checker"
 retry sudo docker compose up --build --force-recreate -d
-cd ..
+cd ../../
 
 sudo git clone "https://${pat}@github.com/enowars/enowars7-service-expenses.git"
 sudo find "enowars7-service-expenses" \( -name "requirements*" -o -name "Dockerfile*" \) -exec sed -i "s|enochecker3[^ ]*|git+https://github.com/ashiven/enochecker3|g" "{}" \;
@@ -59,4 +59,4 @@ retry sudo docker compose up --build --force-recreate -d
 
 cd "../checker"
 retry sudo docker compose up --build --force-recreate -d
-cd ..
+cd ../../
