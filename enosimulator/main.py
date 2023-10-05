@@ -67,7 +67,7 @@ async def main():
     setup = await Setup.new(args.config, args.secrets, args.skip_infra, verbose=False)
     await setup.build()
 
-    simulation = await Simulation.new(setup)
+    simulation = await Simulation.new(setup, verbose=True)
     await simulation.run()
 
     setup.destroy()

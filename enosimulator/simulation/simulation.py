@@ -14,7 +14,7 @@ from simulation.orchestrator import Orchestrator
 def _random_test(team):
     probability = team.experience.value
     random_value = random.random()
-    return random_value < probability
+    return True  # random_value < probability
 
 
 def _exploit_or_patch(team):
@@ -82,6 +82,9 @@ class Simulation:
         os.system("cls" if sys.platform == "win32" else "clear")
         self.console.print("\n")
         self.console.log(f"[bold blue]Round {self.round_id} info:\n")
+        if self.verbose:
+            self.console.print("[bold red]Attack info:")
+            self.console.print(self.orchestrator.attack_info)
 
         for team in self.setup.teams.values():
             table = Table(
