@@ -320,6 +320,10 @@ class AzureSetupHelper(Helper):
             f"{self.setup_path}/templates/data/engine.sh",
             f"{self.setup_path}/data/engine.sh",
         )
+        await _copy_file(
+            f"{self.setup_path}/templates/data/docker-compose.yml",
+            f"{self.setup_path}/data/docker-compose.yml",
+        )
 
         # Configure github personal access token
         PAT_LINE = 22
@@ -648,6 +652,10 @@ class HetznerSetupHelper(Helper):
         await _copy_file(
             f"{self.setup_path}/templates/data/engine.sh",
             f"{self.setup_path}/data/engine.sh",
+        )
+        await _copy_file(
+            f"{self.setup_path}/templates/data/docker-compose.yml",
+            f"{self.setup_path}/data/docker-compose.yml",
         )
 
         # Configure github personal access token
