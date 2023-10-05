@@ -10,6 +10,7 @@ from enochecker_core import (
     CheckerTaskMessage,
     CheckerTaskResult,
 )
+from rich.console import Console
 from simulation.flagsubmitter import FlagSubmitter
 
 FLAG_REGEX_ASCII = r"ENO[A-Za-z0-9+\/=]{48}"
@@ -80,15 +81,25 @@ def _port_from_address(address):
     return port
 
 
+def _parse_rounds(attack_info):
+    first_service = list(attack_info["services"].values())[0]
+    first_team = list(first_service.values())[0]
+    prev_round = list(first_team.keys())[0]
+    current_round = list(first_team.keys())[1]
+    return prev_round, current_round
+
+
 #### End Helpers ####
 
 
 class Orchestrator:
-    def __init__(self, setup):
+    def __init__(self, setup, verbose=False):
         self.setup = setup
+        self.verbose = verbose
         self.client = httpx.AsyncClient()
         self.flag_submitter = FlagSubmitter(setup)
-        self.service_checker_ports = dict()
+        self.console = Console()
+        self.service_info = dict()
         self.attack_info = None
 
     async def update_team_info(self):
@@ -105,8 +116,9 @@ class Orchestrator:
             )
 
             # Store service checker port for later use
-            self.service_checker_ports[info.service_name] = _port_from_address(
-                checker_address
+            self.service_info[info.service_name] = (
+                _port_from_address(checker_address),
+                service_name,
             )
 
             # Update Exploiting / Patched categories for each team
@@ -121,22 +133,17 @@ class Orchestrator:
                         {f"Flagstore{flagstore_id}": False}
                     )
 
-    # TODO:
-    # - before i can do these things i need to make sure that the enolandingpage gets launched on the engine
-    # - parse the round_id from the scoreboard and return it
-    # - if it is too much effort to set up the scoreboard, the round_id is probably not
-    # - that important for now (flag validity is not dependent on round_id)
-    # - parse the attack_info and set it for self.attack_info
     async def get_round_info(self):
-        pass
+        attack_info_text = await self.client.get(
+            f'http://{self.setup.ips["public_ip_addresses"]["engine"]}:5001/scoreboard/attack.json'
+        )
+        self.attack_info = jsons.loads(attack_info_text.content)
+        _prev_round, current_round = _parse_rounds(self.attack_info)
+        return current_round
 
     async def exploit(self, round_id, team, all_teams):
-        # Create exploit requests for each service/flagstore that the team is exploiting
         exploit_requests = self._create_exploit_requests(round_id, team, all_teams)
-
-        # Send exploit requests to the teams exploit-checker
         flags = await self._send_exploit_requests(team, exploit_requests)
-
         return flags
 
     def submit_flags(self, team_address, flags):
@@ -162,8 +169,9 @@ class Orchestrator:
                             flag=None,
                             flag_hash="ignore_flag_hash",
                             unique_variant_index=None,
-                            # TODO: enter real attack info for the service-flagstore
-                            attack_info=self.attack_info,
+                            attack_info=self.attack_info["services"][
+                                self.service_info[service][1]
+                            ][str(round_id)][other_team.address][str(flagstore_id)],
                         )
                         exploit_requests[
                             other_team.name, service, flagstore
@@ -177,17 +185,19 @@ class Orchestrator:
             exploit_request,
         ) in exploit_requests.items():
             exploit_checker_ip = team.address
-            exploit_checker_port = self.service_checker_ports[service]
+            exploit_checker_port = self.service_info[service][0]
             exploit_checker_address = (
                 f"http://{exploit_checker_ip}:{exploit_checker_port}"
             )
-            """
-            print(
-                f"[!] {team.name} exploiting {_team_name} on {service}-{_flagstore}..."
-            )
-            print(f"[!] Sending exploit request to {exploit_checker_address}...")
-            print(f"[!] {exploit_request}")
-            """
+
+            if self.verbose:
+                self.console.log(
+                    f"[bold red][!] {team.name} exploiting {_team_name} on {service}-{_flagstore}..."
+                )
+                self.console.log(
+                    f"[bold red][!] Sending exploit request to {exploit_checker_address}..."
+                )
+                self.console.log(f"[bold red][!] {exploit_request}")
 
             r = await self.client.post(
                 exploit_checker_address,
