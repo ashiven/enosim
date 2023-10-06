@@ -29,6 +29,39 @@ export DOCKER_BUILDKIT=0
 pat="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"
 
 sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"
+sudo git clone "https://${pat}@github.com/enowars/EnoCTFPortal.git"
 sudo mkdir data
+
 cd EnoEngine
+sudo dotnet build
+sudo docker compose up -d
+
+cd ../EnoCTFPortal
+echo "version: '3'
+
+services:
+  enolandingpage:
+    restart: unless-stopped
+    build: .
+    environment:
+      - \"ASPNETCORE_ENVIRONMENT=Development\"
+      - \"EnoLandingPage__Title=SimulationCTF\"
+      - \"EnoLandingPage__StartTime=2023-10-05T15:00:00Z\"
+      - \"EnoLandingPage__RegistrationCloseOffset=48\"    
+      - \"EnoLandingPage__CheckInBeginOffset=12\"
+      - \"EnoLandingPage__CheckInEndOffset=2\"
+      - \"EnoLandingPage__HetznerVulnboxType=cx11\"       
+      - \"EnoLandingPage__HetznerCloudApiToken=...\"      
+      - \"EnoLandingPage__HetznerVulnboxImage=...\"       
+      - \"EnoLandingPage__HetznerVulnboxPubkey=...\"      
+      - \"EnoLandingPage__HetznerVulnboxLocation=...\"    
+      - \"EnoLandingPage__OAuthClientId=...\"
+      - \"EnoLandingPage__OAuthClientSecret=...\"
+      - \"EnoLandingPage__AdminSecret=...\"
+    ports:
+      - \"5001:80\"
+    volumes:
+      - ./sessions:/root/.aspnet/DataProtection-Keys
+      - ./data:/app/data
+      - ../data:/app/wwwroot/scoreboard" >docker-compose.yml
 sudo docker compose up -d
