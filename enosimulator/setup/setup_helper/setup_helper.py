@@ -1,8 +1,8 @@
 from setup.types import SetupVariant
 
-from .azure_helper import AzureSetupHelper
-from .hetzner_helper import HetznerSetupHelper
-from .local_helper import LocalSetupHelper
+from .azure import AzureSetupHelper
+from .hetzner import HetznerSetupHelper
+from .local import LocalSetupHelper
 from .util import TeamGenerator
 
 

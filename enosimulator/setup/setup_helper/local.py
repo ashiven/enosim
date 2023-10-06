@@ -2,7 +2,7 @@ import os
 
 from setup.types import Config, Secrets
 
-from .abstract_helper import Helper
+from .abstract import Helper
 
 
 # TODO:
