@@ -92,6 +92,12 @@ class Service:
 
 
 @dataclass
+class IpAddresses:
+    public_ip_addresses: dict
+    private_ip_addresses: dict
+
+
+@dataclass
 class ConfigSetup:
     ssh_config_path: str
     location: str

@@ -90,9 +90,9 @@ def _parse_rounds(attack_info):
 
 
 def _private_to_public_ip(ip_addresses, team_address):
-    for name, ip_address in ip_addresses["private_ip_addresses"].items():
+    for name, ip_address in ip_addresses.private_ip_addresses.items():
         if ip_address == team_address:
-            return ip_addresses["public_ip_addresses"][name]
+            return ip_addresses.public_ip_addresses[name]
 
 
 #### End Helpers ####
@@ -141,7 +141,7 @@ class Orchestrator:
 
     async def get_round_info(self):
         attack_info_text = await self.client.get(
-            f'http://{self.setup.ips["public_ip_addresses"]["engine"]}:5001/scoreboard/attack.json'
+            f'http://{self.setup.ips.public_ip_addresses["engine"]}:5001/scoreboard/attack.json'
         )
         self.attack_info = jsons.loads(attack_info_text.content)
         _prev_round, current_round = _parse_rounds(self.attack_info)

@@ -6,9 +6,9 @@ from setup.types import SetupVariant
 
 
 def _private_to_public_ip(setup, team_address):
-    for name, ip_address in setup.ips["private_ip_addresses"].items():
+    for name, ip_address in setup.ips.private_ip_addresses.items():
         if ip_address == team_address:
-            return name, setup.ips["public_ip_addresses"][name]
+            return name, setup.ips.public_ip_addresses[name]
 
 
 #### End Helpers ####
@@ -43,7 +43,7 @@ class FlagSubmitter:
             transport = client.get_transport()
             with transport.open_channel(
                 "direct-tcpip",
-                (self.setup.ips["private_ip_addresses"]["engine"], 1337),
+                (self.setup.ips.private_ip_addresses["engine"], 1337),
                 ("localhost", 0),
             ) as channel:
                 channel.send(flag_str.encode())

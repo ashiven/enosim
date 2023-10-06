@@ -6,7 +6,7 @@ import aiofiles
 from rich.console import Console
 from rich.table import Table
 from setup.setuphelper import SetupHelper
-from setup.types import Config, Secrets, Service
+from setup.types import Config, IpAddresses, Secrets, Service
 
 ####  Helpers ####
 
@@ -107,7 +107,7 @@ def _generate_service(id, service, checker_port, simulation_type):
 
 class Setup:
     def __init__(self, config, secrets, skip_infra, setup_path, setup_helper, verbose):
-        self.ips = dict()
+        self.ips = IpAddresses(dict(), dict())
         self.teams = dict()
         self.services = dict()
         self.verbose = verbose
@@ -185,14 +185,14 @@ class Setup:
 
         # Get ip addresses from terraform output
         public_ips, private_ips = await self.setup_helper.get_ip_addresses()
-        self.ips["public_ip_addresses"] = public_ips
-        self.ips["private_ip_addresses"] = private_ips
+        self.ips.public_ip_addresses = public_ips
+        self.ips.private_ip_addresses = private_ips
 
         # Add ip addresses for checkers to ctf.json
         ctf_json = await _parse_json(f"{self.setup_path}/config/ctf.json")
         for service in ctf_json["services"]:
             checker_port = service["checkers"].pop()
-            for name, ip_address in self.ips["public_ip_addresses"].items():
+            for name, ip_address in self.ips.public_ip_addresses.items():
                 if name.startswith("checker"):
                     service["checkers"].append(f"http://{ip_address}:{checker_port}")
             self.services[service["name"]] = Service.from_(service)
@@ -201,7 +201,7 @@ class Setup:
         for id, team in enumerate(ctf_json["teams"]):
             vulnboxes = self.config.settings.vulnboxes
             vulnbox_id = (id % vulnboxes) + 1
-            team["address"] = self.ips["private_ip_addresses"][f"vulnbox{vulnbox_id}"]
+            team["address"] = self.ips.private_ip_addresses[f"vulnbox{vulnbox_id}"]
             team["teamSubnet"] = (
                 team["teamSubnet"].replace("<placeholder>", team["address"])[:-1] + "0"
             )
@@ -264,7 +264,7 @@ class Setup:
         table = Table(title="Public IP Addresses")
         table.add_column("Name", justify="center", style="magenta")
         table.add_column("IP Address", justify="center", style="magenta")
-        public_ips = self.ips.get("public_ip_addresses", dict())
+        public_ips = vars(self.ips).get("public_ip_addresses", dict())
         for name, ip_address in public_ips.items():
             table.add_row(name, ip_address)
         self.console.print(table)
@@ -272,7 +272,7 @@ class Setup:
         table = Table(title="Private IP Addresses")
         table.add_column("Name", justify="center", style="magenta")
         table.add_column("IP Address", justify="center", style="magenta")
-        private_ips = self.ips.get("private_ip_addresses", dict())
+        private_ips = vars(self.ips).get("private_ip_addresses", dict())
         for name, ip_address in private_ips.items():
             table.add_row(name, ip_address)
         self.console.print(table)
