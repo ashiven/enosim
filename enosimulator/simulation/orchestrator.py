@@ -11,7 +11,8 @@ from enochecker_core import (
     CheckerTaskResult,
 )
 from rich.console import Console
-from simulation.flagsubmitter import FlagSubmitter
+
+from .flagsubmitter import FlagSubmitter
 
 FLAG_REGEX_ASCII = r"ENO[A-Za-z0-9+\/=]{48}"
 CHAIN_ID_PREFIX = secrets.token_hex(20)

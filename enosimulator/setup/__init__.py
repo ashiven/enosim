@@ -1,4 +1,3 @@
 from setup.setup import *
-from setup.setuphelper import *
-from setup.teamgen import *
+from setup.setup_helper.setup_helper import *
 from setup.types import *
