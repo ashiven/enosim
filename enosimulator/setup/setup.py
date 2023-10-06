@@ -157,10 +157,10 @@ class Setup:
 
         # Add services to ctf.json
         ctf_json["services"].clear()
-        for id, service in enumerate(self.config.settings.services):
-            checker_port = self.config.settings.checker_ports[id]
+        for service_id, service in enumerate(self.config.settings.services):
+            checker_port = self.config.settings.checker_ports[service_id]
             new_service = _generate_service(
-                id + 1,
+                service_id + 1,
                 service,
                 checker_port,
                 self.config.settings.simulation_type,
