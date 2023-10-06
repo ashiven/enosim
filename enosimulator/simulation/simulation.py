@@ -14,7 +14,7 @@ from simulation.orchestrator import Orchestrator
 def _random_test(team):
     probability = team.experience.value
     random_value = random.random()
-    return random_value < probability
+    return True  # random_value < probability
 
 
 def _exploit_or_patch(team):
@@ -47,7 +47,7 @@ class Simulation:
         return cls(setup, orchestrator, verbose)
 
     async def run(self):
-        for _ in range(self.setup.config["settings"]["duration-in-minutes"]):
+        for _ in range(self.setup.config.settings.duration_in_minutes):
             # Go through all teams and perform the random test
             info_messages = []
             for team_name, team in self.setup.teams.items():

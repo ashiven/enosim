@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 import aiofiles
 from setup.teamgen import TeamGenerator
-from setup.types import SetupVariant
+from setup.types import Config, Secrets, SetupVariant
 
 ####  Helpers ####
 
@@ -83,13 +83,13 @@ class Helper(ABC):
 
 class AzureSetupHelper(Helper):
     def __init__(self, config, secrets):
-        self.config = config
-        self.secrets = secrets
+        self.config: Config = config
+        self.secrets: Secrets = secrets
         dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
-        self.setup_path = f"{dir_path}/../../test-setup/{config['setup']['location']}"
+        self.setup_path = f"{dir_path}/../../test-setup/{config.setup.location}"
         self.use_vm_images = any(
-            ref != "" for ref in self.config["setup"]["vm-image-references"].values()
+            ref != "" for ref in self.config.setup.vm_image_references.values()
         )
 
     async def convert_buildscript(self):
@@ -111,17 +111,17 @@ class AzureSetupHelper(Helper):
         await _replace_line(
             f"{self.setup_path}/build.sh",
             SSH_CONFIG_PATH_LINE,
-            f"ssh_config=\"{self.config['setup']['ssh-config-path']}\"\n",
+            f'ssh_config="{self.config.setup.ssh_config_path}"\n',
         )
         await _replace_line(
             f"{self.setup_path}/build.sh",
             SSH_PRIVATE_KEY_PATH_LINE,
-            f"ssh_private_key_path=\"{self.secrets['vm-secrets']['ssh-private-key-path']}\"\n",
+            f'ssh_private_key_path="{self.secrets.vm_secrets.ssh_private_key_pat}"\n',
         )
 
         # Configure ip address parsing
         lines = []
-        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
+        for vulnbox_id in range(1, self.config.settings.vulnboxes + 1):
             lines.append(
                 f'vulnbox{vulnbox_id}_ip=$(grep -oP "vulnbox{vulnbox_id}\s*=\s*\K[^\s]+" ./logs/ip_addresses.log | sed \'s/"//g\')\n'
             )
@@ -129,7 +129,7 @@ class AzureSetupHelper(Helper):
 
         # Configure writing ssh config
         lines = []
-        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
+        for vulnbox_id in range(1, self.config.settings.vulnboxes + 1):
             lines.append(
                 f'echo -e "Host vulnbox{vulnbox_id}\\nUser groot\\nHostName ${{vulnbox{vulnbox_id}_ip}}\\nIdentityFile ${{ssh_private_key_path}}\\nStrictHostKeyChecking no\\nLocalForward 1337 ${{engine_private_ip}}:1337\\n" >>${{ssh_config}}\n'
             )
@@ -155,12 +155,12 @@ class AzureSetupHelper(Helper):
         await _replace_line(
             f"{self.setup_path}/deploy.sh",
             SSH_CONFIG_PATH_LINE,
-            f"ssh_config=\"{self.config['setup']['ssh-config-path']}\"\n",
+            f'ssh_config="{self.config.setup.ssh_config_path}"\n',
         )
 
         # Configure vulnbox deployments
         lines = []
-        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
+        for vulnbox_id in range(1, self.config.settings.vulnboxes + 1):
             lines.append(
                 f'\necho -e "\\n\\033[32m[+] Configuring vulnbox{vulnbox_id} ...\\033[0m"\n'
             )
@@ -204,22 +204,22 @@ class AzureSetupHelper(Helper):
         await _replace_line(
             f"{self.setup_path}/versions.tf",
             TF_SUBSCRIPTION_ID_LINE,
-            f"  subscription_id = \"{self.secrets['cloud-secrets']['azure-service-principal']['subscription-id']}\"\n",
+            f"  subscription_id = \"{self.secrets.cloud_secrets.azure_service_principal['subscription-id']}\"\n",
         )
         await _replace_line(
             f"{self.setup_path}/versions.tf",
             TF_CLIENT_ID_LINE,
-            f"  client_id       = \"{self.secrets['cloud-secrets']['azure-service-principal']['client-id']}\"\n",
+            f"  client_id       = \"{self.secrets.cloud_secrets.azure_service_principal['client-id']}\"\n",
         )
         await _replace_line(
             f"{self.setup_path}/versions.tf",
             TF_CLIENT_SECRET_LINE,
-            f"  client_secret   = \"{self.secrets['cloud-secrets']['azure-service-principal']['client-secret']}\"\n",
+            f"  client_secret   = \"{self.secrets.cloud_secrets.azure_service_principal['client-secret']}\"\n",
         )
         await _replace_line(
             f"{self.setup_path}/versions.tf",
             TF_TENANT_ID_LINE,
-            f"  tenant_id       = \"{self.secrets['cloud-secrets']['azure-service-principal']['tenant-id']}\"\n",
+            f"  tenant_id       = \"{self.secrets.cloud_secrets.azure_service_principal['tenant-id']}\"\n",
         )
 
         # Configure ssh key path in main.tf
@@ -227,7 +227,7 @@ class AzureSetupHelper(Helper):
         await _replace_line(
             f"{self.setup_path}/main.tf",
             TF_LINE_SSH_KEY_PATH,
-            f"    public_key = file(\"{self.secrets['vm-secrets']['ssh-public-key-path']}\")\n",
+            f'    public_key = file("{self.secrets.vm_secrets.ssh_public_key_path}")\n',
         )
 
         # Configure vm image references in main.tf
@@ -253,13 +253,11 @@ class AzureSetupHelper(Helper):
         await _replace_line(
             f"{self.setup_path}/variables.tf",
             TF_LINE_COUNT,
-            f"  default = {self.config['settings']['vulnboxes']}\n",
+            f"  default = {self.config.settings.vulnboxes}\n",
         )
 
         # Configure vm image references in variables.tf
-        sub_id = self.secrets["cloud-secrets"]["azure-service-principal"][
-            "subscription-id"
-        ]
+        sub_id = self.secrets.cloud_secrets.azure_service_principal["subscription-id"]
         basepath = f"/subscriptions/{sub_id}/resourceGroups/vm-images/providers/Microsoft.Compute/images"
         await _insert_after(
             f"{self.setup_path}/variables.tf",
@@ -275,7 +273,7 @@ class AzureSetupHelper(Helper):
             '      name = "engine"',
             f'      subnet_id = {self.config["settings"]["vulnboxes"] + 2}\n'
             + f'      size = "{self.config["setup"]["vm-size"]}"\n'
-            + f'      source_image_id = "{basepath}/{self.config["setup"]["vm-image-references"]["engine"]}"\n'
+            + f'      source_image_id = "{basepath}/{self.config.setup.vm_image_references["engine"]}"\n'
             if self.use_vm_images
             else "",
         )
@@ -284,7 +282,7 @@ class AzureSetupHelper(Helper):
             '      name = "checker"',
             f'      subnet_id = {self.config["settings"]["vulnboxes"] + 1}\n'
             + f'      size = "{self.config["setup"]["vm-size"]}"\n'
-            + f'      source_image_id = "{basepath}/{self.config["setup"]["vm-image-references"]["checker"]}"\n'
+            + f'      source_image_id = "{basepath}/{self.config.setup.vm_image_references["checker"]}"\n'
             if self.use_vm_images
             else "",
         )
@@ -293,14 +291,14 @@ class AzureSetupHelper(Helper):
             '        name = "vulnbox${vulnbox_id}"',
             f"        subnet_id = vulnbox_id\n"
             + f'        size = "{self.config["setup"]["vm-size"]}"\n'
-            + f'        source_image_id = "{basepath}/{self.config["setup"]["vm-image-references"]["vulnbox"]}"\n'
+            + f'        source_image_id = "{basepath}/{self.config.setup.vm_image_references["vulnbox"]}"\n'
             if self.use_vm_images
             else "",
         )
 
         # Add terraform outputs for private and public ip addresses
         lines = []
-        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
+        for vulnbox_id in range(1, self.config.settings.vulnboxes + 1):
             lines.append(
                 f'output "vulnbox{vulnbox_id}" {{\n  value = azurerm_public_ip.vm_pip["vulnbox{vulnbox_id}"].ip_address\n}}\n'
             )
@@ -331,17 +329,17 @@ class AzureSetupHelper(Helper):
         await _replace_line(
             f"{self.setup_path}/data/vulnbox.sh",
             PAT_LINE,
-            f"pat=\"{self.secrets['vm-secrets']['github-personal-access-token']}\"\n",
+            f'pat="{self.secrets.vm_secrets.github_personal_access_token}"\n',
         )
         await _replace_line(
             f"{self.setup_path}/data/checker.sh",
             PAT_LINE,
-            f"pat=\"{self.secrets['vm-secrets']['github-personal-access-token']}\"\n",
+            f'pat="{self.secrets.vm_secrets.github_personal_access_token}"\n',
         )
         await _replace_line(
             f"{self.setup_path}/data/engine.sh",
             PAT_LINE_ENGINE,
-            f"pat=\"{self.secrets['vm-secrets']['github-personal-access-token']}\"\n",
+            f'pat="{self.secrets.vm_secrets.github_personal_access_token}"\n',
         )
 
         # Omit configuration when using vm images
@@ -407,13 +405,13 @@ class AzureSetupHelper(Helper):
 
 class HetznerSetupHelper(Helper):
     def __init__(self, config, secrets):
-        self.config = config
-        self.secrets = secrets
+        self.config: Config = config
+        self.secrets: Secrets = secrets
         dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
-        self.setup_path = f"{dir_path}/../../test-setup/{config['setup']['location']}"
+        self.setup_path = f"{dir_path}/../../test-setup/{config.setup.location}"
         self.use_vm_images = any(
-            ref != "" for ref in self.config["setup"]["vm-image-references"].values()
+            ref != "" for ref in self.config.setup.vm_image_references.values()
         )
 
     async def convert_buildscript(self):
@@ -435,12 +433,12 @@ class HetznerSetupHelper(Helper):
         await _replace_line(
             f"{self.setup_path}/build.sh",
             SSH_CONFIG_PATH_LINE,
-            f"ssh_config=\"{self.config['setup']['ssh-config-path']}\"\n",
+            f'ssh_config="{self.config.setup.ssh_config_path}"\n',
         )
         await _replace_line(
             f"{self.setup_path}/build.sh",
             SSH_PRIVATE_KEY_PATH_LINE,
-            f"ssh_private_key_path=\"{self.secrets['vm-secrets']['ssh-private-key-path']}\"\n",
+            f'ssh_private_key_path="{self.secrets.vm_secrets.ssh_private_key_path}"\n',
         )
 
         # Insert engine private ip
@@ -448,12 +446,12 @@ class HetznerSetupHelper(Helper):
         await _replace_line(
             f"{self.setup_path}/build.sh",
             ENGINE_PRIVATE_IP_LINE,
-            f'engine_private_ip="10.1.{self.config["settings"]["vulnboxes"] + 2}.1"\n',
+            f'engine_private_ip="10.1.{self.config.settings.vulnboxes + 2}.1"\n',
         )
 
         # Configure ip address parsing
         lines = []
-        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
+        for vulnbox_id in range(1, self.config.settings.vulnboxes + 1):
             lines.append(
                 f"vulnbox{vulnbox_id}_ip=$(grep -oP '\"vulnbox{vulnbox_id}\"\s*=\s*\K[^\s]+' ./logs/ip_addresses.log | sed 's/\"//g')\n"
             )
@@ -461,7 +459,7 @@ class HetznerSetupHelper(Helper):
 
         # Configure writing ssh config
         lines = []
-        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
+        for vulnbox_id in range(1, self.config.settings.vulnboxes + 1):
             lines.append(
                 f'echo -e "Host vulnbox{vulnbox_id}\\nUser root\\nHostName ${{vulnbox{vulnbox_id}_ip}}\\nIdentityFile ${{ssh_private_key_path}}\\nStrictHostKeyChecking no\\nLocalForward 1337 ${{engine_private_ip}}:1337\\n" >>${{ssh_config}}\n'
             )
@@ -487,12 +485,12 @@ class HetznerSetupHelper(Helper):
         await _replace_line(
             f"{self.setup_path}/deploy.sh",
             SSH_CONFIG_PATH_LINE,
-            f"ssh_config=\"{self.config['setup']['ssh-config-path']}\"\n",
+            f'ssh_config="{self.config.setup.ssh_config_path}"\n',
         )
 
         # Configure vulnbox deployments
         lines = []
-        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
+        for vulnbox_id in range(1, self.config.settings.vulnboxes + 1):
             lines.append(
                 f'\necho -e "\\n\\033[32m[+] Configuring vulnbox{vulnbox_id} ...\\033[0m"\n'
             )
@@ -533,7 +531,7 @@ class HetznerSetupHelper(Helper):
         await _replace_line(
             f"{self.setup_path}/versions.tf",
             TF_LINE_HETZNER_API_TOKEN,
-            f"  token = \"{self.secrets['cloud-secrets']['hetzner-api-token']}\"\n",
+            f'  token = "{self.secrets.cloud_secrets.hetzner_api_token}"\n',
         )
 
         # Configure ssh key path in main.tf
@@ -541,14 +539,14 @@ class HetznerSetupHelper(Helper):
         await _replace_line(
             f"{self.setup_path}/main.tf",
             TF_LINE_SSH_KEY_PATH,
-            f"  public_key = file(\"{self.secrets['vm-secrets']['ssh-public-key-path']}\")\n",
+            f'  public_key = file("{self.secrets.vm_secrets.ssh_public_key_path}")\n',
         )
 
         # Add subnet resources to main.tf
         lines = []
         lines.append(
             f'resource "hcloud_network_subnet" "snet" {{\n'
-            f'  count = {self.config["settings"]["vulnboxes"] + 2}\n'
+            f"  count = {self.config.settings.vulnboxes + 2}\n"
             '  type = "cloud"\n'
             + "  network_id = hcloud_network.vnet.id\n"
             + '  network_zone = "eu-central"\n'
@@ -564,30 +562,30 @@ class HetznerSetupHelper(Helper):
         lines.append(
             'resource "hcloud_server" "checker_vm" {\n'
             '  name = "checker"\n'
-            + f'  server_type = "{self.config["setup"]["vm-size"]}"\n'
+            + f'  server_type = "{self.config.setup.vm_size}"\n'
             + '  image = "ubuntu-20.04"\n'
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
-            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config["settings"]["vulnboxes"] + 1}.1"\n  }}\n'
+            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config.settings.vulnboxes + 1}.1"\n  }}\n'
             + f"  depends_on = [\n    hcloud_network_subnet.snet\n  ]\n"
             + "}\n"
         )
         lines.append(
             'resource "hcloud_server" "engine_vm" {\n'
             '  name = "engine"\n'
-            + f'  server_type = "{self.config["setup"]["vm-size"]}"\n'
+            + f'  server_type = "{self.config.setup.vm_size}"\n'
             + '  image = "ubuntu-20.04"\n'
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
-            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config["settings"]["vulnboxes"] + 2}.1"\n  }}\n'
+            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config.settings.vulnboxes + 2}.1"\n  }}\n'
             + f"  depends_on = [\n    hcloud_network_subnet.snet\n  ]\n"
             + "}\n"
         )
         lines.append(
             'resource "hcloud_server" "vulnbox_vm" {\n'
-            f'  count = {self.config["settings"]["vulnboxes"]}\n'
+            f"  count = {self.config.settings.vulnboxes}\n"
             f'  name = "vulnbox${{count.index + 1}}"\n'
-            + f'  server_type = "{self.config["setup"]["vm-size"]}"\n'
+            + f'  server_type = "{self.config.setup.vm_size}"\n'
             + '  image = "ubuntu-20.04"\n'
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
@@ -604,17 +602,17 @@ class HetznerSetupHelper(Helper):
             lines = []
             lines.append(
                 'data "hcloud_image" "engine" {\n'
-                + f'  with_selector = "name={self.config["setup"]["vm-image-references"]["engine"]}"\n'
+                + f'  with_selector = "name={self.config.setup.vm_image_references["engine"]}"\n'
                 + "}\n"
             )
             lines.append(
                 'data "hcloud_image" "checker" {\n'
-                + f'  with_selector = "name={self.config["setup"]["vm-image-references"]["checker"]}"\n'
+                + f'  with_selector = "name={self.config.setup.vm_image_references["checker"]}"\n'
                 + "}\n"
             )
             lines.append(
                 'data "hcloud_image" "vulnbox" {\n'
-                + f'  with_selector = "name={self.config["setup"]["vm-image-references"]["vulnbox"]}"\n'
+                + f'  with_selector = "name={self.config.setup.vm_image_references["vulnbox"]}"\n'
                 + "}\n"
             )
             await _append_lines(f"{self.setup_path}/variables.tf", lines)
@@ -664,17 +662,17 @@ class HetznerSetupHelper(Helper):
         await _replace_line(
             f"{self.setup_path}/data/vulnbox.sh",
             PAT_LINE,
-            f"pat=\"{self.secrets['vm-secrets']['github-personal-access-token']}\"\n",
+            f'pat="{self.secrets.vm_secrets.github_personal_access_token}"\n',
         )
         await _replace_line(
             f"{self.setup_path}/data/checker.sh",
             PAT_LINE,
-            f"pat=\"{self.secrets['vm-secrets']['github-personal-access-token']}\"\n",
+            f'pat="{self.secrets.vm_secrets.github_personal_access_token}"\n',
         )
         await _replace_line(
             f"{self.setup_path}/data/engine.sh",
             PAT_LINE_ENGINE,
-            f"pat=\"{self.secrets['vm-secrets']['github-personal-access-token']}\"\n",
+            f'pat="{self.secrets.vm_secrets.github_personal_access_token}"\n',
         )
 
         # Omit configuration when using vm images
@@ -731,14 +729,10 @@ class HetznerSetupHelper(Helper):
 
         # Set private ip addresses
         private_ip_addresses = dict()
-        for vulnbox_id in range(1, self.config["settings"]["vulnboxes"] + 1):
+        for vulnbox_id in range(1, self.config.settings.vulnboxes + 1):
             private_ip_addresses[f"vulnbox{vulnbox_id}"] = f"10.1.{vulnbox_id}.1"
-        private_ip_addresses[
-            "checker"
-        ] = f"10.1.{self.config['settings']['vulnboxes'] + 1}.1"
-        private_ip_addresses[
-            "engine"
-        ] = f"10.1.{self.config['settings']['vulnboxes'] + 2}.1"
+        private_ip_addresses["checker"] = f"10.1.{self.config.settings.vulnboxes + 1}.1"
+        private_ip_addresses["engine"] = f"10.1.{self.config.settings.vulnboxes + 2}.1"
 
         return ip_addresses, private_ip_addresses
 
@@ -747,13 +741,13 @@ class HetznerSetupHelper(Helper):
 # - implement
 class LocalSetupHelper(Helper):
     def __init__(self, config, secrets):
-        self.config = config
-        self.secrets = secrets
+        self.config: Config = config
+        self.secrets: Secrets = secrets
         dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
-        self.setup_path = f"{dir_path}/../../test-setup/{config['setup']['location']}"
+        self.setup_path = f"{dir_path}/../../test-setup/{config.setup.location}"
         self.use_vm_images = any(
-            ref != "" for ref in self.config["setup"]["vm-image-references"].values()
+            ref != "" for ref in self.config.setup.vm_image_references.values()
         )
 
     def convert_buildscript(self):
@@ -787,12 +781,12 @@ class SetupHelper:
         return self.team_gen.generate()
 
     async def convert_templates(self):
-        helper = self.helpers[SetupVariant.from_str(self.config["setup"]["location"])]
+        helper = self.helpers[SetupVariant.from_str(self.config.setup.location)]
         await helper.convert_buildscript()
         await helper.convert_deploy_script()
         await helper.convert_tf_files()
         await helper.convert_vm_scripts()
 
     async def get_ip_addresses(self):
-        helper = self.helpers[SetupVariant.from_str(self.config["setup"]["location"])]
+        helper = self.helpers[SetupVariant.from_str(self.config.setup.location)]
         return await helper.get_ip_addresses()

@@ -1,4 +1,4 @@
-from setup.types import Experience, Team
+from setup.types import Config, Experience, Team
 
 TEAM_NAMES = [
     "Kleinmazama",
@@ -65,11 +65,9 @@ def _generate_setup_team(id, experience):
 
 class TeamGenerator:
     def __init__(self, config):
-        self.config = config
-        if self.config["settings"]["simulation-type"] == "stress-test":
-            self.team_distribution = {
-                Experience.HAXXOR: self.config["settings"]["teams"]
-            }
+        self.config: Config = config
+        if self.config.settings.simulation_type == "stress-test":
+            self.team_distribution = {Experience.HAXXOR: self.config.settings.teams}
 
         else:
             NOOB_PERCENTAGE = (0.2, Experience.NOOB)
@@ -78,7 +76,7 @@ class TeamGenerator:
             ADVANCED_PERCENTAGE = (0.2, Experience.ADVANCED)
             PRO_PERCENTAGE = (0.1, Experience.PRO)
             self.team_distribution = {
-                e: int(p * self.config["settings"]["teams"])
+                e: int(p * self.config.settings.teams)
                 for p, e in [
                     NOOB_PERCENTAGE,
                     BEGINNER_PERCENTAGE,
@@ -87,13 +85,9 @@ class TeamGenerator:
                     PRO_PERCENTAGE,
                 ]
             }
-            while (
-                sum(self.team_distribution.values()) < self.config["settings"]["teams"]
-            ):
+            while sum(self.team_distribution.values()) < self.config.settings.teams:
                 self.team_distribution[Experience.NOOB] += 1
-            while (
-                sum(self.team_distribution.values()) > self.config["settings"]["teams"]
-            ):
+            while sum(self.team_distribution.values()) > self.config.settings.teams:
                 self.team_distribution[Experience.NOOB] -= 1
 
     def generate(self):

@@ -34,10 +34,10 @@ class FlagSubmitter:
             client.connect(
                 hostname=team_address,
                 username=self.usernames[
-                    SetupVariant.from_str(self.setup.config["setup"]["location"])
+                    SetupVariant.from_str(self.setup.config.setup.location)
                 ],
                 pkey=paramiko.RSAKey.from_private_key_file(
-                    self.setup.secrets["vm-secrets"]["ssh-private-key-path"]
+                    self.setup.secrets.vm_secrets.ssh_private_key_path
                 ),
             )
             transport = client.get_transport()

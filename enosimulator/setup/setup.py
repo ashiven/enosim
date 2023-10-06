@@ -6,7 +6,7 @@ import aiofiles
 from rich.console import Console
 from rich.table import Table
 from setup.setuphelper import SetupHelper
-from setup.types import Service
+from setup.types import Config, Secrets, Service
 
 ####  Helpers ####
 
@@ -102,19 +102,6 @@ def _generate_service(id, service, checker_port, simulation_type):
     return new_service
 
 
-def _to_service_data(service):
-    new_service = Service(
-        id=service["id"],
-        name=service["name"],
-        flags_per_round_multiplier=service["flagsPerRoundMultiplier"],
-        noises_per_round_multiplier=service["noisesPerRoundMultiplier"],
-        havocs_per_round_multiplier=service["havocsPerRoundMultiplier"],
-        weight_factor=service["weightFactor"],
-        checkers=service["checkers"],
-    )
-    return new_service
-
-
 #### End Helpers ####
 
 
@@ -124,8 +111,8 @@ class Setup:
         self.teams = dict()
         self.services = dict()
         self.verbose = verbose
-        self.config = config
-        self.secrets = secrets
+        self.config: Config = config
+        self.secrets: Secrets = secrets
         self.skip_infra = skip_infra
         self.setup_path = setup_path
         self.setup_helper = setup_helper
@@ -133,11 +120,13 @@ class Setup:
 
     @classmethod
     async def new(cls, config_path, secrets_path, skip_infra, verbose=False):
-        config = await _parse_json(config_path)
-        secrets = await _parse_json(secrets_path)
+        config_json = await _parse_json(config_path)
+        config = Config.from_(config_json)
+        secrets_json = await _parse_json(secrets_path)
+        secrets = Secrets.from_(secrets_json)
         dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
-        setup_path = f"{dir_path}/../../test-setup/{config['setup']['location']}"
+        setup_path = f"{dir_path}/../../test-setup/{config.setup.location}"
         setup_helper = SetupHelper(config, secrets)
         return cls(config, secrets, skip_infra, setup_path, setup_helper, verbose)
 
@@ -152,12 +141,12 @@ class Setup:
         async with aiofiles.open(
             f"{self.setup_path}/config/services.txt", "r+"
         ) as service_file:
-            for service in self.config["settings"]["services"]:
+            for service in self.config.settings.services:
                 await service_file.write(f"{service}\n")
 
         # Configure ctf.json from config.json
         ctf_json = _generate_ctf_json()
-        for setting, value in self.config["ctf-json"].items():
+        for setting, value in vars(self.config.ctf_json).items():
             ctf_json[_kebab_to_camel(setting)] = value
 
         # Add teams to ctf.json
@@ -168,16 +157,16 @@ class Setup:
 
         # Add services to ctf.json
         ctf_json["services"].clear()
-        for id, service in enumerate(self.config["settings"]["services"]):
-            checker_port = self.config["settings"]["checker-ports"][id]
+        for id, service in enumerate(self.config.settings.services):
+            checker_port = self.config.settings.checker_ports[id]
             new_service = _generate_service(
                 id + 1,
                 service,
                 checker_port,
-                self.config["settings"]["simulation-type"],
+                self.config.settings.simulation_type,
             )
             ctf_json["services"].append(new_service)
-            self.services[service] = _to_service_data(new_service)
+            self.services[service] = Service.from_(new_service)
 
         # Create ctf.json
         await _create_file(f"{self.setup_path}/config/ctf.json")
@@ -206,11 +195,11 @@ class Setup:
             for name, ip_address in self.ips["public_ip_addresses"].items():
                 if name.startswith("checker"):
                     service["checkers"].append(f"http://{ip_address}:{checker_port}")
-            self.services[service["name"]] = _to_service_data(service)
+            self.services[service["name"]] = Service.from_(service)
 
         # Add ip addresses for teams to ctf.json and self.teams
         for id, team in enumerate(ctf_json["teams"]):
-            vulnboxes = self.config["settings"]["vulnboxes"]
+            vulnboxes = self.config.settings.vulnboxes
             vulnbox_id = (id % vulnboxes) + 1
             team["address"] = self.ips["private_ip_addresses"][f"vulnbox{vulnbox_id}"]
             team["teamSubnet"] = (
