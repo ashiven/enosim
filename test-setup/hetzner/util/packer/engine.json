@@ -2,7 +2,7 @@
    "builders": [
       {
          "type": "hcloud",
-         "token": "k9on2y3TZY3cWg6NIjoh51y2Hg9yfZKugUbi6OjiybMiOeIcnK6De4n8yMUE6bmB",
+         "token": "<insert-your-token-here>",
          "image": "ubuntu-20.04",
          "location": "nbg1",
          "server_type": "cx11",

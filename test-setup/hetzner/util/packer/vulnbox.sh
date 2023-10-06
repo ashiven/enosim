@@ -20,7 +20,7 @@ sudo systemctl enable docker
 sudo apt-get install -y docker-compose-plugin
 export DOCKER_BUILDKIT=0
 
-pat="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"
+pat="<insert-your-pat-here>"
 
 retry() {
   local retries=3

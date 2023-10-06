@@ -26,7 +26,7 @@ sudo apt-get install -y docker-compose-plugin
 sudo apt-get install -y pass gnupg2
 export DOCKER_BUILDKIT=0
 
-pat="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"
+pat="<insert-your-pat-here>"
 
 sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"
 sudo git clone "https://${pat}@github.com/enowars/EnoCTFPortal.git"
