@@ -6,10 +6,10 @@ class StatChecker:
     def __init__(self, setup):
         self.setup = setup
         self.console = Console()
-        self.client = docker.DockerClient(base_url="tcp://<remote_host>:2375")
 
-    def check(self):
-        containers = self.client.containers.list()
+    def check(self, ip_address, port):
+        client = docker.DockerClient(base_url=f"tcp://{ip_address}:{port}")
+        containers = client.containers.list()
         for container in containers:
             stats = container.stats(stream=False)
             cpu_usage = stats["cpu_stats"]["cpu_usage"]["total_usage"]
