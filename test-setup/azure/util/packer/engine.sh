@@ -37,6 +37,7 @@ sudo dotnet build
 sudo docker compose up -d
 
 cd ../EnoCTFPortal
+sudo touch docker-compose.yml
 echo "version: '3'
 
 services:
@@ -63,5 +64,5 @@ services:
     volumes:
       - ./sessions:/root/.aspnet/DataProtection-Keys
       - ./data:/app/data
-      - ../data:/app/wwwroot/scoreboard" >docker-compose.yml
+      - ../data:/app/wwwroot/scoreboard" | sudo tee docker-compose.yml
 sudo docker compose up -d
