@@ -50,7 +50,10 @@ class Simulation:
         return cls(setup, orchestrator, verbose)
 
     async def run(self):
-        for _ in range(self.setup.config.settings.duration_in_minutes):
+        iterations = self.setup.config.settings.duration_in_minutes * (
+            60 // self.setup.config.ctf_json.round_length_in_seconds
+        )
+        for i in range(iterations):
             # Go through all teams and perform the random test
             info_messages = []
             for team_name, team in self.setup.teams.items():
@@ -63,7 +66,7 @@ class Simulation:
 
             # Display all info relevant to the current round
             self.round_id = await self.orchestrator.get_round_info()
-            self.round_info(info_messages)
+            self.round_info(info_messages, iterations - i)
 
             # Instruct orchestrator to send out exploit requests
             team_flags = dict()
@@ -84,12 +87,14 @@ class Simulation:
                             self.orchestrator.submit_flags, team_address, flags
                         )
 
-            await asyncio.sleep(60)
+            await asyncio.sleep(self.setup.config.ctf_json.round_length_in_seconds)
 
-    def round_info(self, info_messages):
+    def round_info(self, info_messages, remaining):
         os.system("cls" if sys.platform == "win32" else "clear")
         self.console.print("\n")
-        self.console.log(f"[bold blue]Round {self.round_id} info:\n")
+        self.console.log(
+            f"[bold blue]Round {self.round_id} info ({remaining} remaining):\n"
+        )
         if self.verbose:
             self.setup.info()
             self.console.print("\n[bold red]Attack info:")
