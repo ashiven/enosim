@@ -1,8 +1,16 @@
+//////////  nextui and refine stuff  //////////
+import { Card, CardBody, Tab, Tabs } from "@nextui-org/react"
 import { useApiUrl, useCustom } from "@refinedev/core"
+
+//////////  other  //////////
+import dayjs from "dayjs"
 import React from "react"
+
+//////////  interfaces  //////////
 import { IChart } from "../../interfaces"
 
-import dayjs from "dayjs"
+//////////  components  //////////
+import { DisplayAreaGraph, DisplayBarChart } from "../../components/charts"
 import { KpiCard } from "../../components/kpiCard"
 
 const query = {
@@ -78,6 +86,42 @@ export const DashboardPage: React.FC = () => {
                formattedTarget={`${numberFormatter.format(200)}`}
             />
          </div>
+         <Card className="p-5">
+            <Tabs aria-label="Options" className="gap-0">
+               <Tab key="revenue" title="Revenue">
+                  <Card shadow="none" radius="none">
+                     <CardBody>
+                        <DisplayAreaGraph
+                           data={dailyRevenue?.data?.data ?? []}
+                           stroke="#8884d8"
+                           fill="#cfeafc"
+                        />
+                     </CardBody>
+                  </Card>
+               </Tab>
+               <Tab key="orders" title="Orders">
+                  <Card shadow="none" radius="none">
+                     <CardBody>
+                        <DisplayBarChart
+                           data={dailyOrders?.data?.data ?? []}
+                           fill="#ffce90"
+                        />{" "}
+                     </CardBody>
+                  </Card>
+               </Tab>
+               <Tab key="customers" title="Customers">
+                  <Card shadow="none" radius="none">
+                     <CardBody>
+                        <DisplayAreaGraph
+                           data={newCustomers?.data?.data ?? []}
+                           stroke="#00bd56"
+                           fill="#ccf3f3"
+                        />{" "}
+                     </CardBody>
+                  </Card>
+               </Tab>
+            </Tabs>
+         </Card>
       </main>
    )
 }
