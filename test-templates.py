@@ -1,7 +1,7 @@
 import asyncio
 import json
 
-from .enosimulator.setup import SetupHelper
+from enosimulator.setup import SetupHelper
 
 
 def _parse_json(path):
