@@ -2,8 +2,8 @@ import os
 import re
 
 import aiofiles
-from setup.types import Config, Secrets
 
+from ..types import Config, Secrets
 from .abstract import Helper
 from .util import append_lines, copy_file, delete_lines, insert_after, replace_line
 

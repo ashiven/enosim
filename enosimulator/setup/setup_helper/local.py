@@ -1,7 +1,6 @@
 import os
 
-from setup.types import Config, Secrets
-
+from ..types import Config, Secrets
 from .abstract import Helper
 
 

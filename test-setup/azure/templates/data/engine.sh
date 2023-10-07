@@ -45,6 +45,7 @@ fi
 
 optional EnoEngine sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"
 optional EnoCTFPortal sudo git clone "https://${pat}@github.com/enowars/EnoCTFPortal.git"
+optional data sudo mkdir data
 
 if [ -f "./ctf.json" ]; then
   sudo mv ctf.json ./EnoEngine
@@ -54,8 +55,8 @@ if [ -f "./docker-compose.yml" ]; then
   sudo mv docker-compose.yml ./EnoCTFPortal
 fi
 
-optional data sudo mkdir data
 cd EnoEngine
+sudo dotnet build
 
 echo -e "\033[32m[+] Starting EnoEngine...\033[0m"
 sudo docker compose up -d

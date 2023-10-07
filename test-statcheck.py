@@ -1,4 +1,4 @@
-from .enosimulator.simulation import StatChecker
+from enosimulator.simulation import StatChecker
 
 sc = StatChecker()
-sc.check("engine_ip", "docker_port")
+sc.check("88.198.164.135", "2375")

@@ -1,7 +1,8 @@
 import os
 
 import aiofiles
-from setup.types import Config, Experience, Team
+
+from ..types import Config, Experience, Team
 
 TEAM_NAMES = [
     "Kleinmazama",
