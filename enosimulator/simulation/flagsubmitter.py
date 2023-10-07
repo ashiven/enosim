@@ -1,7 +1,6 @@
 import paramiko
 from rich.console import Console
-
-from ..setup import SetupVariant
+from setup.types import SetupVariant
 
 #### Helpers ####
 
