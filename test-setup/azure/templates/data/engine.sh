@@ -35,6 +35,15 @@ optional() {
   fi
 }
 
+retry() {
+  local retries=3
+  until "$@" || [ "$retries" -eq 0 ]; do
+    echo -e "\033[31m[!] Retrying command ...\033[0m"
+    sleep 1
+    retries=$((retries - 1))
+  done
+}
+
 # Expose docker daemon so we can get the stats of the containers
 sudo mkdir -p /etc/systemd/system/docker.service.d
 echo -e "[Service]\nExecStart=\nExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375" | sudo tee /etc/systemd/system/docker.service.d/override.conf
@@ -65,16 +74,16 @@ fi
 # Start the engine
 echo -e "\033[32m[+] Starting EnoEngine...\033[0m"
 cd EnoEngine
-sudo dotnet build
-sudo docker compose up -d
-sudo dotnet run --project EnoConfig apply
-sudo dotnet run -c Release --project EnoLauncher &
-sudo dotnet run -c Release --project EnoFlagSink &
-sleep 6
-sudo dotnet run -c Release --project EnoEngine &
+retry sudo dotnet build
+retry sudo docker compose up -d
+retry sudo dotnet run --project EnoConfig apply
+retry sudo dotnet run -c Release --project EnoLauncher &
+retry sudo dotnet run -c Release --project EnoFlagSink &
+sleep 5
+retry sudo dotnet run -c Release --project EnoEngine &
 
 # Wait for the engine to start before starting the scoreboard
 sleep 45
 cd ../EnoCTFPortal
-sudo docker compose up -d
+retry sudo docker compose up -d
 exit 0
