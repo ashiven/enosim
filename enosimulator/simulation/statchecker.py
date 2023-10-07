@@ -3,8 +3,7 @@ from rich.console import Console
 
 
 class StatChecker:
-    def __init__(self, setup):
-        self.setup = setup
+    def __init__(self):
         self.console = Console()
 
     def check(self, ip_address, port):

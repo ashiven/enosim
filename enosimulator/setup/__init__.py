@@ -1,3 +1,3 @@
-from setup.setup import *
-from setup.setup_helper.setup_helper import *
-from setup.types import *
+from .setup import *
+from .setup_helper.setup_helper import *
+from .types import *

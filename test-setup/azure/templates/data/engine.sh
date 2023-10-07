@@ -65,8 +65,8 @@ sudo dotnet run -c Release --project EnoFlagSink &
 sleep 6
 sudo dotnet run -c Release --project EnoEngine &
 
-# Wait 5 minutes for the engine to start before starting the scoreboard
-sleep 300
+# Wait for the engine to start before starting the scoreboard
+sleep 45
 cd ../EnoCTFPortal
 sudo docker compose up -d
 exit 0

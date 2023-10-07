@@ -1,3 +1,4 @@
-from simulation.flagsubmitter import *
-from simulation.orchestrator import *
-from simulation.simulation import *
+from .flagsubmitter import *
+from .orchestrator import *
+from .simulation import *
+from .statchecker import *
