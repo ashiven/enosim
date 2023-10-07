@@ -97,7 +97,7 @@ class Simulation:
             self.console.print("\n")
             self.console.print("[bold red]Docker stats for vulnbox1:")
             self.stat_checker.check(
-                self.setup.ips.public_ip_addresses["vulnbox1"], "2375"
+                self.setup.ips.public_ip_addresses["vulnbox1"], 2375
             )
             self.console.print("\n")
 
