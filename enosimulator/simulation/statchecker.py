@@ -1,7 +1,9 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import docker
+from rich.columns import Columns
 from rich.console import Console
+from rich.panel import Panel
 
 
 class StatChecker:
@@ -17,8 +19,13 @@ class StatChecker:
                 future = executor.submit(self._container_stats, container)
                 futures.append(future)
 
+        panels = []
         for future in as_completed(futures):
-            self.console.print(future.result())
+            stat = future.result()
+            panel = Panel(stat, expand=True)
+            panels.append(panel)
+
+        self.console.print(Columns(panels))
 
     def _container_stats(self, container):
         stats = container.stats(stream=False)
@@ -35,9 +42,9 @@ class StatChecker:
         net_tx_bytes = stats["networks"]["eth0"]["tx_bytes"]
 
         stat_result = (
-            f"Container: {container.name}\n"
-            + f"CPU Usage: {cpu_percent:.2f}%\n"
-            + f"Memory Usage: {mem_usage / 1024 / 1024:.2f} MB / {mem_limit / 1024 / 1024:.2f} MB\n"
-            + f"Network Usage: RX {net_rx_bytes / 1024 / 1024:.2f} MB / TX {net_tx_bytes / 1024 / 1024:.2f} MB\n"
+            f"[b]Container: {container.name}[/b]\n"
+            + f"[yellow]CPU Usage:[/yellow] {cpu_percent:.2f}%\n"
+            + f"[yellow]Memory Usage:[/yellow] {mem_usage / 1024 / 1024:.2f} MB / {mem_limit / 1024 / 1024:.2f} MB\n"
+            + f"[yellow]Network Usage:[/yellow] RX {net_rx_bytes / 1024 / 1024:.2f} MB / TX {net_tx_bytes / 1024 / 1024:.2f} MB\n"
         )
         return stat_result
