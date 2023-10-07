@@ -38,12 +38,21 @@ retry() {
   done
 }
 
+# Expose docker daemon so we can get the stats of the containers
+echo -e "[Service]\nExecStart=\nExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375" | sudo tee /etc/systemd/system/docker.service.d/override.conf
+sudo systemctl daemon-reload
+sudo systemctl restart docker.service
+
+# Clean up trailing or leading whitespaces in services.txt
 sed -i 's/^[[:space:]]*//;s/[[:space:]]*$//' services.txt
+
+# If the image was built with packer, move the services.txt to the packer directory and cd into packer
 if [ -d "../packer" ]; then
   sudo mv services.txt ../packer
   cd ../packer
 fi
 
+# Clone the services and start the checker and exploiter
 while read -r service_name; do
   optional "${service_name}" sudo git clone "https://${pat}@github.com/enowars/${service_name}.git"
   sudo find "${service_name}" \( -name "requirements*" -o -name "Dockerfile*" \) -exec sed -i "s|enochecker3[^ ]*|git+https://github.com/ashiven/enochecker3|g" "{}" \;

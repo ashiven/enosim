@@ -35,30 +35,36 @@ optional() {
   fi
 }
 
+# Expose docker daemon so we can get the stats of the containers
+echo -e "[Service]\nExecStart=\nExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375" | sudo tee /etc/systemd/system/docker.service.d/override.conf
+sudo systemctl daemon-reload
+sudo systemctl restart docker.service
+
+# If the image was built with packer move ctf.json to packer and cd into packer
 if [ -d "../packer" ] && [ -f "ctf.json" ]; then
   sudo mv ctf.json ../packer
 fi
-
 if [ -d "../packer" ]; then
   cd ../packer
 fi
 
+# Clone the EnoEngine and the EnoCTFPortal if they haven't been cloned already and create the data directory if it doesn't exist
 optional EnoEngine sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"
 optional EnoCTFPortal sudo git clone "https://${pat}@github.com/enowars/EnoCTFPortal.git"
 optional data sudo mkdir data
 
+# Move the ctf.json and docker-compose.yml to the EnoEngine and EnoCTFPortal directories if they haven't been moved already
 if [ -f "./ctf.json" ]; then
   sudo mv ctf.json ./EnoEngine
 fi
-
 if [ -f "./docker-compose.yml" ]; then
   sudo mv docker-compose.yml ./EnoCTFPortal
 fi
 
+# Start the engine
+echo -e "\033[32m[+] Starting EnoEngine...\033[0m"
 cd EnoEngine
 sudo dotnet build
-
-echo -e "\033[32m[+] Starting EnoEngine...\033[0m"
 sudo docker compose up -d
 sudo dotnet run --project EnoConfig apply
 sudo dotnet run -c Release --project EnoLauncher &
