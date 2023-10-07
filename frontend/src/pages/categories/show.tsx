@@ -1,6 +1,6 @@
 import { IResourceComponentsProps } from "@refinedev/core";
-import { MuiShowInferencer } from "@refinedev/inferencer/mui";
+import { HeadlessShowInferencer } from "@refinedev/inferencer/headless";
 
 export const CategoryShow: React.FC<IResourceComponentsProps> = () => {
-  return <MuiShowInferencer />;
+  return <HeadlessShowInferencer />;
 };

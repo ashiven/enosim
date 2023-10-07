@@ -1,6 +1,6 @@
 import { IResourceComponentsProps } from "@refinedev/core";
-import { MuiEditInferencer } from "@refinedev/inferencer/mui";
+import { HeadlessEditInferencer } from "@refinedev/inferencer/headless";
 
 export const CategoryEdit: React.FC<IResourceComponentsProps> = () => {
-  return <MuiEditInferencer />;
+  return <HeadlessEditInferencer />;
 };

@@ -1,6 +1,6 @@
 import { IResourceComponentsProps } from "@refinedev/core";
-import { MuiCreateInferencer } from "@refinedev/inferencer/mui";
+import { HeadlessCreateInferencer } from "@refinedev/inferencer/headless";
 
 export const CategoryCreate: React.FC<IResourceComponentsProps> = () => {
-  return <MuiCreateInferencer />;
+  return <HeadlessCreateInferencer />;
 };
