@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/menubar"
 import { MyAreaGraph } from "@components/charts/areagraph"
 import { MyBarChart } from "@components/charts/barchart"
+import React from "react"
 
 /* Start sample data for bar charts and area charts */
 import { useApiUrl, useCustom } from "@refinedev/core"
@@ -27,7 +28,7 @@ const query = {
 }
 /* End sample data for bar charts and area charts */
 
-export default function VMCharts() {
+export const VMCharts: React.FC = () => {
    /* Start sample data for bar charts and area charts */
    const API_URL = useApiUrl()
 
