@@ -1,4 +1,4 @@
-import { VMCharts } from "@/components/vmcharts"
+import VMCharts from "@/components/vmcharts"
 import VMStats from "@/components/vmstats"
 
 import Navbar from "@components/navbar"
