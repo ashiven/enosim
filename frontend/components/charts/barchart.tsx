@@ -21,11 +21,11 @@ interface Datum {
 }
 
 interface BarChartProps {
-   fill: string
    data: Datum[]
+   fill: string
 }
 
-export const MyBarChart: React.FC<BarChartProps> = ({ fill, data }) => {
+export const MyBarChart: React.FC<BarChartProps> = ({ data, fill }) => {
    const formatted = data.map(({ date, value }) => ({
       date: formatDate.format(new Date(date)),
       value,

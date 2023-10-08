@@ -21,15 +21,15 @@ interface Datum {
 }
 
 interface AreaGraphProps {
+   data: Datum[]
    stroke: string
    fill: string
-   data: Datum[]
 }
 
 export const MyAreaGraph: React.FC<AreaGraphProps> = ({
+   data,
    stroke,
    fill,
-   data,
 }) => {
    const formatted = data.map(({ date, value }) => ({
       date: formatter.format(new Date(date)),
