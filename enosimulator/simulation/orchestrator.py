@@ -13,6 +13,7 @@ from enochecker_core import (
 from rich.console import Console
 
 from .flagsubmitter import FlagSubmitter
+from .statchecker import StatChecker
 
 FLAG_REGEX_ASCII = r"ENO[A-Za-z0-9+\/=]{48}"
 CHAIN_ID_PREFIX = secrets.token_hex(20)
@@ -103,11 +104,14 @@ class Orchestrator:
     def __init__(self, setup, verbose=False):
         self.setup = setup
         self.verbose = verbose
-        self.client = httpx.AsyncClient()
-        self.flag_submitter = FlagSubmitter(setup, self.verbose)
-        self.console = Console()
         self.service_info = dict()
         self.attack_info = None
+        self.client = httpx.AsyncClient()
+        self.flag_submitter = FlagSubmitter(
+            setup.ips, setup.config, setup.secrets, self.verbose
+        )
+        self.stat_checker = StatChecker(setup.config, setup.secrets)
+        self.console = Console()
 
     async def update_team_info(self):
         for service_name, service in self.setup.services.items():
@@ -155,6 +159,12 @@ class Orchestrator:
 
     def submit_flags(self, team_address, flags):
         self.flag_submitter.submit_flags(team_address, flags)
+
+    def container_stats(self, team_address):
+        self.stat_checker.check_containers(team_address)
+
+    def system_stats(self, team_address):
+        self.stat_checker.check_system(team_address)
 
     def _create_exploit_requests(self, round_id, team, all_teams):
         exploit_requests = dict()

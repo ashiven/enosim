@@ -1,17 +1,27 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import docker
+import paramiko
 from rich.columns import Columns
 from rich.console import Console
 from rich.panel import Panel
+from setup.types import SetupVariant
 
 
 class StatChecker:
-    def __init__(self):
+    def __init__(self, config, secrets):
+        self.config = config
+        self.secrets = secrets
+        self.usernames = {
+            SetupVariant.AZURE: "groot",
+            SetupVariant.HETZNER: "root",
+            SetupVariant.LOCAL: "root",
+        }
         self.console = Console()
 
-    def check(self, ip_address, port):
-        client = docker.DockerClient(base_url=f"tcp://{ip_address}:{port}")
+    def check_containers(self, ip_address):
+        DOCKER_PORT = 2375
+        client = docker.DockerClient(base_url=f"tcp://{ip_address}:{DOCKER_PORT}")
         containers = client.containers.list()
         futures = []
         with ThreadPoolExecutor(max_workers=20) as executor:
@@ -26,6 +36,31 @@ class StatChecker:
             panels.append(panel)
 
         self.console.print(Columns(panels))
+
+    def check_system(self, ip_address):
+        ram_usage, cpu_usage = self._system_stats(ip_address)
+
+        [ram_percent, ram_total, ram_used] = ram_usage.splitlines()
+        ram_panel = (
+            Panel(
+                f"[b]RAM Stats[/b]\n"
+                + f"[yellow]RAM usage:[/yellow] {float(ram_percent.strip()):.2f}%\n"
+                + f"[yellow]RAM total:[/yellow] {(float(ram_total.strip())/1024):.2f} GB\n"
+                + f"[yellow]RAM used:[/yellow] {(float(ram_used.strip())/1024):.2f} GB\n",
+                expand=True,
+            )
+            if ram_usage
+            else ""
+        )
+        cpu_panel = (
+            Panel(
+                f"[b]CPU Stats[/b]\n[yellow]CPU usage:[/yellow] {float(cpu_usage.strip()):.2f}%",
+                expand=True,
+            )
+            if cpu_usage
+            else ""
+        )
+        self.console.print(Columns([ram_panel, cpu_panel]))
 
     def _container_stats(self, container):
         stats = container.stats(stream=False)
@@ -48,3 +83,26 @@ class StatChecker:
             + f"[yellow]Network Usage:[/yellow] RX {net_rx_bytes / 1024 / 1024:.2f} MB / TX {net_tx_bytes / 1024 / 1024:.2f} MB\n"
         )
         return stat_result
+
+    def _system_stats(self, ip_address):
+        with paramiko.SSHClient() as client:
+            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            client.connect(
+                hostname=ip_address,
+                username=self.usernames[
+                    SetupVariant.from_str(self.config.setup.location)
+                ],
+                pkey=paramiko.RSAKey.from_private_key_file(
+                    self.secrets.vm_secrets.ssh_private_key_path
+                ),
+            )
+            _, stdout, _ = client.exec_command(
+                "free -m | grep Mem | awk '{print ($3/$2)*100}' && free -m | grep Mem | awk '{print $2}' && free -m | grep Mem | awk '{print $3}'"
+            )
+            ram_usage = stdout.read().decode("utf-8")
+            _, stdout, _ = client.exec_command(
+                "sar 1 1 | grep 'Average' | sed 's/^.* //' | awk '{print 100 - $1}'"
+            )
+            cpu_usage = stdout.read().decode("utf-8")
+
+        return ram_usage, cpu_usage

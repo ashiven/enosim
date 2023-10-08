@@ -8,7 +8,6 @@ from rich.console import Console
 from rich.table import Table
 
 from .orchestrator import Orchestrator
-from .statchecker import StatChecker
 
 #### Helpers ####
 
@@ -16,7 +15,7 @@ from .statchecker import StatChecker
 def _random_test(team):
     probability = team.experience.value
     random_value = random.random()
-    return random_value < probability
+    return True  # random_value < probability
 
 
 def _exploit_or_patch(team):
@@ -41,7 +40,6 @@ class Simulation:
         self.verbose = verbose
         self.round_id = 0
         self.console = Console()
-        self.stat_checker = StatChecker()
 
     @classmethod
     async def new(cls, setup, verbose=False):
@@ -101,8 +99,13 @@ class Simulation:
             self.console.print(self.orchestrator.attack_info)
             self.console.print("\n")
             self.console.print("[bold red]Docker stats for vulnbox1:")
-            self.stat_checker.check(
-                self.setup.ips.public_ip_addresses["vulnbox1"], 2375
+            self.orchestrator.container_stats(
+                self.setup.ips.public_ip_addresses["vulnbox1"]
+            )
+            self.console.print("\n")
+            self.console.print("[bold red]System stats for vulnbox1:")
+            self.orchestrator.system_stats(
+                self.setup.ips.public_ip_addresses["vulnbox1"]
             )
             self.console.print("\n")
 
