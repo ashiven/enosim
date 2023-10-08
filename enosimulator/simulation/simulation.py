@@ -15,7 +15,7 @@ from .orchestrator import Orchestrator
 def _random_test(team):
     probability = team.experience.value
     random_value = random.random()
-    return True  # random_value < probability
+    return random_value < probability
 
 
 def _exploit_or_patch(team):
