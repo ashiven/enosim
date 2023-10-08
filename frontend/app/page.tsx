@@ -1,3 +1,4 @@
+import VMCharts from "@/components/vmcharts"
 import VMStats from "@/components/vmstats"
 
 import Navbar from "@components/navbar"
@@ -9,7 +10,10 @@ export default function Home() {
          <Navbar />
          <div className="flex">
             <Sidebar />
-            <VMStats />
+            <div>
+               <VMStats />
+               <VMCharts />
+            </div>
          </div>
       </main>
    )
