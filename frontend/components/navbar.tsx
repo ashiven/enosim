@@ -38,27 +38,17 @@ export default function Navbar() {
                      <NavigationMenuList>
                         <NavigationMenuItem>
                            <NavigationMenuTrigger>
-                              <span className="text-[20px]">Book</span>
+                              <span className="text-[20px]">Website</span>
                            </NavigationMenuTrigger>
                         </NavigationMenuItem>
                         <NavigationMenuItem>
                            <NavigationMenuTrigger>
-                              <span className="text-[20px]">Check-In</span>
+                              <span className="text-[20px]">About</span>
                            </NavigationMenuTrigger>
                         </NavigationMenuItem>
                         <NavigationMenuItem>
                            <NavigationMenuTrigger>
-                              <span className="text-[20px]">Manage</span>
-                           </NavigationMenuTrigger>
-                        </NavigationMenuItem>
-                        <NavigationMenuItem>
-                           <NavigationMenuTrigger>
-                              <span className="text-[20px]">Info</span>
-                           </NavigationMenuTrigger>
-                        </NavigationMenuItem>
-                        <NavigationMenuItem>
-                           <NavigationMenuTrigger>
-                              <span className="text-[20px]">Login</span>
+                              <span className="text-[20px]">Docs</span>
                            </NavigationMenuTrigger>
                         </NavigationMenuItem>
                      </NavigationMenuList>
