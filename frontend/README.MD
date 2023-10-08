@@ -1,49 +1,36 @@
-# refine-project
-
-<div align="center" style="margin: 30px;">
-    <a href="https://refine.dev">
-    <img src="https://refine.ams3.cdn.digitaloceanspaces.com/refine_logo.png"  align="center" />
-    </a>
-</div>
-<br/>
-
-This [refine](https://github.com/refinedev/refine) project was generated with [superplate](https://github.com/pankod/superplate).
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
 
-**refine** is a React-based framework for building data-intensive applications in no time ✨
-
-Refine offers lots of out-of-the box functionality for rapid development, without compromising extreme customizability. Use-cases include, but are not limited to admin panels, B2B applications and dashboards.
-
-## Available Scripts
-
-### Running the development server.
+First, run the development server:
 
 ```bash
-    npm run dev
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-### Building for production.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-```bash
-    npm run build
-```
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-### Running the production server.
-
-```bash
-    npm run start
-```
+This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
 ## Learn More
 
-To learn more about **refine**, please check out the [Documentation](https://refine.dev/docs)
+To learn more about Next.js, take a look at the following resources:
 
-- **REST Data Provider** [Docs](https://refine.dev/docs/core/providers/data-provider/#overview)
-- **Inferencer** [Docs](https://refine.dev/docs/packages/documentation/inferencer)
-- **i18n** [Docs](https://refine.dev/docs/core/providers/i18n-provider/)
-- **React Router** [Docs](https://refine.dev/docs/core/providers/router-provider/)
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## License
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-MIT
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
