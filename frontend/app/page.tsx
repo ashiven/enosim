@@ -10,7 +10,7 @@ export default function Home() {
          <Navbar />
          <div className="flex">
             <Sidebar />
-            <div className="">
+            <div className="container">
                <VMStats />
                <VMCharts />
             </div>
