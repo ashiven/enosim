@@ -19,7 +19,7 @@ export default function Navbar() {
                      </a>
                   </li>
                   <li>
-                     <a href="/about" className="text-4xl font-bold">
+                     <a href="/about" className="ml-3 text-4xl font-bold">
                         EnoSimulator
                      </a>
                   </li>
