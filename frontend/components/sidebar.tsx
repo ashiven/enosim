@@ -12,14 +12,14 @@ export default function Sidebar() {
       <div className="flex flex-col h-screen p-4  shadow w-60">
          <div className="space-y-3">
             {/* Overview heading */}
-            <div className="flex items-center">
+            <div className="flex items-center ml-1">
                <h2 className="text-xl font-bold">Dashboard</h2>
             </div>
             {/* Tabs */}
             <div className="flex-1">
                <ul className="pt-2 pb-4 space-y-1 text-sm">
                   {/* Overview Tab */}
-                  <li className="rounded-sm">
+                  <li className="rounded-sm p-1">
                      <Button
                         variant={pathname === "/" ? "default" : "secondary"}
                      >
@@ -28,12 +28,12 @@ export default function Sidebar() {
                            href="/"
                            className="flex items-center p-2 space-x-3 rounded-md"
                         >
-                           <span>Overview</span>
+                           <span className="w-24">Overview</span>
                         </Link>
                      </Button>
                   </li>
                   {/* Services Tab */}
-                  <li className="rounded-sm">
+                  <li className="rounded-sm p-1">
                      <Button
                         variant={
                            pathname === "/services" ? "default" : "secondary"
@@ -44,12 +44,12 @@ export default function Sidebar() {
                            href="/services"
                            className="flex items-center p-2 space-x-3 rounded-md"
                         >
-                           <span>Services</span>
+                           <span className="w-24">Services</span>
                         </Link>
                      </Button>
                   </li>
                   {/* Teams Tab */}
-                  <li className="rounded-sm">
+                  <li className="rounded-sm p-1">
                      <Button
                         variant={
                            pathname === "/teams" ? "default" : "secondary"
@@ -60,12 +60,12 @@ export default function Sidebar() {
                            href="/teams"
                            className="flex items-center p-2 space-x-3 rounded-md"
                         >
-                           <span>Teams</span>
+                           <span className="w-24">Teams</span>
                         </Link>
                      </Button>
                   </li>
                   {/* Settings Tab */}
-                  <li className="rounded-sm">
+                  <li className="rounded-sm p-1">
                      <Button
                         variant={
                            pathname === "/settings" ? "default" : "secondary"
@@ -76,7 +76,7 @@ export default function Sidebar() {
                            href="/settings"
                            className="flex items-center p-2 space-x-3 rounded-md"
                         >
-                           <span>Settings</span>
+                           <span className="w-24">Settings</span>
                         </Link>
                      </Button>
                   </li>

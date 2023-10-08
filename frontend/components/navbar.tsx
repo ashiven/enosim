@@ -28,7 +28,7 @@ export default function Navbar() {
                   </li>
                   <li>
                      <a href="/about" className="ml-3 text-4xl font-bold">
-                        EnoSimulator
+                        EnoSim
                      </a>
                   </li>
                </div>
