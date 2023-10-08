@@ -1,10 +1,14 @@
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { BarChart3, Container, Settings, Users } from "lucide-react"
 import Link from "next/link"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { usePathname } from "next/navigation"
 
 export default function Sidebar() {
+   const pathname = usePathname()
    return (
       <div className="flex">
          {/* Sidebar */}
@@ -19,7 +23,9 @@ export default function Sidebar() {
                   <ul className="pt-2 pb-4 space-y-1 text-sm">
                      {/* Overview Tab */}
                      <li className="rounded-sm">
-                        <Button>
+                        <Button
+                           variant={pathname === "/" ? "default" : "secondary"}
+                        >
                            <BarChart3 className="w-6 h-6" size={24} />
                            <Link
                               href="/"
@@ -31,7 +37,11 @@ export default function Sidebar() {
                      </li>
                      {/* Services Tab */}
                      <li className="rounded-sm">
-                        <Button>
+                        <Button
+                           variant={
+                              pathname === "/services" ? "default" : "secondary"
+                           }
+                        >
                            <Container className="w-6 h-6" size={24} />
                            <Link
                               href="/services"
@@ -43,7 +53,11 @@ export default function Sidebar() {
                      </li>
                      {/* Teams Tab */}
                      <li className="rounded-sm">
-                        <Button>
+                        <Button
+                           variant={
+                              pathname === "/teams" ? "default" : "secondary"
+                           }
+                        >
                            <Users className="w-6 h-6" size={24} />
                            <Link
                               href="/teams"
@@ -55,7 +69,11 @@ export default function Sidebar() {
                      </li>
                      {/* Settings Tab */}
                      <li className="rounded-sm">
-                        <Button>
+                        <Button
+                           variant={
+                              pathname === "/settings" ? "default" : "secondary"
+                           }
+                        >
                            <Settings className="w-6 h-6" size={24} />
                            <Link
                               href="/settings"
