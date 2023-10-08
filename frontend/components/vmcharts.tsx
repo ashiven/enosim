@@ -9,20 +9,19 @@ import { MyBarChart } from "@components/charts/barchart"
 }
 export default function VMCharts() {
    return (
-      <div className="p-5">
+      <div className="container mx-auto mt-12 mb-8">
          <Card className="p-5">
             {/* Some Charts with performance info */}
             <Tabs defaultValue="revenue">
                <TabsList>
-                  <TabsTrigger value="revenue">Revenue</TabsTrigger>
-                  <TabsTrigger value="orders">Orders</TabsTrigger>
-                  <TabsTrigger value="customers">Customers</TabsTrigger>
+                  <TabsTrigger value="revenue">CPU Usage</TabsTrigger>
+                  <TabsTrigger value="orders">RAM Usage</TabsTrigger>
+                  <TabsTrigger value="customers">Network Usage</TabsTrigger>
                </TabsList>
                {/* Revenue chart */}
                <TabsContent value="revenue">
-                  Revenue
                   <Card>
-                     <CardContent>
+                     <CardContent className="p-6">
                         <MyAreaGraph
                            data={[
                               { date: "2021-12-12", value: "20" },
@@ -31,6 +30,12 @@ export default function VMCharts() {
                               { date: "2021-12-15", value: "30" },
                               { date: "2021-12-16", value: "35" },
                               { date: "2021-12-17", value: "50" },
+                              { date: "2021-12-18", value: "50" },
+                              { date: "2021-12-19", value: "40" },
+                              { date: "2021-12-20", value: "30" },
+                              { date: "2021-12-21", value: "25" },
+                              { date: "2021-12-22", value: "60" },
+                              { date: "2021-12-23", value: "50" },
                            ]}
                            stroke="#8884d8"
                            fill="#cfeafc"
@@ -40,9 +45,8 @@ export default function VMCharts() {
                </TabsContent>
                {/* Orders chart */}
                <TabsContent value="orders">
-                  Orders
                   <Card>
-                     <CardContent>
+                     <CardContent className="p-6">
                         <MyBarChart
                            data={[
                               { date: "2021-12-12", value: "20" },
@@ -59,9 +63,8 @@ export default function VMCharts() {
                </TabsContent>
                {/* Customers chart */}
                <TabsContent value="customers">
-                  Customers
                   <Card>
-                     <CardContent>
+                     <CardContent className="p-6">
                         <MyAreaGraph
                            data={[
                               { date: "2021-12-12", value: "20" },
