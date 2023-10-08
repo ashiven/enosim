@@ -11,8 +11,8 @@
    },
    "settings": {
       "duration-in-minutes": 30,
-      "teams": 3,
-      "vulnboxes": 3,
+      "teams": 2,
+      "vulnboxes": 2,
       "services": ["enowars7-service-CVExchange", "enowars7-service-bollwerk"],
       "checker-ports": [7331, 6008],
       "simulation-type": "realistic"
