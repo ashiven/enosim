@@ -1,4 +1,5 @@
-import Image from "next/image"
+import { Button } from "@/components/ui/button"
+import { BarChart3, Container, Settings, Users } from "lucide-react"
 import Link from "next/link"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -18,67 +19,51 @@ export default function Sidebar() {
                   <ul className="pt-2 pb-4 space-y-1 text-sm">
                      {/* Overview Tab */}
                      <li className="rounded-sm">
-                        <Link
-                           href="/"
-                           className="flex items-center p-2 space-x-3 rounded-md"
-                        >
-                           <Image
-                              src="/chart.svg"
-                              className="w-6 h-6"
-                              alt="Logo"
-                              width={30}
-                              height={30}
-                           />
-                           <span>Overview</span>
-                        </Link>
+                        <Button>
+                           <BarChart3 className="w-6 h-6" size={24} />
+                           <Link
+                              href="/"
+                              className="flex items-center p-2 space-x-3 rounded-md"
+                           >
+                              <span>Overview</span>
+                           </Link>
+                        </Button>
                      </li>
                      {/* Services Tab */}
                      <li className="rounded-sm">
-                        <Link
-                           href="/mails"
-                           className="flex items-center p-2 space-x-3 rounded-md"
-                        >
-                           <Image
-                              src="/docker.svg"
-                              className="w-6 h-6"
-                              alt="Logo"
-                              width={30}
-                              height={30}
-                           />
-                           <span>Services</span>
-                        </Link>
+                        <Button>
+                           <Container className="w-6 h-6" size={24} />
+                           <Link
+                              href="/services"
+                              className="flex items-center p-2 space-x-3 rounded-md"
+                           >
+                              <span>Services</span>
+                           </Link>
+                        </Button>
                      </li>
                      {/* Teams Tab */}
                      <li className="rounded-sm">
-                        <Link
-                           href="/products"
-                           className="flex items-center p-2 space-x-3 rounded-md"
-                        >
-                           <Image
-                              src="/users.svg"
-                              className="w-6 h-6"
-                              alt="Logo"
-                              width={30}
-                              height={30}
-                           />
-                           <span>Teams</span>
-                        </Link>
+                        <Button>
+                           <Users className="w-6 h-6" size={24} />
+                           <Link
+                              href="/teams"
+                              className="flex items-center p-2 space-x-3 rounded-md"
+                           >
+                              <span>Teams</span>
+                           </Link>
+                        </Button>
                      </li>
                      {/* Settings Tab */}
                      <li className="rounded-sm">
-                        <Link
-                           href="setting"
-                           className="flex items-center p-2 space-x-3 rounded-md"
-                        >
-                           <Image
-                              src="/settings.svg"
-                              className="w-6 h-6"
-                              alt="Logo"
-                              width={30}
-                              height={30}
-                           />
-                           <span>Settings</span>
-                        </Link>
+                        <Button>
+                           <Settings className="w-6 h-6" size={24} />
+                           <Link
+                              href="/settings"
+                              className="flex items-center p-2 space-x-3 rounded-md"
+                           >
+                              <span>Settings</span>
+                           </Link>
+                        </Button>
                      </li>
                   </ul>
                </div>
