@@ -6,11 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 export default function Sidebar() {
    return (
       <div className="flex">
+         {/* Sidebar */}
          <div className="flex flex-col h-screen p-3 bg-white shadow w-60">
             <div className="space-y-3">
+               {/* Overview heading */}
                <div className="flex items-center">
                   <h2 className="text-xl font-bold">Dashboard</h2>
                </div>
+               {/* Tabs */}
                <div className="flex-1">
                   <ul className="pt-2 pb-4 space-y-1 text-sm">
                      {/* Overview Tab */}
