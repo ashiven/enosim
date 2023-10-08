@@ -12,7 +12,7 @@ import {
 export default function Navbar() {
    return (
       <header>
-         <nav>
+         <nav className="shadow">
             <ul className="p-5 flex items-center justify-between">
                {/* Logo */}
                <div className="flex items-center justify-items-start">
