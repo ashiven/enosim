@@ -5,6 +5,7 @@ import {
    MenubarContent,
    MenubarItem,
    MenubarMenu,
+   MenubarTrigger,
 } from "@/components/ui/menubar"
 import { MyAreaGraph } from "@components/charts/areagraph"
 import { MyBarChart } from "@components/charts/barchart"
@@ -15,14 +16,20 @@ export default function VMCharts() {
          {/* Some Charts with performance info */}
          <Menubar>
             <MenubarMenu>
+               <MenubarTrigger>File</MenubarTrigger>
                <MenubarContent aria-label="Options" className="gap-0">
                   {/* Revenue chart */}
-                  <MenubarItem key="revenue" title="Revenue">
+                  <MenubarItem>
+                     Hello
                      <Card>
                         <CardContent>
                            {/* TODO: - the data fields need to be filled with actual data */}
                            <MyAreaGraph
-                              data={[]}
+                              data={[
+                                 { date: "2021-12-12", value: "20" },
+                                 { date: "2021-12-13", value: "30" },
+                                 { date: "2021-12-14", value: "40" },
+                              ]}
                               stroke="#8884d8"
                               fill="#cfeafc"
                            />
@@ -30,7 +37,9 @@ export default function VMCharts() {
                      </Card>
                   </MenubarItem>
                   {/* Orders chart */}
-                  <MenubarItem key="orders" title="Orders">
+                  <MenubarItem>
+                     {" "}
+                     Why are you gay?
                      <Card>
                         <CardContent>
                            <MyBarChart data={[]} fill="#ffce90" />
@@ -38,7 +47,8 @@ export default function VMCharts() {
                      </Card>
                   </MenubarItem>
                   {/* Customers chart */}
-                  <MenubarItem key="customers" title="Customers">
+                  <MenubarItem>
+                     Dummy
                      <Card>
                         <CardContent>
                            <MyAreaGraph
