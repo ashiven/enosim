@@ -38,7 +38,7 @@ export default function Navbar() {
                      <NavigationMenuList>
                         <NavigationMenuItem>
                            <NavigationMenuTrigger>
-                              <span className="text-[20px]">Website</span>
+                              <span className="text-[20px]">GitHub</span>
                            </NavigationMenuTrigger>
                         </NavigationMenuItem>
                         <NavigationMenuItem>
