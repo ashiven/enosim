@@ -97,13 +97,11 @@ class Simulation:
             self.setup.info()
             self.console.print("\n[bold red]Attack info:")
             self.console.print(self.orchestrator.attack_info)
-            self.console.print("\n")
-            self.console.print("[bold red]Docker stats for vulnbox1:")
+            self.console.print("\n[bold red]Docker stats for vulnbox1:")
             self.orchestrator.container_stats(
                 self.setup.ips.public_ip_addresses["vulnbox1"]
             )
-            self.console.print("\n")
-            self.console.print("[bold red]System stats for vulnbox1:")
+            self.console.print("\n[bold red]System stats for vulnbox1:")
             self.orchestrator.system_stats(
                 self.setup.ips.public_ip_addresses["vulnbox1"]
             )
