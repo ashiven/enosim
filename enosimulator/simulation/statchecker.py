@@ -4,6 +4,27 @@ from rich.console import Console
 from rich.panel import Panel
 from setup.types import SetupVariant
 
+#### Helpers ####
+
+
+def _beautify_line(line):
+    word_index = 0
+    words = line.split(" ")
+    for i, word in enumerate(words):
+        if word and word_index == 0:
+            word = "[yellow]" + word
+            words[i] = word
+            word_index += 1
+        elif word and word_index == 1:
+            word = word + "[/yellow]"
+            words[i] = word
+            break
+
+    return " ".join(words)
+
+
+#### End Helpers ####
+
 
 class StatChecker:
     def __init__(self, config, secrets):
@@ -18,11 +39,13 @@ class StatChecker:
 
     def check_containers(self, ip_address):
         container_stats_blank = self._container_stats(ip_address)
+
         container_stats = []
         for line_number, line in enumerate(container_stats_blank.splitlines()):
             if line_number == 0:
                 container_stats.append(f"[b]{line}[/b]")
             else:
+                line = _beautify_line(line)
                 container_stats.append(line)
 
         self.console.print(Panel("\n".join(container_stats), expand=True))
