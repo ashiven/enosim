@@ -48,10 +48,11 @@ class Simulation:
         return cls(setup, orchestrator, verbose)
 
     async def run(self):
-        iterations = self.setup.config.settings.duration_in_minutes * (
+        rounds = self.setup.config.settings.duration_in_minutes * (
             60 // self.setup.config.ctf_json.round_length_in_seconds
         )
-        for i in range(iterations):
+
+        for round_ in range(rounds):
             # Go through all teams and perform the random test
             info_messages = []
             for team_name, team in self.setup.teams.items():
@@ -64,7 +65,7 @@ class Simulation:
 
             # Display all info relevant to the current round
             self.round_id = await self.orchestrator.get_round_info()
-            self.round_info(info_messages, iterations - i)
+            self.round_info(info_messages, rounds - round_)
 
             # Instruct orchestrator to send out exploit requests
             team_flags = dict()
@@ -93,6 +94,7 @@ class Simulation:
         self.console.log(
             f"[bold blue]Round {self.round_id} info ({remaining} remaining):\n"
         )
+
         if self.verbose:
             self.setup.info()
             self.console.print("\n[bold red]Attack info:")
@@ -107,7 +109,25 @@ class Simulation:
             )
             self.console.print("\n")
 
-        for team in self.setup.teams.values():
+        self._team_info(self.setup.teams.values())
+
+        if self.verbose:
+            self.console.print("\n")
+            for info_message in info_messages:
+                self.console.print(info_message)
+            self.console.print("\n")
+
+    def _update_team(self, team_name, variant, service, flagstore):
+        if variant == "exploiting":
+            self.setup.teams[team_name].exploiting[service][flagstore] = True
+            info_text = "started exploiting"
+        elif variant == "patched":
+            self.setup.teams[team_name].patched[service][flagstore] = True
+            info_text = "patched"
+        return f"[bold red][!] Team {team_name} {info_text} {service}-{flagstore}"
+
+    def _team_info(self, teams):
+        for team in teams:
             table = Table(
                 title=f"Team {team.name} - {str(team.experience)}",
                 title_style="bold magenta",
@@ -139,18 +159,3 @@ class Simulation:
             for exploit_info, patch_info in info_list:
                 table.add_row(exploit_info, patch_info)
             self.console.print(table)
-
-        if self.verbose:
-            self.console.print("\n")
-            for info_message in info_messages:
-                self.console.print(info_message)
-            self.console.print("\n")
-
-    def _update_team(self, team_name, variant, service, flagstore):
-        if variant == "exploiting":
-            self.setup.teams[team_name].exploiting[service][flagstore] = True
-            info_text = "started exploiting"
-        elif variant == "patched":
-            self.setup.teams[team_name].patched[service][flagstore] = True
-            info_text = "patched"
-        return f"[bold red][!] Team {team_name} {info_text} {service}-{flagstore}"
