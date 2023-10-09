@@ -84,10 +84,13 @@ def _port_from_address(address):
 
 
 def _parse_rounds(attack_info):
-    first_service = list(attack_info["services"].values())[0]
-    first_team = list(first_service.values())[0]
-    prev_round = list(first_team.keys())[0]
-    current_round = list(first_team.keys())[1]
+    try:
+        first_service = list(attack_info["services"].values())[0]
+        first_team = list(first_service.values())[0]
+        prev_round = list(first_team.keys())[0]
+        current_round = list(first_team.keys())[1]
+    except:
+        prev_round, current_round = 0, 0
     return prev_round, current_round
 
 
@@ -175,11 +178,15 @@ class Orchestrator:
                     for other_team in other_teams:
                         if other_team.patched[service][flagstore]:
                             continue
-                        attack_info = ",".join(
-                            self.attack_info["services"][self.service_info[service][1]][
-                                other_team.address
-                            ][str(round_id)][str(flagstore_id)]
-                        )
+                        try:
+                            attack_info = ",".join(
+                                self.attack_info["services"][
+                                    self.service_info[service][1]
+                                ][other_team.address][str(round_id)][str(flagstore_id)]
+                            )
+                        except:
+                            attack_info = None
+
                         exploit_request = _checker_request(
                             method="exploit",
                             round_id=round_id,

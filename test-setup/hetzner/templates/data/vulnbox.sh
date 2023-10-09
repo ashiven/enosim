@@ -38,11 +38,8 @@ retry() {
   done
 }
 
-# Expose docker daemon so we can get the stats of the containers
-sudo mkdir -p /etc/systemd/system/docker.service.d
-echo -e "[Service]\nExecStart=\nExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375" | sudo tee /etc/systemd/system/docker.service.d/override.conf
-sudo systemctl daemon-reload
-sudo systemctl restart docker.service
+# Add the user to the docker group so we can execute docker commands remotely
+sudo usermod -aG docker root
 
 # Clean up trailing or leading whitespaces in services.txt
 sed -i 's/^[[:space:]]*//;s/[[:space:]]*$//' services.txt
