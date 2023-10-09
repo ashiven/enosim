@@ -39,6 +39,15 @@ export default function Navbar() {
                   <NavigationMenu>
                      <NavigationMenuList>
                         <NavigationMenuItem>
+                           <Link href="/about" legacyBehavior passHref>
+                              <NavigationMenuLink
+                                 className={navigationMenuTriggerStyle()}
+                              >
+                                 <span className="text-[20px]">About</span>
+                              </NavigationMenuLink>
+                           </Link>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
                            <Link
                               href="https://github.com/ashiven/enosimulator"
                               legacyBehavior
@@ -52,20 +61,13 @@ export default function Navbar() {
                            </Link>
                         </NavigationMenuItem>
                         <NavigationMenuItem>
-                           <Link href="/about" legacyBehavior passHref>
-                              <NavigationMenuLink
-                                 className={navigationMenuTriggerStyle()}
-                              >
-                                 <span className="text-[20px]">About</span>
-                              </NavigationMenuLink>
-                           </Link>
-                        </NavigationMenuItem>
-                        <NavigationMenuItem>
                            <Link href="/docs" legacyBehavior passHref>
                               <NavigationMenuLink
                                  className={navigationMenuTriggerStyle()}
                               >
-                                 <span className="text-[20px]">Docs</span>
+                                 <span className="text-[20px]">
+                                    Documentation
+                                 </span>
                               </NavigationMenuLink>
                            </Link>
                         </NavigationMenuItem>
