@@ -20,7 +20,7 @@ class StatChecker:
         self.console = Console()
 
     def check_containers(self, ip_address):
-        SSH_PORT = 2375
+        SSH_PORT = 22
         SSH_USER = self.usernames[SetupVariant.from_str(self.config.setup.location)]
         client = docker.DockerClient(
             base_url=f"ssh://{SSH_USER}@{ip_address}:{SSH_PORT}"
