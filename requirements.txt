@@ -1,6 +1,5 @@
 aiofiles==23.2.1
 attrs==22.2.0
-docker_py==1.10.6
 enochecker_core==0.10.0
 httpx==0.25.0
 jsons==1.6.3
