@@ -1,12 +1,14 @@
 "use client"
 import { ModeToggle } from "@/components/ui/toggle"
 import Image from "next/image"
+import Link from "next/link"
 
 import {
    NavigationMenu,
    NavigationMenuItem,
+   NavigationMenuLink,
    NavigationMenuList,
-   NavigationMenuTrigger,
+   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
 
 export default function Navbar() {
@@ -37,19 +39,35 @@ export default function Navbar() {
                   <NavigationMenu>
                      <NavigationMenuList>
                         <NavigationMenuItem>
-                           <NavigationMenuTrigger>
-                              <span className="text-[20px]">GitHub</span>
-                           </NavigationMenuTrigger>
+                           <Link
+                              href="https://github.com/ashiven/enosimulator"
+                              legacyBehavior
+                              passHref
+                           >
+                              <NavigationMenuLink
+                                 className={navigationMenuTriggerStyle()}
+                              >
+                                 <span className="text-[20px]">GitHub</span>
+                              </NavigationMenuLink>
+                           </Link>
                         </NavigationMenuItem>
                         <NavigationMenuItem>
-                           <NavigationMenuTrigger>
-                              <span className="text-[20px]">About</span>
-                           </NavigationMenuTrigger>
+                           <Link href="/about" legacyBehavior passHref>
+                              <NavigationMenuLink
+                                 className={navigationMenuTriggerStyle()}
+                              >
+                                 <span className="text-[20px]">About</span>
+                              </NavigationMenuLink>
+                           </Link>
                         </NavigationMenuItem>
                         <NavigationMenuItem>
-                           <NavigationMenuTrigger>
-                              <span className="text-[20px]">Docs</span>
-                           </NavigationMenuTrigger>
+                           <Link href="/docs" legacyBehavior passHref>
+                              <NavigationMenuLink
+                                 className={navigationMenuTriggerStyle()}
+                              >
+                                 <span className="text-[20px]">Docs</span>
+                              </NavigationMenuLink>
+                           </Link>
                         </NavigationMenuItem>
                      </NavigationMenuList>
                   </NavigationMenu>
