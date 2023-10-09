@@ -176,7 +176,10 @@ class Orchestrator:
             for flagstore_id, (flagstore, do_exploit) in enumerate(flagstores.items()):
                 if do_exploit:
                     for other_team in other_teams:
-                        if other_team.patched[service][flagstore]:
+                        if (
+                            other_team.patched[service][flagstore]
+                            or other_team.address == team.address
+                        ):
                             continue
                         try:
                             attack_info = ",".join(
