@@ -4,9 +4,9 @@
       "location": "<string> <required> <'local' or the name of the cloud provider to be used for the simulation setup>",
       "vm-size": "<string> <required> <the size of the vms that should be used for the simulation setup>",
       "vm-image-references": {
-         "vulnbox": "<string> <optional> <a vm image that should be used for vulnboxes (services will still be pulled and configured)>",
-         "checker": "<string> <optional> <a vm image that should be used for checkers (service checkers will still be pulled and configured)>",
-         "engine": "<string> <optional> <a vm image that should be used for the engine (the engine will still be pulled and configured)>"
+         "vulnbox": "<string> <optional> <a vm image that should be used for vulnboxes>",
+         "checker": "<string> <optional> <a vm image that should be used for checkers>",
+         "engine": "<string> <optional> <a vm image that should be used for the engine>"
       }
    },
    "settings": {

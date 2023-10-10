@@ -48,11 +48,11 @@ class Simulation:
         return cls(setup, orchestrator, verbose)
 
     async def run(self):
-        rounds = self.setup.config.settings.duration_in_minutes * (
+        minutes = self.setup.config.settings.duration_in_minutes * (
             60 // self.setup.config.ctf_json.round_length_in_seconds
         )
 
-        for round_ in range(rounds):
+        for minute in range(minutes):
             # Go through all teams and perform the random test
             info_messages = []
             for team_name, team in self.setup.teams.items():
@@ -65,7 +65,7 @@ class Simulation:
 
             # Display all info relevant to the current round
             self.round_id = await self.orchestrator.get_round_info()
-            self.round_info(info_messages, rounds - round_)
+            self.round_info(info_messages, minutes - minute)
 
             # Instruct orchestrator to send out exploit requests
             team_flags = dict()
@@ -92,7 +92,7 @@ class Simulation:
         os.system("cls" if sys.platform == "win32" else "clear")
         self.console.print("\n")
         self.console.log(
-            f"[bold blue]Round {self.round_id} info ({remaining} remaining):\n"
+            f"[bold blue]Round {self.round_id} info ({remaining} min remaining):\n"
         )
 
         if self.verbose:
