@@ -55,10 +55,10 @@ export default function TeamCard(props: TeamCardProps) {
                      </svg>
                   </PopoverTrigger>
                   <PopoverContent>
-                     <ScrollArea className="  rounded-md border p-4">
-                        <h3 className="mb-4 text-sm font-medium leading-none">
+                     <ScrollArea className="  rounded-md border p-4 mb-1">
+                        <h4 className="mb-4 text-sm font-medium leading-none">
                            Exploiting
-                        </h3>
+                        </h4>
                         {props.exploiting.map((item, index) => (
                            <React.Fragment>
                               <div className="text-sm" key={index}>
@@ -68,7 +68,7 @@ export default function TeamCard(props: TeamCardProps) {
                            </React.Fragment>
                         ))}
                      </ScrollArea>
-                     <ScrollArea className="rounded-md border p-4">
+                     <ScrollArea className="rounded-md border p-4 mt-1">
                         <h3 className="mb-4 text-sm font-medium leading-none">
                            Patched
                         </h3>
