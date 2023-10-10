@@ -36,21 +36,22 @@ export default function TeamCard(data: TeamCardProps) {
                   </svg>
                </CardHeader>
                <CardContent>
-                  <div className="text-2xl font-bold">+573</div>
+                  <div className="text-2xl font-bold ">20000 Points</div>
+                  <div className="text-xs text-muted-foreground">More Info</div>
                </CardContent>
             </Card>
          </HoverCardTrigger>
          <HoverCardContent>
-            <span className="font-bold">id: </span>
+            <span className="font-bold">Id: </span>
             <span>{data.TeamId}</span>
             <br />
-            <span className="font-bold">team subnet: </span>
+            <span className="font-bold">Team Subnet: </span>
             <span>{data.TeamSubnet}</span>
             <br />
-            <span className="font-bold">address: </span>
+            <span className="font-bold">Address: </span>
             <span>{data.TeamAddress}</span>
             <br />
-            <span className="font-bold">experience level: </span>
+            <span className="font-bold">Experience Level: </span>
             <span>{data.TeamExperience}</span>
          </HoverCardContent>
       </HoverCard>
