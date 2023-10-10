@@ -1,4 +1,4 @@
-import TeamStats from "@/components/teamstats"
+import TeamStats from "@/components/teams/teamstats"
 
 import Navbar from "@components/navbar"
 import Sidebar from "@components/sidebar"

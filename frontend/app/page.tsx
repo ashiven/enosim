@@ -1,5 +1,5 @@
-import VMCharts from "@/components/vmcharts"
-import VMStats from "@/components/vmstats"
+import VMCharts from "@/components/overview/vmcharts"
+import VMStats from "@/components/overview/vmstats"
 
 import Navbar from "@components/navbar"
 import Sidebar from "@components/sidebar"

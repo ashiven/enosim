@@ -1,4 +1,4 @@
-import VMStats from "@/components/vmstats"
+import VMStats from "@/components/overview/vmstats"
 
 import Navbar from "@components/navbar"
 import Sidebar from "@components/sidebar"

@@ -1,4 +1,4 @@
-import ServiceStats from "@/components/servicestats"
+import ServiceStats from "@/components/services/servicestats"
 
 import Navbar from "@components/navbar"
 import Sidebar from "@components/sidebar"
