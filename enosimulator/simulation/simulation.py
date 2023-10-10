@@ -50,9 +50,10 @@ class Simulation:
 
     async def run(self):
         # Wait for the scoreboard to become available
-        with Progress("Waiting for scoreboard to start ..."):
+        with Progress("Waiting for scoreboard to become available ..."):
             while not self.orchestrator.attack_info:
-                self.orchestrator.get_round_info()
+                await self.orchestrator.get_round_info()
+                await asyncio.sleep(2)
         
         rounds = self.setup.config.settings.duration_in_minutes * (
             60 // self.setup.config.ctf_json.round_length_in_seconds
