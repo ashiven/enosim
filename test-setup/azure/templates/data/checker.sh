@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-echo -e "\033[32m[+] Installing necessary dependencies..."
 sudo apt-get update
+sudo apt-get install sysstast
 sudo apt-get install ca-certificates curl gnupg
 sudo install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
