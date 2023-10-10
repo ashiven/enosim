@@ -5,18 +5,22 @@ export default function TeamStats() {
       <div className="container mx-auto mt-12 mb-8">
          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <TeamCard
-               TeamName="Kleinmazama"
-               TeamId="2"
-               TeamSubnet="10.1.2.0"
-               TeamAddress="10.1.2.1"
-               TeamExperience="Noob"
+               name="Kleinmazama"
+               id={2}
+               subnet="10.1.2.0"
+               address="10.1.2.1"
+               experience="Noob"
+               points={20000}
+               gain={200}
             />
             <TeamCard
-               TeamName="Karibu"
-               TeamId="1"
-               TeamSubnet="10.1.1.0"
-               TeamAddress="10.1.1.1"
-               TeamExperience="Noob"
+               name="Karibu"
+               id={1}
+               subnet="10.1.1.0"
+               address="10.1.1.1"
+               experience="Noob"
+               points={20000}
+               gain={200}
             />
          </div>
       </div>

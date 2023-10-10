@@ -11,20 +11,22 @@ import {
 } from "@/components/ui/popover"
 
 interface TeamCardProps {
-   TeamName: string
-   TeamId: string
-   TeamSubnet: string
-   TeamAddress: string
-   TeamExperience: string
+   name: string
+   id: number
+   subnet: string
+   address: string
+   experience: string
+   points: number
+   gain: number
 }
 
-export default function TeamCard(data: TeamCardProps) {
+export default function TeamCard(props: TeamCardProps) {
    return (
       <HoverCard>
          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                <CardTitle className="text-sm font-medium">
-                  <HoverCardTrigger>{data.TeamName}</HoverCardTrigger>
+                  <HoverCardTrigger>{props.name}</HoverCardTrigger>
                </CardTitle>
                <Popover>
                   <PopoverTrigger>
@@ -52,24 +54,24 @@ export default function TeamCard(data: TeamCardProps) {
                </Popover>
             </CardHeader>
             <CardContent>
-               <div className="text-2xl font-bold ">20000 Points</div>
+               <div className="text-2xl font-bold ">{props.points} Points</div>
                <div className="text-xs text-muted-foreground">
-                  +200 since last round
+                  +{props.gain} since last round
                </div>
             </CardContent>
          </Card>
          <HoverCardContent>
             <span className="font-bold">Id: </span>
-            <span>{data.TeamId}</span>
+            <span>{props.id}</span>
             <br />
             <span className="font-bold">Team Subnet: </span>
-            <span>{data.TeamSubnet}</span>
+            <span>{props.subnet}</span>
             <br />
             <span className="font-bold">Address: </span>
-            <span>{data.TeamAddress}</span>
+            <span>{props.address}</span>
             <br />
             <span className="font-bold">Experience Level: </span>
-            <span>{data.TeamExperience}</span>
+            <span>{props.experience}</span>
          </HoverCardContent>
       </HoverCard>
    )
