@@ -70,15 +70,19 @@ async def main():
         setup.destroy()
         return
 
-    setup = await Setup.new(
-        args.config, args.secrets, args.skip_infra, verbose=args.verbose
-    )
-    await setup.build()
+    try:
+        setup = await Setup.new(
+            args.config, args.secrets, args.skip_infra, verbose=args.verbose
+        )
+        await setup.build()
 
-    simulation = await Simulation.new(setup, verbose=args.verbose)
-    await simulation.run()
+        simulation = await Simulation.new(setup, verbose=args.verbose)
+        await simulation.run()
 
-    setup.destroy()
+        setup.destroy()
+
+    except KeyboardInterrupt:
+        setup.destroy()
 
 
 if __name__ == "__main__":
