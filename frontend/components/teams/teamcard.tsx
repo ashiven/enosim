@@ -9,6 +9,10 @@ import {
    PopoverContent,
    PopoverTrigger,
 } from "@/components/ui/popover"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+
+import * as React from "react"
 
 interface TeamCardProps {
    name: string
@@ -18,6 +22,8 @@ interface TeamCardProps {
    experience: string
    points: number
    gain: number
+   exploiting: string[]
+   patched: string[]
 }
 
 export default function TeamCard(props: TeamCardProps) {
@@ -49,7 +55,32 @@ export default function TeamCard(props: TeamCardProps) {
                      </svg>
                   </PopoverTrigger>
                   <PopoverContent>
-                     Exploiting: bla bla Patched: blub blub
+                     <ScrollArea className="  rounded-md border p-4">
+                        <h3 className="mb-4 text-sm font-medium leading-none">
+                           Exploiting
+                        </h3>
+                        {props.exploiting.map((item, index) => (
+                           <React.Fragment>
+                              <div className="text-sm" key={index}>
+                                 {item}
+                              </div>
+                              <Separator className="my-2" />
+                           </React.Fragment>
+                        ))}
+                     </ScrollArea>
+                     <ScrollArea className="rounded-md border p-4">
+                        <h3 className="mb-4 text-sm font-medium leading-none">
+                           Patched
+                        </h3>
+                        {props.patched.map((item, index) => (
+                           <React.Fragment>
+                              <div className="text-sm" key={index}>
+                                 {item}
+                              </div>
+                              <Separator className="my-2" />
+                           </React.Fragment>
+                        ))}
+                     </ScrollArea>
                   </PopoverContent>
                </Popover>
             </CardHeader>

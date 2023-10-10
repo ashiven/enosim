@@ -12,6 +12,34 @@ export default function TeamStats() {
                experience="Noob"
                points={20000}
                gain={200}
+               exploiting={[
+                  "CVExchange-Flagstore0",
+                  "CVExchange-Flagstore0",
+                  "CVExchange-Flagstore0",
+                  "CVExchange-Flagstore0",
+                  "CVExchange-Flagstore0",
+                  "CVExchange-Flagstore0",
+                  "CVExchange-Flagstore0",
+                  "CVExchange-Flagstore0",
+                  "CVExchange-Flagstore0",
+                  "CVExchange-Flagstore0",
+                  "CVExchange-Flagstore0",
+                  "bollwerk",
+               ]}
+               patched={[
+                  "CVExchange",
+                  "bollwerk",
+                  "bollwerk-Flagstore0",
+                  "bollwerk-Flagstore0",
+                  "bollwerk-Flagstore0",
+                  "bollwerk-Flagstore0",
+                  "bollwerk-Flagstore0",
+                  "bollwerk-Flagstore0",
+                  "bollwerk-Flagstore0",
+                  "bollwerk-Flagstore0",
+                  "bollwerk-Flagstore0",
+                  "bollwerk-Flagstore0",
+               ]}
             />
             <TeamCard
                name="Karibu"
@@ -21,6 +49,8 @@ export default function TeamStats() {
                experience="Noob"
                points={20000}
                gain={200}
+               exploiting={["CVExchange", "bollwerk-Flagstore0"]}
+               patched={["CVExchange", "bollwerk"]}
             />
          </div>
       </div>
