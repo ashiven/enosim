@@ -36,7 +36,21 @@ export default function ServiceStats() {
                   </Card>
                </HoverCardTrigger>
                <HoverCardContent>
-                  Flagstores: 3 - Flags per minute: 2
+                  <span className="font-bold">id: </span>
+                  <span>1</span>
+                  <br />
+                  <span className="font-bold">flags per round: </span>
+                  <span>2</span>
+                  <br />
+                  <span className="font-bold">noises per round: </span>
+                  <span>2</span>
+                  <br />
+                  <span className="font-bold">havocs per round: </span>
+                  <span>2</span>
+                  <br />
+                  <span className="font-bold">weight factor: </span>
+                  <span>1</span>
+                  <br />
                </HoverCardContent>
             </HoverCard>
             {/* bollwerk card */}
@@ -66,7 +80,21 @@ export default function ServiceStats() {
                   </Card>
                </HoverCardTrigger>
                <HoverCardContent>
-                  Flagstores: 2 - Flags per minute: 2
+                  <span className="font-bold">id: </span>
+                  <span>1</span>
+                  <br />
+                  <span className="font-bold">flags per round: </span>
+                  <span>2</span>
+                  <br />
+                  <span className="font-bold">noises per round: </span>
+                  <span>2</span>
+                  <br />
+                  <span className="font-bold">havocs per round: </span>
+                  <span>2</span>
+                  <br />
+                  <span className="font-bold">weight factor: </span>
+                  <span>1</span>
+                  <br />
                </HoverCardContent>
             </HoverCard>
          </div>
