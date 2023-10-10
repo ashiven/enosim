@@ -14,6 +14,8 @@ points_html = soup.find_all("td", class_="points")
 points = [float(p.text) for p in points_html]
 
 
+# these percentages were adjusted to model a normal distribution
+# they represent the percentage of achieved points compared to the highest score in the competition
 NOOB = 0
 BEGINNER = 0.22
 INTERMEDIATE = 0.35
