@@ -1,4 +1,4 @@
-from ..types import SetupVariant
+from ...types import SetupVariant
 from .azure import AzureSetupHelper
 from .hetzner import HetznerSetupHelper
 from .local import LocalSetupHelper
