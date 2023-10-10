@@ -37,7 +37,9 @@ export default function TeamCard(data: TeamCardProps) {
                </CardHeader>
                <CardContent>
                   <div className="text-2xl font-bold ">20000 Points</div>
-                  <div className="text-xs text-muted-foreground">More Info</div>
+                  <div className="text-xs text-muted-foreground">
+                     +200 since last round
+                  </div>
                </CardContent>
             </Card>
          </HoverCardTrigger>

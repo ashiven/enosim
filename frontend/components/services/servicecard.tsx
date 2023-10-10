@@ -42,19 +42,19 @@ export default function ServiceCard(props: ServiceCardProps) {
             </Card>
          </HoverCardTrigger>
          <HoverCardContent>
-            <span className="font-bold">id: </span>
+            <span className="font-bold">Id: </span>
             <span>{props.id}</span>
             <br />
-            <span className="font-bold">flags per round: </span>
+            <span className="font-bold">Flags per Round: </span>
             <span>{props.flagsPerRound}</span>
             <br />
-            <span className="font-bold">noises per round: </span>
+            <span className="font-bold">Noises per Round: </span>
             <span>{props.noisesPerRound}</span>
             <br />
-            <span className="font-bold">havocs per round: </span>
+            <span className="font-bold">Havocs per Round: </span>
             <span>{props.havocsPerRound}</span>
             <br />
-            <span className="font-bold">weight factor: </span>
+            <span className="font-bold">Weight Factor: </span>
             <span>{props.weightFactor}</span>
             <br />
          </HoverCardContent>
