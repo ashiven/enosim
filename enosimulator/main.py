@@ -9,8 +9,6 @@ from simulation import Simulation
 
 async def main():
     load_dotenv()
-    # uncomment this line to enable rich traceback
-    # install(show_locals=True)
     dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
 
     parser = argparse.ArgumentParser(
@@ -37,7 +35,7 @@ async def main():
         "-d",
         "--destroy",
         action="store_true",
-        help="Explicitly destroy the setup including all infrastructure",
+        help="Explicitly destroy the setup including all infrastructure in case of an unexpected error",
     )
     parser.add_argument(
         "-S",
