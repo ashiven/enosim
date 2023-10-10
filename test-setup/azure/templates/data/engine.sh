@@ -74,10 +74,10 @@ cd EnoEngine
 retry sudo dotnet build
 retry sudo docker compose up -d
 retry sudo dotnet run --project EnoConfig apply
-retry nohup sudo dotnet run -c Release --project EnoLauncher &
-retry nohup sudo dotnet run -c Release --project EnoFlagSink &
+retry nohup sudo dotnet run -c Release --project EnoLauncher &>/dev/null &
+retry nohup sudo dotnet run -c Release --project EnoFlagSink &>/dev/null &
 sleep 5
-retry nohup sudo dotnet run -c Release --project EnoEngine &
+retry nohup sudo dotnet run -c Release --project EnoEngine &>/dev/null &
 
 # Wait for the engine to start before starting the scoreboard
 sleep 10

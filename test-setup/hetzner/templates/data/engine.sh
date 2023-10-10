@@ -74,7 +74,7 @@ cd EnoEngine
 retry sudo dotnet build
 retry sudo docker compose up -d
 retry sudo dotnet run --project EnoConfig apply
-retry nohup sudo dotnet run -c Release --project EnoLauncher  &>/dev/null & 
+retry nohup sudo dotnet run -c Release --project EnoLauncher &>/dev/null &
 retry nohup sudo dotnet run -c Release --project EnoFlagSink &>/dev/null &
 sleep 5
 retry nohup sudo dotnet run -c Release --project EnoEngine &>/dev/null &

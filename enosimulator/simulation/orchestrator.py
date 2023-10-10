@@ -151,6 +151,9 @@ class Orchestrator:
         attack_info_text = await self.client.get(
             f'http://{self.setup.ips.public_ip_addresses["engine"]}:5001/scoreboard/attack.json'
         )
+        if attack_info_text.status_code != 200:
+            return None
+
         self.attack_info = jsons.loads(attack_info_text.content)
         _prev_round, current_round = _parse_rounds(self.attack_info)
         return current_round
