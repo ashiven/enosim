@@ -100,6 +100,8 @@ There are two configuration files that need to be supplied before launching the 
 
 ### Direct connections via SSH
 
+## Creating Packer Images
+
 ---
 
 > GitHub [@ashiven](https://github.com/Ashiven) &nbsp;&middot;&nbsp;
