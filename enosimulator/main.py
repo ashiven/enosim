@@ -81,7 +81,7 @@ async def main():
 
         setup.destroy()
 
-    except KeyboardInterrupt:
+    except asyncio.exceptions.CancelledError:
         setup.destroy()
 
 
