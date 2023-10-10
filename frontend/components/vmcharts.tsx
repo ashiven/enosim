@@ -1,8 +1,8 @@
 "use client"
 import { Card, CardContent } from "@/components/ui/card"
+import { MyAreaGraph } from "@/components/ui/charts/areagraph"
+import { MyBarChart } from "@/components/ui/charts/barchart"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MyAreaGraph } from "@components/charts/areagraph"
-import { MyBarChart } from "@components/charts/barchart"
 
 {
    /* TODO: - the data fields need to be filled with actual data */
