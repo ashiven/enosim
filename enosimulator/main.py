@@ -65,18 +65,18 @@ async def main():
         )
     if args.destroy:
         setup = await Setup.new(
-            args.config, args.secrets, args.skip_infra, verbose=args.verbose
+            args.config, args.secrets, args.skip_infra, args.verbose
         )
         setup.destroy()
         return
 
     try:
         setup = await Setup.new(
-            args.config, args.secrets, args.skip_infra, verbose=args.verbose
+            args.config, args.secrets, args.skip_infra, args.verbose
         )
         await setup.build()
 
-        simulation = await Simulation.new(setup, verbose=args.verbose)
+        simulation = await Simulation.new(setup, args.verbose)
         await simulation.run()
 
         setup.destroy()
