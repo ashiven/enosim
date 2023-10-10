@@ -13,9 +13,11 @@ This software can be used to simulate an attack/defense cybersecurity competitio
 -  Create an account with your preferred cloud provider (currently supporting [Microsoft Azure](https://azure.microsoft.com/en-us) and [Hetzner Cloud](https://www.hetzner.com/cloud)).
 
 ### Configuration
+
 There are two configuration files that need to be supplied before launching the simulation (examples can be found [here](/config/examples)).
 
 #### secrets.json
+
 ```json
 {
    "vm-secrets": {
@@ -36,6 +38,7 @@ There are two configuration files that need to be supplied before launching the 
 ```
 
 #### config.json
+
 ```json
 {
    "setup": {
@@ -43,9 +46,9 @@ There are two configuration files that need to be supplied before launching the 
       "location": "<string> <required> <'local' or the name of the cloud provider to be used for the simulation setup>",
       "vm-size": "<string> <required> <the size of the vms that should be used for the simulation setup>",
       "vm-image-references": {
-         "vulnbox": "<string> <optional> <a vm image that should be used for vulnboxes (services will still be pulled and configured)>",
-         "checker": "<string> <optional> <a vm image that should be used for checkers (service checkers will still be pulled and configured)>",
-         "engine": "<string> <optional> <a vm image that should be used for the engine (the engine will still be pulled and configured)>"
+         "vulnbox": "<string> <optional> <a vm image that should be used for vulnboxes>",
+         "checker": "<string> <optional> <a vm image that should be used for checkers>",
+         "engine": "<string> <optional> <a vm image that should be used for the engine>"
       }
    },
    "settings": {
@@ -68,6 +71,7 @@ There are two configuration files that need to be supplied before launching the 
 ### Setup
 
 1. Clone the repository to your local machine as follows:
+
    ```bash
    git clone https://github.com/ashiven/enosimulator.git
    ```
@@ -90,12 +94,9 @@ There are two configuration files that need to be supplied before launching the 
 
 ### Browser UI
 
-
-### CLI 
-
+### CLI
 
 ### EnoScoreboard
-
 
 ### Direct connections via SSH
 
