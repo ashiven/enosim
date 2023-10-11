@@ -107,8 +107,12 @@ class Simulation:
             self.setup.info()
             self.console.print("\n[bold red]Attack info:")
             self.console.print(self.orchestrator.attack_info)
-            self.orchestrator.container_stats(self.setup.ips.public_ip_addresses)
-            self.orchestrator.system_stats(self.setup.ips.public_ip_addresses)
+            self.orchestrator.container_stats(
+                {"vulnbox1": self.setup.ips.public_ip_addresses["vulnbox1"]}
+            )
+            self.orchestrator.system_stats(
+                {"vulnbox1": self.setup.ips.public_ip_addresses["vulnbox1"]}
+            )
             self.console.print("\n")
 
         self._team_info(self.setup.teams.values())

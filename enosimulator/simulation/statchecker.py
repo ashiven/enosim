@@ -113,7 +113,6 @@ class StatChecker:
             )
             cpu_usage = stdout.read().decode("utf-8")
 
-        ram_usage, cpu_usage = self._system_stats(ip_address)
         [ram_percent, ram_total, ram_used] = ram_usage.splitlines()
 
         ram_panel = (
@@ -136,4 +135,4 @@ class StatChecker:
             else ""
         )
 
-        return ram_panel, cpu_panel
+        return [ram_panel, cpu_panel]
