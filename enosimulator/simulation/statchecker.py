@@ -112,15 +112,20 @@ class StatChecker:
                 "sar 1 1 | grep 'Average' | sed 's/^.* //' | awk '{print 100 - $1}'"
             )
             cpu_usage = stdout.read().decode("utf-8")
+            _, stdout, _ = client.exec_command(
+                "sar -n DEV 1 1 | grep 'Average' | grep 'eth0' | awk '{print $5, $6}'"
+            )
+            network_usage = stdout.read().decode("utf-8")
 
         [ram_percent, ram_total, ram_used] = ram_usage.splitlines()
+        [network_rx, network_tx] = network_usage.split(" ")
 
         ram_panel = (
             Panel(
                 f"[b]RAM Stats[/b]\n"
                 + f"[yellow]RAM usage:[/yellow] {float(ram_percent.strip()):.2f}%\n"
                 + f"[yellow]RAM total:[/yellow] {(float(ram_total.strip())/1024):.2f} GB\n"
-                + f"[yellow]RAM used:[/yellow] {(float(ram_used.strip())/1024):.2f} GB\n",
+                + f"[yellow]RAM used:[/yellow] {(float(ram_used.strip())/1024):.2f} GB",
                 expand=True,
             )
             if ram_usage
@@ -128,11 +133,22 @@ class StatChecker:
         )
         cpu_panel = (
             Panel(
-                f"[b]CPU Stats[/b]\n[yellow]CPU usage:[/yellow] {float(cpu_usage.strip()):.2f}%",
+                f"[b]CPU Stats[/b]\n"
+                + f"[yellow]CPU usage:[/yellow] {float(cpu_usage.strip()):.2f}%",
                 expand=True,
             )
             if cpu_usage
             else ""
         )
+        network_panel = (
+            Panel(
+                f"[b]Network Stats[/b]\n"
+                + f"[yellow]Network RX:[/yellow] {network_rx.strip()} kB/s\n"
+                + f"[yellow]Network TX:[/yellow] {network_tx.strip()} kB/s",
+                expand=True,
+            )
+            if network_usage
+            else ""
+        )
 
-        return [ram_panel, cpu_panel]
+        return [ram_panel, cpu_panel, network_panel]
