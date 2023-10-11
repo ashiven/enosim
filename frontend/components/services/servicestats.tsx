@@ -11,6 +11,7 @@ export default function ServiceStats() {
                noisesPerRound={1}
                havocsPerRound={2}
                weightFactor={1}
+               github="https://github.com/enowars/enowars7-service-CVExchange"
             />
             <ServiceCard
                name="bollwerk"
@@ -19,6 +20,7 @@ export default function ServiceStats() {
                noisesPerRound={1}
                havocsPerRound={2}
                weightFactor={1}
+               github="https://github.com/enowars/enowars7-service-bollwerk"
             />
          </div>
       </div>
