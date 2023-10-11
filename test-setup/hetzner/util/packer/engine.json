@@ -2,7 +2,7 @@
    "builders": [
       {
          "type": "hcloud",
-         "token": "<insert-your-token-here>",
+         "token": "{{user `hcloud_token`}}",
          "image": "ubuntu-20.04",
          "location": "nbg1",
          "server_type": "cx11",
@@ -18,5 +18,8 @@
          "type": "shell",
          "script": "./engine.sh"
       }
-   ]
+   ],
+   "variables": {
+      "hcloud_token": ""
+   }
 }

@@ -109,10 +109,16 @@ The deployment process can be sped up considerably by using virtual machine imag
 
 3. Modify the available provisioning scripts and build templates to your liking. For example, you can add the specific services to be played during the simulation.
 
-4. Build the image:
+4. Make sure to also add your [GitHub Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) to the provisioning script so it can be used to pull repositories from GitHub. For this, modify the following line in the provisioning script:
 
    ```bash
-   packer build your-packer-template.json
+   pat="<insert-your-token-here>"
+   ```
+
+5. Build the image:
+
+   ```bash
+   packer build -var 'hcloud_token=<insert-your-token-here>' your-packer-template.json
    ```
 
 ## Monitoring
