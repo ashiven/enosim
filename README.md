@@ -10,7 +10,30 @@ This software can be used to simulate an attack/defense cybersecurity competitio
 
 -  Download and install the latest versions of [Python](https://www.python.org/downloads/) and [Pip](https://pypi.org/project/pip/).
 -  Download and install the latest version of [Terraform](https://developer.hashicorp.com/terraform/downloads?product_intent=terraform).
+-  Download and install the latest version of [Packer](https://www.packer.io/downloads).
 -  Create an account with your preferred cloud provider (currently supporting [Microsoft Azure](https://azure.microsoft.com/en-us) and [Hetzner Cloud](https://www.hetzner.com/cloud)).
+
+### Setup
+
+1. Clone the repository to your local machine as follows:
+
+   ```bash
+   git clone https://github.com/ashiven/enosimulator.git
+   ```
+
+2. Install the necessary dependencies:
+
+   ```bash
+   pip install --user -r requirements.txt
+   ```
+
+3. Specify simulation details in **config.json** and **secrets.json**.
+
+4. Start the program:
+
+   ```bash
+   python enosimulator -c /path/to/config.json -s /path/to/secrets.json
+   ```
 
 ### Configuration
 
@@ -68,26 +91,28 @@ There are two configuration files that need to be supplied before launching the 
 }
 ```
 
-### Setup
+### Packer Images
 
-1. Clone the repository to your local machine as follows:
+The deployment process can be sped up considerably by using virtual machine images that were created with [Packer](https://www.packer.io/). The following steps describe how to create such images.
+
+1. Navigate to the **packer** directory for your chosen cloud provider. For example, for Hetzner Cloud:
 
    ```bash
-   git clone https://github.com/ashiven/enosimulator.git
+   cd test-setup/hetzner/util/packer
    ```
 
-2. Install the necessary dependencies.
+2. Install the Hetzner plugin for Packer:
 
    ```bash
-   pip install --user -r requirements.txt
+   packer plugins install github.com/hashicorp/hcloud
    ```
 
-3. Specify simulation details in **config.json** and **secrets.json**.
+3. Modify the available provisioning scripts and build templates to your liking. For example, you can add the specific services to be played during the simulation.
 
-4. Start the program.
+4. Build the image:
 
    ```bash
-   python enosimulator -c /path/to/config.json -s /path/to/secrets.json
+   packer build your-packer-template.json
    ```
 
 ## Monitoring
@@ -99,8 +124,6 @@ There are two configuration files that need to be supplied before launching the 
 ### EnoScoreboard
 
 ### Direct connections via SSH
-
-## Creating Packer Images
 
 ---
 
