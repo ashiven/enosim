@@ -90,7 +90,7 @@ def _parse_rounds(attack_info):
         prev_round = list(first_team.keys())[0]
         current_round = list(first_team.keys())[1]
     except:
-        prev_round, current_round = 0, 0
+        prev_round, current_round = 1, 1
     return prev_round, current_round
 
 
@@ -155,6 +155,9 @@ class Orchestrator:
             return None
 
         self.attack_info = jsons.loads(attack_info_text.content)
+        if not self.attack_info["services"]:
+            return None
+
         _prev_round, current_round = _parse_rounds(self.attack_info)
         return current_round
 

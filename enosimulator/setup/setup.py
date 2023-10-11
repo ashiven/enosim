@@ -220,7 +220,7 @@ class Setup:
         if not self.skip_infra:
             with self.console.status("[bold green]Configuring infrastructure ..."):
                 for public_ip in self.ips.public_ip_addresses.values():
-                    _execute_command(f"ssh-keygen -R {public_ip}")
+                    _execute_command(f"ssh-keygen -R {public_ip} &>/dev/null")
                 _execute_command(f"sh {self.setup_path}/deploy.sh")
 
     def destroy(self):

@@ -1,3 +1,5 @@
+from concurrent.futures import ThreadPoolExecutor
+
 import paramiko
 from rich.columns import Columns
 from rich.console import Console
@@ -37,43 +39,33 @@ class StatChecker:
         }
         self.console = Console()
 
-    def check_containers(self, ip_address):
-        container_stats_blank = self._container_stats(ip_address)
+    def check_containers(self, ip_addresses):
+        futures = dict()
+        with ThreadPoolExecutor(max_workers=20) as executor:
+            for name, ip_address in ip_addresses.items():
+                future = executor.submit(self._container_stats, ip_address)
+                futures[name] = future
 
-        container_stats = []
-        for line_number, line in enumerate(container_stats_blank.splitlines()):
-            if line_number == 0:
-                container_stats.append(f"[b]{line}[/b]")
-            else:
-                line = _beautify_line(line)
-                container_stats.append(line)
+        container_stat_panels = {
+            name: future.result() for name, future in futures.items()
+        }
 
-        self.console.print(Panel("\n".join(container_stats), expand=True))
+        for name, container_stat_panel in container_stat_panels.items():
+            self.console.print(f"\n[bold red]Docker stats for {name}:")
+            self.console.print(container_stat_panel)
 
-    def check_system(self, ip_address):
-        ram_usage, cpu_usage = self._system_stats(ip_address)
+    def check_system(self, ip_addresses):
+        futures = dict()
+        with ThreadPoolExecutor(max_workers=20) as executor:
+            for name, ip_address in ip_addresses.items():
+                future = executor.submit(self._system_stats, ip_address)
+                futures[name] = future
 
-        [ram_percent, ram_total, ram_used] = ram_usage.splitlines()
-        ram_panel = (
-            Panel(
-                f"[b]RAM Stats[/b]\n"
-                + f"[yellow]RAM usage:[/yellow] {float(ram_percent.strip()):.2f}%\n"
-                + f"[yellow]RAM total:[/yellow] {(float(ram_total.strip())/1024):.2f} GB\n"
-                + f"[yellow]RAM used:[/yellow] {(float(ram_used.strip())/1024):.2f} GB\n",
-                expand=True,
-            )
-            if ram_usage
-            else ""
-        )
-        cpu_panel = (
-            Panel(
-                f"[b]CPU Stats[/b]\n[yellow]CPU usage:[/yellow] {float(cpu_usage.strip()):.2f}%",
-                expand=True,
-            )
-            if cpu_usage
-            else ""
-        )
-        self.console.print(Columns([ram_panel, cpu_panel]))
+        system_stat_panels = {name: future.result() for name, future in futures.items()}
+
+        for name, system_stat_panel in system_stat_panels.items():
+            self.console.print(f"\n[bold red]System stats for {name}:")
+            self.console.print(Columns(system_stat_panel))
 
     def _container_stats(self, ip_address):
         with paramiko.SSHClient() as client:
@@ -88,9 +80,17 @@ class StatChecker:
                 ),
             )
             _, stdout, _ = client.exec_command("docker stats --no-stream")
-            container_stats = stdout.read().decode("utf-8")
+            container_stats_blank = stdout.read().decode("utf-8")
 
-        return container_stats
+        container_stats = []
+        for line_number, line in enumerate(container_stats_blank.splitlines()):
+            if line_number == 0:
+                container_stats.append(f"[b]{line}[/b]")
+            else:
+                line = _beautify_line(line)
+                container_stats.append(line)
+
+        return Panel("\n".join(container_stats), expand=True)
 
     def _system_stats(self, ip_address):
         with paramiko.SSHClient() as client:
@@ -113,4 +113,27 @@ class StatChecker:
             )
             cpu_usage = stdout.read().decode("utf-8")
 
-        return ram_usage, cpu_usage
+        ram_usage, cpu_usage = self._system_stats(ip_address)
+        [ram_percent, ram_total, ram_used] = ram_usage.splitlines()
+
+        ram_panel = (
+            Panel(
+                f"[b]RAM Stats[/b]\n"
+                + f"[yellow]RAM usage:[/yellow] {float(ram_percent.strip()):.2f}%\n"
+                + f"[yellow]RAM total:[/yellow] {(float(ram_total.strip())/1024):.2f} GB\n"
+                + f"[yellow]RAM used:[/yellow] {(float(ram_used.strip())/1024):.2f} GB\n",
+                expand=True,
+            )
+            if ram_usage
+            else ""
+        )
+        cpu_panel = (
+            Panel(
+                f"[b]CPU Stats[/b]\n[yellow]CPU usage:[/yellow] {float(cpu_usage.strip()):.2f}%",
+                expand=True,
+            )
+            if cpu_usage
+            else ""
+        )
+
+        return ram_panel, cpu_panel
