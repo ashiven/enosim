@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 import Link from "next/link"
 
-interface ServiceCardProps {
+interface ServiceData {
    name: string
    id: number
    flagsPerRound: number
@@ -12,12 +12,18 @@ interface ServiceCardProps {
    github: string
 }
 
+interface ServiceCardProps {
+   data: ServiceData
+}
+
 export default function ServiceCard(props: ServiceCardProps) {
    return (
       <Card>
          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{props.name}</CardTitle>
-            <Link href={`${props.github}`}>
+            <CardTitle className="text-sm font-medium">
+               {props.data.name}
+            </CardTitle>
+            <Link href={`${props.data.github}`}>
                <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-4 w-4 text-muted-foreground"
@@ -39,19 +45,19 @@ export default function ServiceCard(props: ServiceCardProps) {
          </CardHeader>
          <CardContent>
             <span className="font-bold">Id: </span>
-            <span>{props.id}</span>
+            <span>{props.data.id}</span>
             <br />
             <span className="font-bold">Flags per Round: </span>
-            <span>{props.flagsPerRound}</span>
+            <span>{props.data.flagsPerRound}</span>
             <br />
             <span className="font-bold">Noises per Round: </span>
-            <span>{props.noisesPerRound}</span>
+            <span>{props.data.noisesPerRound}</span>
             <br />
             <span className="font-bold">Havocs per Round: </span>
-            <span>{props.havocsPerRound}</span>
+            <span>{props.data.havocsPerRound}</span>
             <br />
             <span className="font-bold">Weight Factor: </span>
-            <span>{props.weightFactor}</span>
+            <span>{props.data.weightFactor}</span>
             <br />
          </CardContent>
       </Card>
