@@ -1,14 +1,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-interface VMCardProps {
+interface VMData {
    name: string
+   status: string
+   cpu: string
+   memory: number
+   disk: number
+   uptime: number
+   ip: string
+}
+
+interface VMCardProps {
+   data: VMData
 }
 
 export default function VMCard(props: VMCardProps) {
    return (
       <Card>
          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{props.name}</CardTitle>
+            <CardTitle className="text-sm font-medium">
+               {props.data.name}
+            </CardTitle>
             <svg
                xmlns="http://www.w3.org/2000/svg"
                viewBox="0 0 24 24"
@@ -23,9 +35,9 @@ export default function VMCard(props: VMCardProps) {
             </svg>
          </CardHeader>
          <CardContent>
-            <div className="text-2xl font-bold">+573</div>
+            <div className="text-2xl font-bold">{props.data.status}</div>
             <p className="text-xs text-muted-foreground">
-               +201 since last hour
+               up for {props.data.uptime} minutes
             </p>
          </CardContent>
       </Card>
