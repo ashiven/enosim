@@ -1,9 +1,11 @@
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
    Popover,
    PopoverContent,
    PopoverTrigger,
 } from "@/components/ui/popover"
+
 interface VMData {
    name: string
    status: string
@@ -66,10 +68,20 @@ export default function VMCard(props: VMCardProps) {
             </Popover>
          </CardHeader>
          <CardContent>
-            <div className="text-2xl font-bold">{props.data.status}</div>
-            <p className="text-xs text-muted-foreground">
-               up for {props.data.uptime} minutes
-            </p>
+            <div className="flex flex-row items-center space-x-2">
+               <Badge
+                  variant={
+                     props.data.status === "online" ? "default" : "secondary"
+                  }
+               >
+                  {props.data.status}
+               </Badge>
+               <p className="text-xs text-muted-foreground">
+                  {props.data.status === "online"
+                     ? `up for ${props.data.uptime} min`
+                     : ""}
+               </p>
+            </div>
          </CardContent>
       </Card>
    )

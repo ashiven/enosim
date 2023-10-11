@@ -11,18 +11,18 @@ export default function VMStats() {
                   cpu: "2 core intel idk",
                   memory: 2,
                   disk: 20,
-                  uptime: 20,
+                  uptime: 2223,
                   ip: "123.321.1.1",
                }}
             />
             <VMCard
                data={{
                   name: "Checker",
-                  status: "online",
+                  status: "offline",
                   cpu: "2 core intel idk",
                   memory: 2,
                   disk: 20,
-                  uptime: 20,
+                  uptime: 223,
                   ip: "123.321.1.1",
                }}
             />
