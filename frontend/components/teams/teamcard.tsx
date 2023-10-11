@@ -14,7 +14,7 @@ import { Separator } from "@/components/ui/separator"
 
 import * as React from "react"
 
-interface TeamCardProps {
+interface TeamData {
    name: string
    id: number
    subnet: string
@@ -25,6 +25,9 @@ interface TeamCardProps {
    exploiting: string[]
    patched: string[]
 }
+interface TeamCardProps {
+   data: TeamData
+}
 
 export default function TeamCard(props: TeamCardProps) {
    return (
@@ -32,7 +35,7 @@ export default function TeamCard(props: TeamCardProps) {
          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                <CardTitle className="text-sm font-medium">
-                  <HoverCardTrigger>{props.name}</HoverCardTrigger>
+                  <HoverCardTrigger>{props.data.name}</HoverCardTrigger>
                </CardTitle>
                <Popover>
                   <PopoverTrigger>
@@ -59,7 +62,7 @@ export default function TeamCard(props: TeamCardProps) {
                         <h4 className="mb-4 text-sm font-medium leading-none">
                            Exploiting
                         </h4>
-                        {props.exploiting.map((item, index) => (
+                        {props.data.exploiting.map((item, index) => (
                            <React.Fragment>
                               <div className="text-sm" key={index}>
                                  {item}
@@ -72,7 +75,7 @@ export default function TeamCard(props: TeamCardProps) {
                         <h3 className="mb-4 text-sm font-medium leading-none">
                            Patched
                         </h3>
-                        {props.patched.map((item, index) => (
+                        {props.data.patched.map((item, index) => (
                            <React.Fragment>
                               <div className="text-sm" key={index}>
                                  {item}
@@ -85,24 +88,26 @@ export default function TeamCard(props: TeamCardProps) {
                </Popover>
             </CardHeader>
             <CardContent>
-               <div className="text-2xl font-bold ">{props.points} Points</div>
+               <div className="text-2xl font-bold ">
+                  {props.data.points} Points
+               </div>
                <div className="text-xs text-muted-foreground">
-                  +{props.gain} since last round
+                  +{props.data.gain} since last round
                </div>
             </CardContent>
          </Card>
          <HoverCardContent>
             <span className="font-bold">Id: </span>
-            <span>{props.id}</span>
+            <span>{props.data.id}</span>
             <br />
             <span className="font-bold">Team Subnet: </span>
-            <span>{props.subnet}</span>
+            <span>{props.data.subnet}</span>
             <br />
             <span className="font-bold">Address: </span>
-            <span>{props.address}</span>
+            <span>{props.data.address}</span>
             <br />
             <span className="font-bold">Experience Level: </span>
-            <span>{props.experience}</span>
+            <span>{props.data.experience}</span>
          </HoverCardContent>
       </HoverCard>
    )
