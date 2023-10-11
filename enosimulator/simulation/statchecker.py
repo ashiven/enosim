@@ -2,8 +2,7 @@ import paramiko
 from rich.columns import Columns
 from rich.console import Console
 from rich.panel import Panel
-
-from ..types import SetupVariant
+from setup.types import SetupVariant
 
 #### Helpers ####
 

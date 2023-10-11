@@ -1,8 +1,7 @@
-from ...types import Config, Experience, SetupVariant, Team
+from ..types import Config, Experience, SetupVariant, Team
 from .azure import AzureSetupHelper
 from .hetzner import HetznerSetupHelper
 from .local import LocalSetupHelper
-from .util import TeamGenerator
 
 TEAM_NAMES = [
     "Kleinmazama",
@@ -101,7 +100,7 @@ class TeamGenerator:
 
         else:
             self.team_distribution = {
-                experience: int(experience[1] * self.config.settings.teams)
+                experience: int(experience.value[1] * self.config.settings.teams)
                 for experience in [
                     Experience.NOOB,
                     Experience.BEGINNER,
