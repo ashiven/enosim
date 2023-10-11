@@ -24,14 +24,19 @@ class SetupVariant(Enum):
 
 
 class Experience(Enum):
-    """An enum representing the experience level of a team. The value stands for the probability of the team exploiting / patching a vulnerability."""
+    """
+    An enum representing the experience level of a team.
 
-    NOOB = 0.01
-    BEGINNER = 0.05
-    INTERMEDIATE = 0.1
-    ADVANCED = 0.2
-    PRO = 0.3
-    HAXXOR = 1
+    The first value stands for the probability of the team exploiting / patching a vulnerability in any round.
+    The second value stands for their occurences in a simulation setup.
+    """
+
+    NOOB = (0.015, 0.08)
+    BEGINNER = (0.04, 0.54)
+    INTERMEDIATE = (0.06, 0.29)
+    ADVANCED = (0.09, 0.07)
+    PRO = (0.12, 0.02)
+    HAXXOR = (1, 1)
 
     __str__ = lambda self: self.name.lower().capitalize()
 

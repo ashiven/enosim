@@ -13,7 +13,7 @@ from .orchestrator import Orchestrator
 
 
 def _random_test(team):
-    probability = team.experience.value
+    probability = team.experience.value[0]
     random_value = random.random()
     return random_value < probability
 
