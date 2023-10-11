@@ -29,7 +29,7 @@ export default function Navbar() {
                      </a>
                   </li>
                   <li>
-                     <a href="/about" className="ml-3 text-4xl font-bold">
+                     <a href="/" className="ml-3 text-4xl font-bold">
                         EnoSim
                      </a>
                   </li>
