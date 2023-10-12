@@ -156,10 +156,11 @@ class Orchestrator:
         if attack_info_text.status_code != 200:
             return None
 
-        self.attack_info = jsons.loads(attack_info_text.content)
-        if not self.attack_info["services"]:
+        attack_info = jsons.loads(attack_info_text.content)
+        if not attack_info["services"]:
             return None
 
+        self.attack_info = attack_info
         _prev_round, current_round = _parse_rounds(self.attack_info)
         return current_round
 

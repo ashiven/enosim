@@ -54,7 +54,7 @@ class Simulation:
         with self.console.status(
             "[bold green]Waiting for scoreboard to become available ..."
         ):
-            while not self.orchestrator.attack_info["services"]:
+            while not self.orchestrator.attack_info:
                 await self.orchestrator.get_round_info()
                 await asyncio.sleep(2)
 
