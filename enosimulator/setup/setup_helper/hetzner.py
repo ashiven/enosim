@@ -169,6 +169,7 @@ class HetznerSetupHelper(Helper):
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
             + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config.settings.vulnboxes + 1}.1"\n  }}\n'
+            + "  public_net {\n    ipv4_enabled = true\n    ipv6_enabled = false\n  }\n"
             + f"  depends_on = [\n    hcloud_network_subnet.snet\n  ]\n"
             + "}\n"
         )
@@ -180,6 +181,7 @@ class HetznerSetupHelper(Helper):
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
             + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config.settings.vulnboxes + 2}.1"\n  }}\n'
+            + "  public_net {\n    ipv4_enabled = true\n    ipv6_enabled = false\n  }\n"
             + f"  depends_on = [\n    hcloud_network_subnet.snet\n  ]\n"
             + "}\n"
         )
@@ -192,6 +194,7 @@ class HetznerSetupHelper(Helper):
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
             + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.${{count.index + 1}}.1"\n  }}\n'
+            + "  public_net {\n    ipv4_enabled = true\n    ipv6_enabled = false\n  }\n"
             + f"  depends_on = [\n    hcloud_network_subnet.snet\n  ]\n"
             + "}\n"
         )
@@ -221,8 +224,8 @@ class HetznerSetupHelper(Helper):
 
             # Configure vm image references in main.tf
             TF_LINE_CHECKER_IMAGE = 23
-            TF_LINE_ENGINE_IMAGE = 39
-            TF_LINE_VULNBOX_IMAGE = 56
+            TF_LINE_ENGINE_IMAGE = 43
+            TF_LINE_VULNBOX_IMAGE = 64
             await replace_line(
                 f"{self.setup_path}/main.tf",
                 TF_LINE_CHECKER_IMAGE,

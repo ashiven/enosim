@@ -2,6 +2,7 @@ import asyncio
 import json
 
 from enosimulator.setup import SetupHelper
+from enosimulator.setup.types import Config, Secrets
 
 
 def _parse_json(path):
@@ -10,9 +11,9 @@ def _parse_json(path):
         return json.loads(content)
 
 
-config = _parse_json("./config/examples/config.json")
+config = _parse_json("./config/examples/hetzner.config.json")
 secrets = _parse_json("C:/Users/janni/secrets.json")
 
 
-sh = SetupHelper(config, secrets)
+sh = SetupHelper(Config.from_(config), Secrets.from_(secrets))
 asyncio.run(sh.convert_templates())
