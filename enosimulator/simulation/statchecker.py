@@ -1,15 +1,16 @@
 from concurrent.futures import ThreadPoolExecutor
+from typing import Dict
 
 import paramiko
 from rich.columns import Columns
 from rich.console import Console
 from rich.panel import Panel
-from setup.types import SetupVariant
+from setup.types import Config, Secrets, SetupVariant
 
 #### Helpers ####
 
 
-def _beautify_line(line):
+def _beautify_line(line: str):
     word_index = 0
     words = line.split(" ")
     for i, word in enumerate(words):
@@ -29,7 +30,7 @@ def _beautify_line(line):
 
 
 class StatChecker:
-    def __init__(self, config, secrets):
+    def __init__(self, config: Config, secrets: Secrets):
         self.config = config
         self.secrets = secrets
         self.usernames = {
@@ -39,7 +40,7 @@ class StatChecker:
         }
         self.console = Console()
 
-    def check_containers(self, ip_addresses):
+    def check_containers(self, ip_addresses: Dict[str, str]):
         futures = dict()
         with ThreadPoolExecutor(max_workers=20) as executor:
             for name, ip_address in ip_addresses.items():
@@ -54,7 +55,7 @@ class StatChecker:
             self.console.print(f"\n[bold red]Docker stats for {name}:")
             self.console.print(container_stat_panel)
 
-    def check_system(self, ip_addresses):
+    def check_system(self, ip_addresses: Dict[str, str]):
         futures = dict()
         with ThreadPoolExecutor(max_workers=20) as executor:
             for name, ip_address in ip_addresses.items():
@@ -67,7 +68,7 @@ class StatChecker:
             self.console.print(f"\n[bold red]System stats for {name}:")
             self.console.print(Columns(system_stat_panel))
 
-    def _container_stats(self, ip_address):
+    def _container_stats(self, ip_address: str):
         with paramiko.SSHClient() as client:
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             client.connect(
@@ -92,7 +93,7 @@ class StatChecker:
 
         return Panel("\n".join(container_stats), expand=True)
 
-    def _system_stats(self, ip_address):
+    def _system_stats(self, ip_address: str):
         with paramiko.SSHClient() as client:
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             client.connect(

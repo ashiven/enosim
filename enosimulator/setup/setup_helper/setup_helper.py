@@ -1,4 +1,4 @@
-from ..types import Config, Experience, SetupVariant, Team
+from ..types import Config, Experience, Secrets, SetupVariant, Team
 from .azure import AzureSetupHelper
 from .hetzner import HetznerSetupHelper
 from .local import LocalSetupHelper
@@ -38,7 +38,7 @@ TEAM_NAMES = [
 #### Helpers ####
 
 
-def _generate_ctf_team(id):
+def _generate_ctf_team(id: int):
     new_team = {
         "id": id,
         "name": TEAM_NAMES[id - 1],
@@ -48,7 +48,7 @@ def _generate_ctf_team(id):
     return new_team
 
 
-def _generate_setup_team(id, experience):
+def _generate_setup_team(id: int, experience: Experience):
     new_team = {
         TEAM_NAMES[id - 1]: Team(
             id=id,
@@ -67,7 +67,7 @@ def _generate_setup_team(id, experience):
 
 
 class SetupHelper:
-    def __init__(self, config, secrets):
+    def __init__(self, config: Config, secrets: Secrets):
         self.config = config
         self.secrets = secrets
         self.helpers = {
@@ -93,8 +93,8 @@ class SetupHelper:
 
 
 class TeamGenerator:
-    def __init__(self, config):
-        self.config: Config = config
+    def __init__(self, config: Config):
+        self.config = config
         if self.config.settings.simulation_type == "stress-test":
             self.team_distribution = {Experience.HAXXOR: self.config.settings.teams}
 

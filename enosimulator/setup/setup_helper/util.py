@@ -1,9 +1,10 @@
 import os
+from typing import List
 
 import aiofiles
 
 
-async def copy_file(src, dst):
+async def copy_file(src: str, dst: str):
     if os.path.exists(src):
         async with aiofiles.open(src, "rb") as src_file:
             async with aiofiles.open(dst, "wb") as dst_file:
@@ -11,7 +12,7 @@ async def copy_file(src, dst):
                 await dst_file.write(content)
 
 
-async def replace_line(path, line_number, new_line):
+async def replace_line(path: str, line_number: int, new_line: str):
     async with aiofiles.open(path, "rb+") as file:
         lines = await file.readlines()
         lines[line_number] = new_line.replace("\\", "/").encode("utf-8")
@@ -20,7 +21,7 @@ async def replace_line(path, line_number, new_line):
         await file.truncate()
 
 
-async def insert_after(path, after, insert_lines):
+async def insert_after(path: str, after: str, insert_lines: List[str]):
     new_lines = []
     async with aiofiles.open(path, "rb") as file:
         lines = await file.readlines()
@@ -33,13 +34,13 @@ async def insert_after(path, after, insert_lines):
         await file.writelines(new_lines)
 
 
-async def append_lines(path, append_lines):
+async def append_lines(path: str, append_lines: List[str]):
     async with aiofiles.open(path, "ab") as file:
         for line in append_lines:
             await file.write(line.encode("utf-8"))
 
 
-async def delete_lines(path, delete_lines):
+async def delete_lines(path: str, delete_lines: List[int]):
     new_lines = []
     async with aiofiles.open(path, "rb") as file:
         lines = await file.readlines()

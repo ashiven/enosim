@@ -1,5 +1,6 @@
 import secrets
 import urllib
+from typing import Dict, List
 
 import httpx
 import jsons
@@ -11,6 +12,7 @@ from enochecker_core import (
     CheckerTaskResult,
 )
 from rich.console import Console
+from setup.types import IpAddresses, SetupType, Team
 
 from .flagsubmitter import FlagSubmitter
 from .statchecker import StatChecker
@@ -23,17 +25,17 @@ REQUEST_TIMEOUT = 10
 
 
 def _checker_request(
-    method,
-    round_id,
-    team_id,
-    team_name,
-    variant_id,
-    service_address,
-    flag,
-    unique_variant_index,
-    flag_regex,
-    flag_hash,
-    attack_info,
+    method: str,
+    round_id: int,
+    team_id: int,
+    team_name: str,
+    variant_id: int,
+    service_address: str,
+    flag: str,
+    unique_variant_index: int,
+    flag_regex: str,
+    flag_hash: str,
+    attack_info: str,
 ):
     # Generate a unique task chain id for each task according to enoengine specs
     if not unique_variant_index:
@@ -68,7 +70,7 @@ def _checker_request(
     )
 
 
-def _req_to_json(request_message):
+def _req_to_json(request_message: CheckerTaskMessage):
     return jsons.dumps(
         request_message,
         use_enum_name=False,
@@ -77,13 +79,13 @@ def _req_to_json(request_message):
     )
 
 
-def _port_from_address(address):
+def _port_from_address(address: str):
     url = urllib.parse.urlparse(address)
     host, _, port = url.netloc.partition(":")
     return port
 
 
-def _parse_rounds(attack_info):
+def _parse_rounds(attack_info: Dict):
     try:
         first_service = list(attack_info["services"].values())[0]
         first_team = list(first_service.values())[0]
@@ -91,10 +93,10 @@ def _parse_rounds(attack_info):
         current_round = list(first_team.keys())[1]
     except:
         prev_round, current_round = 1, 1
-    return prev_round, current_round
+    return int(prev_round), int(current_round)
 
 
-def _private_to_public_ip(ip_addresses, team_address):
+def _private_to_public_ip(ip_addresses: IpAddresses, team_address: str):
     for name, ip_address in ip_addresses.private_ip_addresses.items():
         if ip_address == team_address:
             return ip_addresses.public_ip_addresses[name]
@@ -104,7 +106,7 @@ def _private_to_public_ip(ip_addresses, team_address):
 
 
 class Orchestrator:
-    def __init__(self, setup, verbose=False):
+    def __init__(self, setup: SetupType, verbose: bool = False):
         self.setup = setup
         self.verbose = verbose
         self.service_info = dict()
@@ -161,21 +163,23 @@ class Orchestrator:
         _prev_round, current_round = _parse_rounds(self.attack_info)
         return current_round
 
-    async def exploit(self, round_id, team, all_teams):
+    async def exploit(self, round_id: int, team: Team, all_teams: List[Team]):
         exploit_requests = self._create_exploit_requests(round_id, team, all_teams)
         flags = await self._send_exploit_requests(team, exploit_requests)
         return flags
 
-    def submit_flags(self, team_address, flags):
+    def submit_flags(self, team_address: str, flags: List[str]):
         self.flag_submitter.submit_flags(team_address, flags)
 
-    def container_stats(self, team_address):
-        self.stat_checker.check_containers(team_address)
+    def container_stats(self, team_addresses: Dict[str, str]):
+        self.stat_checker.check_containers(team_addresses)
 
-    def system_stats(self, team_address):
-        self.stat_checker.check_system(team_address)
+    def system_stats(self, team_addresses: Dict[str, str]):
+        self.stat_checker.check_system(team_addresses)
 
-    def _create_exploit_requests(self, round_id, team, all_teams):
+    def _create_exploit_requests(
+        self, round_id: int, team: Team, all_teams: List[Team]
+    ):
         exploit_requests = dict()
         other_teams = [other_team for other_team in all_teams if other_team != team]
         for service, flagstores in team.exploiting.items():
@@ -214,7 +218,7 @@ class Orchestrator:
                         ] = exploit_request
         return exploit_requests
 
-    async def _send_exploit_requests(self, team, exploit_requests):
+    async def _send_exploit_requests(self, team: Team, exploit_requests: Dict):
         flags = []
         for (
             (_team_name, service, _flagstore),

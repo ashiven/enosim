@@ -1,11 +1,13 @@
+from typing import List
+
 import paramiko
 from rich.console import Console
-from setup.types import SetupVariant
+from setup.types import Config, IpAddresses, Secrets, SetupVariant
 
 #### Helpers ####
 
 
-def _private_to_public_ip(ip_addresses, team_address):
+def _private_to_public_ip(ip_addresses: IpAddresses, team_address: str):
     for name, ip_address in ip_addresses.private_ip_addresses.items():
         if ip_address == team_address:
             return name, ip_addresses.public_ip_addresses[name]
@@ -15,7 +17,13 @@ def _private_to_public_ip(ip_addresses, team_address):
 
 
 class FlagSubmitter:
-    def __init__(self, ip_addresses, config, secrets, verbose=False):
+    def __init__(
+        self,
+        ip_addresses: IpAddresses,
+        config: Config,
+        secrets: Secrets,
+        verbose: bool = False,
+    ):
         self.config = config
         self.secrets = secrets
         self.ip_addresses = ip_addresses
@@ -27,7 +35,7 @@ class FlagSubmitter:
         }
         self.console = Console()
 
-    def submit_flags(self, team_address, flags):
+    def submit_flags(self, team_address: str, flags: List[str]):
         SUBMISSION_ENDPOINT_PORT = 1337
         flag_str = "\n".join(flags) + "\n"
 

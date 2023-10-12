@@ -3,8 +3,8 @@ import asyncio
 import os
 
 from dotenv import load_dotenv
-from setup import Setup
-from simulation import Simulation
+from setup.setup import Setup
+from simulation.simulation import Simulation
 
 
 async def main():

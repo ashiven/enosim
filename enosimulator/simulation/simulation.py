@@ -3,22 +3,24 @@ import os
 import random
 import sys
 from concurrent.futures import ThreadPoolExecutor
+from typing import List
 
 from rich.console import Console
 from rich.table import Table
+from setup.types import OrchestratorType, SetupType, Team
 
 from .orchestrator import Orchestrator
 
 #### Helpers ####
 
 
-def _random_test(team):
+def _random_test(team: Team):
     probability = team.experience.value[0]
     random_value = random.random()
     return random_value < probability
 
 
-def _exploit_or_patch(team):
+def _exploit_or_patch(team: Team):
     random_variant = random.choice(["exploiting", "patched"])
     if random_variant == "exploiting":
         random_service = random.choice(list(team.exploiting))
@@ -34,7 +36,7 @@ def _exploit_or_patch(team):
 
 
 class Simulation:
-    def __init__(self, setup, orchestrator, verbose):
+    def __init__(self, setup: SetupType, orchestrator: OrchestratorType, verbose: bool):
         self.setup = setup
         self.orchestrator = orchestrator
         self.verbose = verbose
@@ -42,7 +44,7 @@ class Simulation:
         self.console = Console()
 
     @classmethod
-    async def new(cls, setup, verbose=False):
+    async def new(cls, setup: SetupType, verbose: bool = False):
         orchestrator = Orchestrator(setup, verbose)
         await orchestrator.update_team_info()
         return cls(setup, orchestrator, verbose)
@@ -96,7 +98,7 @@ class Simulation:
 
             await asyncio.sleep(self.setup.config.ctf_json.round_length_in_seconds)
 
-    def round_info(self, info_messages, remaining):
+    def round_info(self, info_messages: List[str], remaining: int):
         os.system("cls" if sys.platform == "win32" else "clear")
         self.console.print("\n")
         self.console.log(
@@ -123,7 +125,7 @@ class Simulation:
                 self.console.print(info_message)
             self.console.print("\n")
 
-    def _update_team(self, team_name, variant, service, flagstore):
+    def _update_team(self, team_name: str, variant: str, service: str, flagstore: str):
         if variant == "exploiting":
             self.setup.teams[team_name].exploiting[service][flagstore] = True
             info_text = "started exploiting"
@@ -132,7 +134,7 @@ class Simulation:
             info_text = "patched"
         return f"[bold red][!] Team {team_name} {info_text} {service}-{flagstore}"
 
-    def _team_info(self, teams):
+    def _team_info(self, teams: List[Team]):
         for team in teams:
             table = Table(
                 title=f"Team {team.name} - {str(team.experience)}",

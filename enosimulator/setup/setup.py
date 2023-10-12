@@ -6,31 +6,31 @@ import aiofiles
 from rich.console import Console
 from rich.table import Table
 
-from .setup_helper import SetupHelper
+from .setup_helper.setup_helper import SetupHelper
 from .types import Config, IpAddresses, Secrets, Service
 
 ####  Helpers ####
 
 
-def _kebab_to_camel(s):
+def _kebab_to_camel(s: str):
     words = s.split("-")
     return words[0] + "".join(w.title() for w in words[1:])
 
 
-async def _parse_json(path):
+async def _parse_json(path: str):
     async with aiofiles.open(path, "r") as json_file:
         content = await json_file.read()
         return json.loads(content)
 
 
-async def _create_file(path):
+async def _create_file(path: str):
     if os.path.exists(path):
         os.remove(path)
     async with aiofiles.open(path, "w") as file:
         await file.write("")
 
 
-def _delete_files(path):
+def _delete_files(path: str):
     for file in os.listdir(path):
         if file == ".gitkeep":
             continue
@@ -39,7 +39,7 @@ def _delete_files(path):
             os.remove(file_path)
 
 
-def _execute_command(cmd):
+def _execute_command(cmd: str):
     try:
         p = Popen(
             cmd,
@@ -83,7 +83,7 @@ def _generate_ctf_json():
     return new_ctf_json
 
 
-def _generate_service(id, service, checker_port, simulation_type):
+def _generate_service(id: int, service: str, checker_port: int, simulation_type: str):
     new_service = {
         "id": id,
         "name": service,
@@ -105,20 +105,34 @@ def _generate_service(id, service, checker_port, simulation_type):
 
 
 class Setup:
-    def __init__(self, config, secrets, skip_infra, setup_path, setup_helper, verbose):
+    def __init__(
+        self,
+        config: Config,
+        secrets: Secrets,
+        skip_infra: bool,
+        setup_path: str,
+        setup_helper: SetupHelper,
+        verbose: bool,
+    ):
         self.ips = IpAddresses(dict(), dict())
         self.teams = dict()
         self.services = dict()
         self.verbose = verbose
-        self.config: Config = config
-        self.secrets: Secrets = secrets
+        self.config = config
+        self.secrets = secrets
         self.skip_infra = skip_infra
         self.setup_path = setup_path
         self.setup_helper = setup_helper
         self.console = Console()
 
     @classmethod
-    async def new(cls, config_path, secrets_path, skip_infra, verbose=False):
+    async def new(
+        cls,
+        config_path: str,
+        secrets_path: str,
+        skip_infra: bool = False,
+        verbose: bool = False,
+    ):
         config_json = await _parse_json(config_path)
         config = Config.from_(config_json)
         secrets_json = await _parse_json(secrets_path)

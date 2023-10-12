@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import List
+from typing import Dict, List, Tuple
+
+from httpx import AsyncClient
+from rich.console import Console
 
 ############## Enums ##############
 
@@ -217,3 +220,68 @@ class Secrets:
             cloud_secrets=CloudSecrets.from_(secrets["cloud-secrets"]),
         )
         return new_secrets
+
+
+@dataclass
+class HelperType:
+    config: Config
+    secrets: Secrets
+    setup_path: str
+    use_vm_images: bool
+
+
+@dataclass
+class TeamGeneratorType:
+    config: Config
+
+
+@dataclass
+class SetupHelperType:
+    config: Config
+    secrets: Secrets
+    helpers: Dict[SetupVariant, HelperType]
+    team_gen: TeamGeneratorType
+
+
+@dataclass
+class SetupType:
+    ips: IpAddresses
+    teams: Dict[str, Team]
+    services: Dict[str, Service]
+    verbose: bool
+    config: Config
+    secrets: Secrets
+    skip_infra: bool
+    setup_path: str
+    setup_helper: SetupHelperType
+    console: Console
+
+
+@dataclass
+class FlagSubmitterType:
+    config: Config
+    secrets: Secrets
+    ip_addresses: IpAddresses
+    verbose: bool
+    usernames: Dict[SetupVariant, str]
+    console: Console
+
+
+@dataclass
+class StatCheckerType:
+    config: Config
+    secrets: Secrets
+    usernames: Dict[SetupVariant, str]
+    console: Console
+
+
+@dataclass
+class OrchestratorType:
+    setup: SetupType
+    verbose: bool
+    service_info: Dict[str, Tuple[str, str]]
+    attack_info: Dict
+    client: AsyncClient
+    flag_submitter: FlagSubmitterType
+    stat_checker: StatCheckerType
+    console: Console

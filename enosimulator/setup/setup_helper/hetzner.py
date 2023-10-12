@@ -8,9 +8,9 @@ from .util import append_lines, copy_file, delete_lines, insert_after, replace_l
 
 
 class HetznerSetupHelper(Helper):
-    def __init__(self, config, secrets):
-        self.config: Config = config
-        self.secrets: Secrets = secrets
+    def __init__(self, config: Config, secrets: Secrets):
+        self.config = config
+        self.secrets = secrets
         dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
         self.setup_path = f"{dir_path}/../../../test-setup/{config.setup.location}"
