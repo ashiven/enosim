@@ -238,10 +238,7 @@ class Orchestrator:
 
             if self.verbose:
                 self.console.log(
-                    f"[bold green]{team.name} >>> {_team_name} ({service}-{_flagstore})"
-                )
-                self.console.log(
-                    f"[bold green]Sending request to {team.name}-exploiter ({exploit_checker_address})"
+                    f"[bold green]{team.name} :anger_symbol: {_team_name}-{service}-{_flagstore}"
                 )
                 self.console.log(exploit_request)
 
@@ -262,7 +259,9 @@ class Orchestrator:
                 print(exploit_result.message)
             else:
                 if self.verbose:
-                    self.console.log(f"[bold green]Got flag: {exploit_result.flag}\n")
+                    self.console.log(
+                        f"[bold green]:triangular_flag:: {exploit_result.flag}\n"
+                    )
                 flags.append(exploit_result.flag)
 
         return flags
