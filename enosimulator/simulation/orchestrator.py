@@ -1,5 +1,8 @@
+import asyncio
 import secrets
 import urllib
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import asynccontextmanager
 from typing import Dict, List
 
 import httpx
@@ -102,13 +105,27 @@ def _private_to_public_ip(ip_addresses: IpAddresses, team_address: str):
             return ip_addresses.public_ip_addresses[name]
 
 
+_pool = ThreadPoolExecutor()
+
+
+@asynccontextmanager
+async def async_lock(lock):
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(_pool, lock.acquire)
+    try:
+        yield
+    finally:
+        lock.release()
+
+
 #### End Helpers ####
 
 
 class Orchestrator:
-    def __init__(self, setup: SetupType, verbose: bool = False):
+    def __init__(self, setup: SetupType, locks: Dict, verbose: bool = False):
         self.setup = setup
         self.verbose = verbose
+        self.locks = locks
         self.service_info = dict()
         self.attack_info = None
         self.client = httpx.AsyncClient()
@@ -119,35 +136,37 @@ class Orchestrator:
         self.console = Console()
 
     async def update_team_info(self):
-        for service_name, service in self.setup.services.items():
-            # Get service info from checker
-            checker_address = service.checkers[0]
-            response = await self.client.get(f"{checker_address}/service")
-            if response.status_code != 200:
-                raise Exception(f"Failed to get {service_name}-info")
-            info: CheckerInfoMessage = jsons.loads(
-                response.content,
-                CheckerInfoMessage,
-                key_transformer=jsons.KEY_TRANSFORMER_SNAKECASE,
-            )
+        async with async_lock(self.locks["service"]):
+            for service_name, service in self.setup.services.items():
+                # Get service info from checker
+                checker_address = service.checkers[0]
+                response = await self.client.get(f"{checker_address}/service")
+                if response.status_code != 200:
+                    raise Exception(f"Failed to get {service_name}-info")
+                info: CheckerInfoMessage = jsons.loads(
+                    response.content,
+                    CheckerInfoMessage,
+                    key_transformer=jsons.KEY_TRANSFORMER_SNAKECASE,
+                )
 
-            # Store service checker port for later use
-            self.service_info[info.service_name] = (
-                _port_from_address(checker_address),
-                service_name,
-            )
+                # Store service checker port for later use
+                self.service_info[info.service_name] = (
+                    _port_from_address(checker_address),
+                    service_name,
+                )
 
-            # Update Exploiting / Patched categories for each team
-            for team in self.setup.teams.values():
-                team.exploiting.update({info.service_name: {}})
-                team.patched.update({info.service_name: {}})
-                for flagstore_id in range(info.exploit_variants):
-                    team.exploiting[info.service_name].update(
-                        {f"Flagstore{flagstore_id}": False}
-                    )
-                    team.patched[info.service_name].update(
-                        {f"Flagstore{flagstore_id}": False}
-                    )
+                async with async_lock(self.locks["team"]):
+                    # Update Exploiting / Patched categories for each team
+                    for team in self.setup.teams.values():
+                        team.exploiting.update({info.service_name: {}})
+                        team.patched.update({info.service_name: {}})
+                        for flagstore_id in range(info.exploit_variants):
+                            team.exploiting[info.service_name].update(
+                                {f"Flagstore{flagstore_id}": False}
+                            )
+                            team.patched[info.service_name].update(
+                                {f"Flagstore{flagstore_id}": False}
+                            )
 
     async def get_round_info(self):
         attack_info_text = await self.client.get(

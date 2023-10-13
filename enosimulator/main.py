@@ -1,7 +1,7 @@
 import argparse
 import asyncio
 import os
-from threading import Thread
+from threading import Lock, Thread
 
 from backend.app import FlaskApp
 from dotenv import load_dotenv
@@ -82,10 +82,14 @@ async def main():
         )
         await setup.build()
 
-        simulation = await Simulation.new(setup, args.verbose)
+        # Create thread locks for services, vms and teams
+        service_lock, vm_lock, team_lock = Lock(), Lock(), Lock()
+        locks = {"service": service_lock, "vm": vm_lock, "team": team_lock}
+
+        simulation = await Simulation.new(setup, locks, args.verbose)
 
         # Run backend Flask app in a separate thread
-        app = FlaskApp(setup, simulation)
+        app = FlaskApp(setup, simulation, locks)
         flask_thread = Thread(target=app.run)
         flask_thread.start()
 

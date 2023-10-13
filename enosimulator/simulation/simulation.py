@@ -3,7 +3,7 @@ import os
 import random
 import sys
 from concurrent.futures import ThreadPoolExecutor
-from typing import List
+from typing import Dict, List
 
 from rich.console import Console
 from rich.table import Table
@@ -36,18 +36,25 @@ def _exploit_or_patch(team: Team):
 
 
 class Simulation:
-    def __init__(self, setup: SetupType, orchestrator: OrchestratorType, verbose: bool):
+    def __init__(
+        self,
+        setup: SetupType,
+        orchestrator: OrchestratorType,
+        locks: Dict,
+        verbose: bool,
+    ):
         self.setup = setup
+        self.locks = locks
         self.orchestrator = orchestrator
         self.verbose = verbose
         self.round_id = 0
         self.console = Console()
 
     @classmethod
-    async def new(cls, setup: SetupType, verbose: bool = False):
-        orchestrator = Orchestrator(setup, verbose)
+    async def new(cls, setup: SetupType, locks: Dict, verbose: bool = False):
+        orchestrator = Orchestrator(setup, locks, verbose)
         await orchestrator.update_team_info()
-        return cls(setup, orchestrator, verbose)
+        return cls(setup, orchestrator, locks, verbose)
 
     async def run(self):
         # Wait for the scoreboard to become available
@@ -127,10 +134,12 @@ class Simulation:
 
     def _update_team(self, team_name: str, variant: str, service: str, flagstore: str):
         if variant == "exploiting":
-            self.setup.teams[team_name].exploiting[service][flagstore] = True
+            with self.locks["team"]:
+                self.setup.teams[team_name].exploiting[service][flagstore] = True
             info_text = "started exploiting"
         elif variant == "patched":
-            self.setup.teams[team_name].patched[service][flagstore] = True
+            with self.locks["team"]:
+                self.setup.teams[team_name].patched[service][flagstore] = True
             info_text = "patched"
         return f"[bold red][!] Team {team_name} {info_text} {service}-{flagstore}"
 
