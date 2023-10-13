@@ -96,7 +96,11 @@ async def main():
 
     except asyncio.exceptions.CancelledError:
         if args.production:
+            flask_thread.join()
             setup.destroy()
+        else:
+            flask_thread.join()
+            raise
 
 
 if __name__ == "__main__":

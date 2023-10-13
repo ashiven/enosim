@@ -1,3 +1,5 @@
+import logging
+
 from flask import Flask
 from flask_restful import Api, Resource
 
@@ -65,4 +67,6 @@ class FlaskApp:
         # self.api.add_resource(VmHistoryApi, "/vmhistory")
 
     def run(self):
-        self.app.run(debug=True)
+        log = logging.getLogger("werkzeug")
+        log.setLevel(logging.ERROR)
+        self.app.run(debug=False)
