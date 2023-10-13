@@ -1,4 +1,5 @@
 import logging
+import threading
 
 from flask import Flask
 from flask_restful import Api, Resource
@@ -6,21 +7,27 @@ from flask_restful import Api, Resource
 
 class Teams(Resource):
     def get(self):
-        return self.response
+        with threading.Lock():
+            response = {name: team.to_json() for name, team in self.teams.items()}
+            return response
 
     @classmethod
-    def create_api(cls, response):
-        cls.response = response
+    def create_api(cls, teams):
+        cls.teams = teams
         return cls
 
 
 class Services(Resource):
     def get(self):
-        return self.response
+        with threading.Lock():
+            response = {
+                name: service.to_json() for name, service in self.services.items()
+            }
+            return response
 
     @classmethod
-    def create_api(cls, response):
-        cls.response = response
+    def create_api(cls, services):
+        cls.services = services
         return cls
 
 
@@ -52,12 +59,8 @@ class FlaskApp:
 
         # Create RESTful API endpoints
         self.api = Api(self.app)
-        ServiceApi = Services.create_api(
-            {name: service.to_json() for name, service in self.setup.services.items()}
-        )
-        TeamApi = Teams.create_api(
-            {name: team.to_json() for name, team in self.setup.teams.items()}
-        )
+        ServiceApi = Services.create_api(self.setup.services)
+        TeamApi = Teams.create_api(self.setup.teams)
         self.api.add_resource(TeamApi, "/teams")
         self.api.add_resource(ServiceApi, "/services")
 

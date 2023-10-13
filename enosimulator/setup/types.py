@@ -104,7 +104,7 @@ class Service:
             "noisesPerRound": self.noises_per_round_multiplier,
             "havocsPerRound": self.havocs_per_round_multiplier,
             "weightFactor": self.weight_factor,
-            "github": f"https://github.com/{self.name}",
+            "github": f"https://github.com/enowars/{self.name}",
         }
         return new_dict
 
