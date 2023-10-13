@@ -51,12 +51,6 @@ async def main():
         action="store_true",
         help="Display additional information useful for debugging",
     )
-    parser.add_argument(
-        "-p",
-        "--production",
-        action="store_true",
-        help="Run the simulation in production mode",
-    )
     args = parser.parse_args()
 
     if not args.config:
@@ -99,11 +93,8 @@ async def main():
         setup.destroy()
 
     except asyncio.exceptions.CancelledError:
-        if args.production:
-            flask_thread.join()
-            setup.destroy()
-        else:
-            flask_thread.join()
+        flask_thread.join()
+        setup.destroy()
 
 
 if __name__ == "__main__":
