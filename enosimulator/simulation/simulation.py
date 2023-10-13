@@ -3,6 +3,7 @@ import os
 import random
 import sys
 from concurrent.futures import ThreadPoolExecutor
+from threading import Thread
 from typing import Dict, List
 
 from rich.console import Console
@@ -82,9 +83,12 @@ class Simulation:
                         )
                         info_messages.append(info_message)
 
-            # Display all info relevant to the current round
+            # Display all info relevant to the current round and parse the current scores from the scoreboard
             self.round_id = await self.orchestrator.get_round_info()
+            parse_thread = Thread(target=self.orchestrator.parse_scoreboard)
+            parse_thread.start()
             self.round_info(info_messages, rounds - round_)
+            parse_thread.join()
 
             # Instruct orchestrator to send out exploit requests
             team_flags = dict()

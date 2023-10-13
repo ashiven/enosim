@@ -172,11 +172,16 @@ class Orchestrator:
         if not attack_info["services"]:
             return None
 
-        self._parse_scoreboard()
-
         self.attack_info = attack_info
         _prev_round, current_round = _parse_rounds(self.attack_info)
         return current_round
+
+    def parse_scoreboard(self):
+        team_scores = self._get_team_scores()
+        with self.locks["team"]:
+            for team in self.setup.teams.values():
+                team.points = team_scores[team.name][0]
+                team.gain = team_scores[team.name][1]
 
     async def exploit(self, round_id: int, team: Team, all_teams: List[Team]):
         exploit_requests = self._create_exploit_requests(round_id, team, all_teams)
@@ -274,14 +279,6 @@ class Orchestrator:
                 flags.append(exploit_result.flag)
 
         return flags
-
-    def _parse_scoreboard(self):
-        with self.console.status("[bold green]Parsing Scoreboard ..."):
-            team_scores = self._get_team_scores()
-        with self.locks["team"]:
-            for team in self.setup.teams.values():
-                team.points = team_scores[team.name][0]
-                team.gain = team_scores[team.name][1]
 
     def _get_team_scores(self):
         team_scores = dict()
