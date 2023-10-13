@@ -52,8 +52,12 @@ class FlaskApp:
 
         # Create RESTful API endpoints
         self.api = Api(self.app)
-        ServiceApi = Services.create_api(self.setup.services)
-        TeamApi = Teams.create_api(self.setup.teams)
+        ServiceApi = Services.create_api(
+            {name: service.to_json() for name, service in self.setup.services.items()}
+        )
+        TeamApi = Teams.create_api(
+            {name: team.to_json() for name, team in self.setup.teams.items()}
+        )
         self.api.add_resource(TeamApi, "/teams")
         self.api.add_resource(ServiceApi, "/services")
 

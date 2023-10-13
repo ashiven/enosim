@@ -100,7 +100,6 @@ async def main():
             setup.destroy()
         else:
             flask_thread.join()
-            raise
 
 
 if __name__ == "__main__":

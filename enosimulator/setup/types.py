@@ -73,6 +73,18 @@ class Team:
     exploiting: dict
     patched: dict
 
+    def to_json(self):
+        new_dict = {
+            "id": self.id,
+            "name": self.name,
+            "subnet": self.team_subnet,
+            "address": self.address,
+            "experience": str(self.experience),
+            "exploiting": self.exploiting,
+            "patched": self.patched,
+        }
+        return new_dict
+
 
 @dataclass
 class Service:
@@ -84,16 +96,28 @@ class Service:
     weight_factor: int
     checkers: List[str]
 
+    def to_json(self):
+        new_dict = {
+            "id": self.id,
+            "name": self.name,
+            "flagsPerRound": self.flags_per_round_multiplier,
+            "noisesPerRound": self.noises_per_round_multiplier,
+            "havocsPerRound": self.havocs_per_round_multiplier,
+            "weightFactor": self.weight_factor,
+            "github": f"https://github.com/{self.name}",
+        }
+        return new_dict
+
     @staticmethod
-    def from_(service):
+    def from_(dictionary):
         new_service = Service(
-            id=service["id"],
-            name=service["name"],
-            flags_per_round_multiplier=service["flagsPerRoundMultiplier"],
-            noises_per_round_multiplier=service["noisesPerRoundMultiplier"],
-            havocs_per_round_multiplier=service["havocsPerRoundMultiplier"],
-            weight_factor=service["weightFactor"],
-            checkers=service["checkers"],
+            id=dictionary["id"],
+            name=dictionary["name"],
+            flags_per_round_multiplier=dictionary["flagsPerRoundMultiplier"],
+            noises_per_round_multiplier=dictionary["noisesPerRoundMultiplier"],
+            havocs_per_round_multiplier=dictionary["havocsPerRoundMultiplier"],
+            weight_factor=dictionary["weightFactor"],
+            checkers=dictionary["checkers"],
         )
         return new_service
 
