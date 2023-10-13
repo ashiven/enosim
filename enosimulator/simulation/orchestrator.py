@@ -164,6 +164,7 @@ class Orchestrator:
         if not attack_info["services"]:
             return None
 
+        self._update_team_points()
         self.attack_info = attack_info
         _prev_round, current_round = _parse_rounds(self.attack_info)
         return current_round
@@ -265,3 +266,20 @@ class Orchestrator:
                 flags.append(exploit_result.flag)
 
         return flags
+
+    async def _update_team_points(self):
+        team_scores = await self._get_team_scores()
+        async with async_lock(self.locks["team"]):
+            for team in self.setup.teams.values():
+                team.points = team_scores[team.id][0]
+                team.gain = team_scores[team.id][1]
+
+    # TODO:
+    # - implement this
+    # - also gotta update the team dataclass to include points and gain fields (see setup/types.py)
+    # - this will return a dict of team_id -> (points, gain)
+    async def _get_team_scores(self):
+        scoreboard_url = (
+            f'http://{self.setup.ips.public_ip_addresses["engine"]}:5001/scoreboard/'
+        )
+        r = await self.client.get(scoreboard_url)
