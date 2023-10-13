@@ -72,6 +72,8 @@ class Team:
     experience: Experience
     exploiting: dict
     patched: dict
+    points: float
+    gain: float
 
     def to_json(self):
         new_dict = {
@@ -82,6 +84,8 @@ class Team:
             "experience": str(self.experience),
             "exploiting": self.exploiting,
             "patched": self.patched,
+            "points": self.points,
+            "gain": self.gain,
         }
         return new_dict
 

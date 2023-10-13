@@ -58,6 +58,8 @@ def _generate_setup_team(id: int, experience: Experience):
             experience=experience,
             exploiting=dict(),
             patched=dict(),
+            points=0.0,
+            gain=0.0,
         )
     }
     return new_team

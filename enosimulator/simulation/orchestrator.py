@@ -4,6 +4,7 @@ from typing import Dict, List
 
 import httpx
 import jsons
+from bs4 import BeautifulSoup
 from enochecker_core import (
     CheckerInfoMessage,
     CheckerMethod,
@@ -12,7 +13,14 @@ from enochecker_core import (
     CheckerTaskResult,
 )
 from rich.console import Console
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 from setup.types import IpAddresses, SetupType, Team
+from webdriver_manager.chrome import ChromeDriverManager
 
 from .flagsubmitter import FlagSubmitter
 from .statchecker import StatChecker
@@ -164,7 +172,8 @@ class Orchestrator:
         if not attack_info["services"]:
             return None
 
-        self._update_team_points()
+        self._parse_scoreboard()
+
         self.attack_info = attack_info
         _prev_round, current_round = _parse_rounds(self.attack_info)
         return current_round
@@ -266,19 +275,39 @@ class Orchestrator:
 
         return flags
 
-    async def _update_team_points(self):
-        team_scores = await self._get_team_scores()
-        async with async_lock(self.locks["team"]):
+    def _parse_scoreboard(self):
+        with self.console.status("[bold green]Parsing Scoreboard ..."):
+            team_scores = self._get_team_scores()
+        with self.locks["team"]:
             for team in self.setup.teams.values():
-                team.points = team_scores[team.id][0]
-                team.gain = team_scores[team.id][1]
+                team.points = team_scores[team.name][0]
+                team.gain = team_scores[team.name][1]
 
-    # TODO:
-    # - implement this
-    # - also gotta update the team dataclass to include points and gain fields (see setup/types.py)
-    # - this will return a dict of team_id -> (points, gain)
-    async def _get_team_scores(self):
+    def _get_team_scores(self):
+        team_scores = dict()
         scoreboard_url = (
-            f'http://{self.setup.ips.public_ip_addresses["engine"]}:5001/scoreboard/'
+            f'http://{self.setup.ips.public_ip_addresses["engine"]}:5001/scoreboard'
         )
-        r = await self.client.get(scoreboard_url)
+
+        options = Options()
+        options.headless = True
+        options.add_experimental_option("excludeSwitches", ["enable-logging"])
+        driver = webdriver.Chrome(
+            service=Service(ChromeDriverManager().install()), options=options
+        )
+        driver.get(scoreboard_url)
+
+        wait = WebDriverWait(driver, 10)
+        wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "otherrow")))
+
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+        rows = soup.find_all("tr", class_="otherrow")
+
+        for row in rows:
+            [points, gain] = row.find("td", class_="team-score").text.strip().split(" ")
+            team_name = row.find("div", class_="team-name").find("a").text.strip()
+            team_scores[team_name] = (float(points), float(gain[2:-1]))
+
+        driver.quit()
+
+        return team_scores
