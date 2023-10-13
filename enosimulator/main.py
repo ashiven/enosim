@@ -1,7 +1,9 @@
 import argparse
 import asyncio
 import os
+from threading import Thread
 
+from backend.app import FlaskApp
 from dotenv import load_dotenv
 from setup.setup import Setup
 from simulation.simulation import Simulation
@@ -49,6 +51,12 @@ async def main():
         action="store_true",
         help="Display additional information useful for debugging",
     )
+    parser.add_argument(
+        "-p",
+        "--production",
+        action="store_true",
+        help="Run the simulation in production mode",
+    )
     args = parser.parse_args()
 
     if not args.config:
@@ -75,12 +83,20 @@ async def main():
         await setup.build()
 
         simulation = await Simulation.new(setup, args.verbose)
+
+        # Run backend Flask app in a separate thread
+        app = FlaskApp(setup, simulation)
+        flask_thread = Thread(target=app.run)
+        flask_thread.start()
+
         await simulation.run()
+        flask_thread.join()
 
         setup.destroy()
 
     except asyncio.exceptions.CancelledError:
-        setup.destroy()
+        if args.production:
+            setup.destroy()
 
 
 if __name__ == "__main__":
