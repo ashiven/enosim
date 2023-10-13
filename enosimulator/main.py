@@ -90,8 +90,8 @@ async def main():
         flask_thread.start()
 
         await simulation.run()
-        flask_thread.join()
 
+        flask_thread.join()
         setup.destroy()
 
     except asyncio.exceptions.CancelledError:
