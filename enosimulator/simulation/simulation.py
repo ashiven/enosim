@@ -10,6 +10,7 @@ from rich.table import Table
 from setup.types import OrchestratorType, SetupType, Team
 
 from .orchestrator import Orchestrator
+from .util import async_lock
 
 #### Helpers ####
 
@@ -71,14 +72,15 @@ class Simulation:
 
         for round_ in range(rounds):
             # Go through all teams and perform the random test
-            info_messages = []
-            for team_name, team in self.setup.teams.items():
-                if _random_test(team):
-                    variant, service, flagstore = _exploit_or_patch(team)
-                    info_message = self._update_team(
-                        team_name, variant, service, flagstore
-                    )
-                    info_messages.append(info_message)
+            async with async_lock(self.locks["team"]):
+                info_messages = []
+                for team_name, team in self.setup.teams.items():
+                    if _random_test(team):
+                        variant, service, flagstore = _exploit_or_patch(team)
+                        info_message = self._update_team(
+                            team_name, variant, service, flagstore
+                        )
+                        info_messages.append(info_message)
 
             # Display all info relevant to the current round
             self.round_id = await self.orchestrator.get_round_info()
@@ -87,13 +89,14 @@ class Simulation:
             # Instruct orchestrator to send out exploit requests
             team_flags = dict()
             async with asyncio.TaskGroup() as task_group:
-                for team in self.setup.teams.values():
-                    flags = await task_group.create_task(
-                        self.orchestrator.exploit(
-                            self.round_id, team, self.setup.teams.values()
+                async with async_lock(self.locks["team"]):
+                    for team in self.setup.teams.values():
+                        flags = await task_group.create_task(
+                            self.orchestrator.exploit(
+                                self.round_id, team, self.setup.teams.values()
+                            )
                         )
-                    )
-                    team_flags[team.name] = (team.address, flags)
+                        team_flags[team.name] = (team.address, flags)
 
             # Instruct orchestrator to submit flags
             with ThreadPoolExecutor(max_workers=20) as executor:
@@ -124,7 +127,8 @@ class Simulation:
             )
             self.console.print("\n")
 
-        self._team_info(self.setup.teams.values())
+        with self.locks["team"]:
+            self._team_info(self.setup.teams.values())
 
         if self.verbose:
             self.console.print("\n")
@@ -134,12 +138,10 @@ class Simulation:
 
     def _update_team(self, team_name: str, variant: str, service: str, flagstore: str):
         if variant == "exploiting":
-            with self.locks["team"]:
-                self.setup.teams[team_name].exploiting[service][flagstore] = True
+            self.setup.teams[team_name].exploiting[service][flagstore] = True
             info_text = "started exploiting"
         elif variant == "patched":
-            with self.locks["team"]:
-                self.setup.teams[team_name].patched[service][flagstore] = True
+            self.setup.teams[team_name].patched[service][flagstore] = True
             info_text = "patched"
         return f"[bold red][!] Team {team_name} {info_text} {service}-{flagstore}"
 
