@@ -1,8 +1,5 @@
-import asyncio
 import secrets
 import urllib
-from concurrent.futures import ThreadPoolExecutor
-from contextlib import asynccontextmanager
 from typing import Dict, List
 
 import httpx
@@ -19,6 +16,7 @@ from setup.types import IpAddresses, SetupType, Team
 
 from .flagsubmitter import FlagSubmitter
 from .statchecker import StatChecker
+from .util import async_lock
 
 FLAG_REGEX_ASCII = r"ENO[A-Za-z0-9+\/=]{48}"
 CHAIN_ID_PREFIX = secrets.token_hex(20)
@@ -103,19 +101,6 @@ def _private_to_public_ip(ip_addresses: IpAddresses, team_address: str):
     for name, ip_address in ip_addresses.private_ip_addresses.items():
         if ip_address == team_address:
             return ip_addresses.public_ip_addresses[name]
-
-
-_pool = ThreadPoolExecutor()
-
-
-@asynccontextmanager
-async def async_lock(lock):
-    loop = asyncio.get_event_loop()
-    await loop.run_in_executor(_pool, lock.acquire)
-    try:
-        yield
-    finally:
-        lock.release()
 
 
 #### End Helpers ####
