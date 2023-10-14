@@ -55,6 +55,9 @@ class StatChecker:
             self.console.print(f"\n[bold red]Docker stats for {name}:")
             self.console.print(container_stat_panel)
 
+    # TODO:
+    # - update this method so it sends vm data to the backend at the start of every round for every vm
+    # - maybe i could also create a separate method for this
     def check_system(self, ip_addresses: Dict[str, str]):
         futures = dict()
         with ThreadPoolExecutor(max_workers=20) as executor:
