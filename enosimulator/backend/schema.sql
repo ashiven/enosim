@@ -8,7 +8,7 @@ CREATE TABLE vminfo (
     ram TEXT NOT NULL,
     disk TEXT NOT NULL,
     status TEXT NOT NULL,
-    uptime TEXT NOT NULL,
+    uptime REAL NOT NULL,
     cpuusage REAL NOT NULL,
     ramusage REAL NOT NULL,
     netusage REAL NOT NULL,
