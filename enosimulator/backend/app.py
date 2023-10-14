@@ -70,6 +70,10 @@ class VMs(Resource):
 
         required_fields = [
             "name",
+            "ip",
+            "cpu",
+            "ram",
+            "disk",
             "status",
             "uptime",
             "cpuusage",
@@ -80,6 +84,10 @@ class VMs(Resource):
             return {"message": "Missing field"}, 400
 
         name = data["name"]
+        ip = data["ip"]
+        cpu = data["cpu"]
+        ram = data["ram"]
+        disk = data["disk"]
         status = data["status"]
         uptime = data["uptime"]
         cpuusage = data["cpuusage"]
@@ -89,8 +97,19 @@ class VMs(Resource):
         with _get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                "INSERT INTO vminfo(name, status, uptime, cpuusage, ramusage, netusage) VALUES (?, ?, ?, ?, ?, ?)",
-                (name, status, uptime, cpuusage, ramusage, netusage),
+                "INSERT INTO vminfo(name, ip, cpu, ram, disk, status, uptime, cpuusage, ramusage, netusage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    name,
+                    ip,
+                    cpu,
+                    ram,
+                    disk,
+                    status,
+                    uptime,
+                    cpuusage,
+                    ramusage,
+                    netusage,
+                ),
             )
             conn.commit()
 
