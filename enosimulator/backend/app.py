@@ -1,4 +1,3 @@
-import datetime
 import logging
 import os
 import sqlite3
@@ -48,8 +47,6 @@ class Services(Resource):
 
 class VMs(Resource):
     def get(self):
-        measure_timeframe = datetime.datetime.now() - datetime.timedelta(minutes=30)
-
         with _get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
