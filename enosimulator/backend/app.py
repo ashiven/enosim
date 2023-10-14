@@ -1,3 +1,4 @@
+import datetime
 import logging
 import os
 import sqlite3
@@ -47,9 +48,13 @@ class Services(Resource):
 
 class VMs(Resource):
     def get(self):
+        measure_timeframe = datetime.datetime.now() - datetime.timedelta(minutes=30)
+
         with _get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM vminfo")
+            cursor.execute(
+                "SELECT * FROM vminfo WHERE measuretime > datetime('now', '-30 minutes') ORDER BY measuretime DESC",
+            )
             vms = cursor.fetchall()
 
             response = {vm["name"]: dict(vm) for vm in vms}
@@ -67,7 +72,6 @@ class VMs(Resource):
             "cpuusage",
             "ramusage",
             "netusage",
-            "measuretime",
         ]
         if any(field not in data for field in required_fields):
             return {"message": "Missing field"}, 400
@@ -78,13 +82,12 @@ class VMs(Resource):
         cpuusage = data["cpuusage"]
         ramusage = data["ramusage"]
         netusage = data["netusage"]
-        measuretime = data["measuretime"]
 
         with _get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                "INSERT INTO vminfo VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (name, status, uptime, cpuusage, ramusage, netusage, measuretime),
+                "INSERT INTO vminfo(name, status, uptime, cpuusage, ramusage, netusage) VALUES (?, ?, ?, ?, ?, ?)",
+                (name, status, uptime, cpuusage, ramusage, netusage),
             )
             conn.commit()
 
