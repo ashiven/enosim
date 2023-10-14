@@ -1,3 +1,5 @@
+from time import sleep
+
 import requests
 
 test_data = {
@@ -9,5 +11,7 @@ test_data = {
     "netusage": 43.2,
 }
 
-r = requests.post("http://localhost:5000/vminfo", json=test_data)
-print(r.content)
+for _ in range(20):
+    r = requests.post("http://localhost:5000/vminfo", json=test_data)
+    print(r.content)
+    sleep(1)

@@ -47,15 +47,21 @@ class Services(Resource):
 
 class VMs(Resource):
     def get(self):
-        with _get_db_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT * FROM vminfo WHERE measuretime > datetime('now', '-30 minutes') ORDER BY measuretime DESC",
-            )
-            vms = cursor.fetchall()
+        vm_name = request.args.get("name")
 
-            response = {vm["name"]: dict(vm) for vm in vms}
-            return response
+        if vm_name:
+            with _get_db_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT * FROM vminfo WHERE name = ? AND measuretime > datetime('now', '-30 minutes') ORDER BY measuretime DESC",
+                    (vm_name,),
+                )
+                vm_infos = cursor.fetchall()
+
+                response = [dict(vm_info) for vm_info in vm_infos]
+                return response
+        else:
+            return {"message": "Missing VM name"}, 400
 
     def post(self):
         data = request.get_json()
