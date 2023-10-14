@@ -1,5 +1,4 @@
 DROP TABLE IF EXISTS vminfo;
-DROP TABLE IF EXISTS vmconfig;
 
 CREATE TABLE vminfo (
     name TEXT NOT NULL,
@@ -15,3 +14,5 @@ CREATE TABLE vminfo (
     measuretime DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (name, measuretime)
 );
+
+CREATE INDEX name_measuretime ON vminfo (name, measuretime);

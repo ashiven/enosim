@@ -22,3 +22,6 @@ test-setup/*/data/*
 !test-setup/*/config/.gitkeep
 !test-setup/*/data/.gitkeep
 !test-setup/*/logs/.gitkeep
+
+## Flask files ##
+database.db
