@@ -1,7 +1,20 @@
 import logging
+import os
+import sqlite3
 
-from flask import Flask
+from flask import Flask, request
 from flask_restful import Api, Resource
+
+#### Helpers ####
+
+
+def _get_db_connection():
+    connection = sqlite3.connect("database.db")
+    connection.row_factory = sqlite3.Row
+    return connection
+
+
+#### End Helpers ####
 
 
 class Teams(Resource):
@@ -34,21 +47,51 @@ class Services(Resource):
 
 class VMs(Resource):
     def get(self):
-        return self.response
+        with _get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM vminfo")
+            vms = cursor.fetchall()
+
+            response = {vm["name"]: dict(vm) for vm in vms}
+            return response
+
+    def post(self):
+        data = request.get_json()
+        if not data:
+            return {"message": "Invalid JSON"}, 400
+
+        required_fields = [
+            "name",
+            "status",
+            "uptime",
+            "cpuusage",
+            "ramusage",
+            "netusage",
+            "measuretime",
+        ]
+        if any(field not in data for field in required_fields):
+            return {"message": "Missing field"}, 400
+
+        name = data["name"]
+        status = data["status"]
+        uptime = data["uptime"]
+        cpuusage = data["cpuusage"]
+        ramusage = data["ramusage"]
+        netusage = data["netusage"]
+        measuretime = data["measuretime"]
+
+        with _get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO vminfo VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (name, status, uptime, cpuusage, ramusage, netusage, measuretime),
+            )
+            conn.commit()
+
+        return {"message": "VM info updated successfully"}, 200
 
     @classmethod
-    def create_api(cls, response):
-        cls.response = response
-        return cls
-
-
-class VMHistory(Resource):
-    def get(self):
-        return self.response
-
-    @classmethod
-    def create_api(cls, response):
-        cls.response = response
+    def create_api(cls):
         return cls
 
 
@@ -58,24 +101,35 @@ class FlaskApp:
         self.setup = setup
         self.simulation = simulation
         self.locks = locks
+        self.path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
+        self.init_db()
 
         # Create RESTful API endpoints
         self.api = Api(self.app)
         ServiceApi = Services.create_api(self.setup.services, self.locks["service"])
         TeamApi = Teams.create_api(self.setup.teams, self.locks["team"])
+        VmApi = VMs.create_api()
         self.api.add_resource(TeamApi, "/teams")
         self.api.add_resource(ServiceApi, "/services")
-
-        # TODO:
-        # - there will be sync issues with the main thread
-        # - figure out how to make this work
-
-        # VmApi = VMs.create_api(self.setup.vms)
-        # VmHistoryApi = VMHistory.create_api(self.setup.vm_history)
-        # self.api.add_resource(VmApi, "/vminfo")
-        # self.api.add_resource(VmHistoryApi, "/vmhistory")
+        self.api.add_resource(VmApi, "/vminfo")
 
     def run(self):
         log = logging.getLogger("werkzeug")
         log.setLevel(logging.ERROR)
         self.app.run(debug=False)
+
+    def init_db(self):
+        connection = sqlite3.connect("database.db")
+
+        with open(f"{self.path}/schema.sql") as f:
+            connection.executescript(f.read())
+
+        connection.commit()
+        connection.close()
+
+    def delete_db(self):
+        if os.path.exists("database.db"):
+            os.remove("database.db")
+
+    def __del__(self):
+        self.delete_db()
