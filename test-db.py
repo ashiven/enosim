@@ -9,7 +9,7 @@ test_data = {
     "ram": "4 GB",
     "disk": "100 GB",
     "status": "test",
-    "uptime": "test",
+    "uptime": 200.0,
     "cpuusage": 2.3,
     "ramusage": 31.2,
     "netusage": 43.2,
