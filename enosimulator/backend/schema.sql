@@ -10,7 +10,8 @@ CREATE TABLE vminfo (
     uptime REAL NOT NULL,
     cpuusage REAL NOT NULL,
     ramusage REAL NOT NULL,
-    netusage REAL NOT NULL,
+    netrx REAL NOT NULL,
+    nettx REAL NOT NULL,
     measuretime DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (name, measuretime)
 );

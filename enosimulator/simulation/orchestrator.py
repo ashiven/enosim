@@ -125,7 +125,7 @@ class Orchestrator:
         self.flag_submitter = FlagSubmitter(
             setup.ips, setup.config, setup.secrets, self.verbose
         )
-        self.stat_checker = StatChecker(setup.config, setup.secrets)
+        self.stat_checker = StatChecker(setup.config, setup.secrets, verbose)
         self.console = Console()
 
     async def update_team_info(self):
@@ -192,10 +192,16 @@ class Orchestrator:
         self.flag_submitter.submit_flags(team_address, flags)
 
     def container_stats(self, team_addresses: Dict[str, str]):
-        self.stat_checker.check_containers(team_addresses)
+        with self.console.status("[bold green]Getting container stats ..."):
+            self.stat_checker.check_containers(team_addresses)
 
     def system_stats(self, team_addresses: Dict[str, str]):
-        self.stat_checker.check_system(team_addresses)
+        with self.console.status("[bold green]Getting system stats ..."):
+            self.stat_checker.check_system(team_addresses)
+
+    async def system_analytics(self):
+        with self.console.status("[bold green]Sending analytic data ..."):
+            await self.stat_checker.system_analytics()
 
     def _create_exploit_requests(
         self, round_id: int, team: Team, all_teams: List[Team]

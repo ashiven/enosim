@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Dict
 
 import paramiko
+from httpx import AsyncClient
 from rich.columns import Columns
 from rich.console import Console
 from rich.panel import Panel
@@ -9,14 +10,17 @@ from setup.types import Config, Secrets, SetupVariant
 
 
 class StatChecker:
-    def __init__(self, config: Config, secrets: Secrets):
+    def __init__(self, config: Config, secrets: Secrets, verbose: bool = False):
         self.config = config
         self.secrets = secrets
+        self.verbose = verbose
         self.usernames = {
             SetupVariant.AZURE: "groot",
             SetupVariant.HETZNER: "root",
             SetupVariant.LOCAL: "root",
         }
+        self.vm_stats = dict()
+        self.client = AsyncClient()
         self.console = Console()
 
     def check_containers(self, ip_addresses: Dict[str, str]):
@@ -30,29 +34,34 @@ class StatChecker:
             name: future.result() for name, future in futures.items()
         }
 
-        for name, container_stat_panel in container_stat_panels.items():
-            self.console.print(f"\n[bold red]Docker stats for {name}:")
-            self.console.print(container_stat_panel)
+        if self.verbose:
+            for name, container_stat_panel in container_stat_panels.items():
+                self.console.print(f"\n[bold red]Docker stats for {name}:")
+                self.console.print(container_stat_panel)
 
     def check_system(self, ip_addresses: Dict[str, str]):
         futures = dict()
         with ThreadPoolExecutor(max_workers=20) as executor:
             for name, ip_address in ip_addresses.items():
-                future = executor.submit(self._system_stats, ip_address)
+                future = executor.submit(self._system_stats, name, ip_address)
                 futures[name] = future
 
         system_stat_panels = {name: future.result() for name, future in futures.items()}
 
-        for name, system_stat_panel in system_stat_panels.items():
-            self.console.print(f"\n[bold red]System stats for {name}:")
-            self.console.print(Columns(system_stat_panel))
+        if self.verbose:
+            for name, system_stat_panel in system_stat_panels.items():
+                self.console.print(f"\n[bold red]System stats for {name}:")
+                self.console.print(Columns(system_stat_panel))
 
-    # TODO:
-    # - sends vm data in every round for every vm
-    def system_analytics():
-        pass
+    async def system_analytics(self):
+        FLASK_PORT = 5000
+        for stats in self.vm_stats.values():
+            if any(stat is None for stat in stats.values()):
+                stats["status"] = "offline"
+                stats["uptime"] = 0
+            await self.client.post(f"http://localhost:{FLASK_PORT}/vminfo", json=stats)
 
-    def _container_stats(self, ip_address: str, beautify: bool = True):
+    def _container_stats(self, ip_address: str):
         with paramiko.SSHClient() as client:
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             client.connect(
@@ -67,10 +76,7 @@ class StatChecker:
             _, stdout, _ = client.exec_command("docker stats --no-stream")
             container_stats_blank = stdout.read().decode("utf-8")
 
-        if beautify:
-            return self._beautify_container_stats(container_stats_blank)
-        else:
-            return container_stats_blank
+        return self._beautify_container_stats(container_stats_blank)
 
     def _beautify_container_stats(self, container_stats_blank: str):
         def _beautify_line(line: str):
@@ -98,7 +104,7 @@ class StatChecker:
 
         return Panel("\n".join(container_stats), expand=True)
 
-    def _system_stats(self, ip_address: str, beautify: bool = True):
+    def _system_stats(self, vm_name: str, ip_address: str):
         with paramiko.SSHClient() as client:
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             client.connect(
@@ -133,6 +139,13 @@ class StatChecker:
                 cpu_cores,
                 disk_size,
             ] = system_stats.splitlines()
+            ram_percent = round(float(ram_percent.strip()), 2)
+            ram_total = round(float(ram_total.strip()) / 1024, 2)
+            ram_used = round(float(ram_used.strip()) / 1024, 2)
+            cpu_usage = round(float(cpu_usage.strip()), 2)
+            cpu_cores = int(cpu_cores.strip())
+            disk_size = float(disk_size.strip()[:-1])
+
         else:
             ram_percent, ram_total, ram_used, cpu_usage, cpu_cores, disk_size = (
                 None,
@@ -145,46 +158,55 @@ class StatChecker:
 
         if network_usage:
             [network_rx, network_tx] = network_usage.splitlines()[-1].split(" ")
+            network_rx = float(network_rx.strip())
+            network_tx = float(network_tx.strip())
         else:
             network_rx, network_tx = None, None
 
-        if beautify:
-            return self._beautify_system_stats(
-                ram_percent,
-                ram_total,
-                ram_used,
-                cpu_usage,
-                cpu_cores,
-                network_rx,
-                network_tx,
-            )
-        else:
-            return [
-                ram_percent,
-                ram_total,
-                cpu_usage,
-                cpu_cores,
-                network_rx,
-                network_tx,
-                disk_size,
-            ]
+        prev_uptime = (
+            self.vm_stats[vm_name]["uptime"] if vm_name in self.vm_stats else 0
+        )
+        self.vm_stats[vm_name] = {
+            "name": vm_name,
+            "ip": ip_address,
+            "cpu": cpu_cores,
+            "ram": ram_total,
+            "disk": disk_size,
+            "status": "online",
+            "uptime": 0,
+            "cpuusage": cpu_usage,
+            "ramusage": ram_percent,
+            "netrx": network_rx,
+            "nettx": network_tx,
+        }
+        self.vm_stats[vm_name]["uptime"] = prev_uptime + 1
+
+        return self._beautify_system_stats(
+            ram_percent,
+            ram_total,
+            ram_used,
+            cpu_usage,
+            cpu_cores,
+            network_rx,
+            network_tx,
+        )
 
     def _beautify_system_stats(
         self,
-        ram_percent: str,
-        ram_total: str,
-        ram_used: str,
-        cpu_usage: str,
-        cpu_cores: str,
-        network_rx: str,
-        network_tx: str,
+        ram_percent: float,
+        ram_total: float,
+        ram_used: float,
+        cpu_usage: float,
+        cpu_cores: int,
+        network_rx: float,
+        network_tx: float,
     ):
         ram_panel = (
             Panel(
                 f"[b]RAM Stats[/b]\n"
-                + f"[yellow]RAM usage:[/yellow] {float(ram_percent.strip()):.2f}%\n"
-                + f"[yellow]RAM total:[/yellow] {(float(ram_total.strip())/1024):.2f} GB\n"
-                + f"[yellow]RAM used:[/yellow] {(float(ram_used.strip())/1024):.2f} GB",
+                + f"[yellow]RAM usage:[/yellow] {ram_percent:.2f}%\n"
+                + f"[yellow]RAM total:[/yellow] {ram_total:.2f} GB\n"
+                + f"[yellow]RAM used:[/yellow] {ram_used:.2f} GB",
                 expand=True,
             )
             if ram_total and ram_used and ram_percent
@@ -193,8 +215,8 @@ class StatChecker:
         cpu_panel = (
             Panel(
                 f"[b]CPU Stats[/b]\n"
-                + f"[yellow]CPU usage:[/yellow] {float(cpu_usage.strip()):.2f}%\n"
-                + f"[yellow]CPU cores:[/yellow] {cpu_cores.strip()}",
+                + f"[yellow]CPU usage:[/yellow] {cpu_usage:.2f}%\n"
+                + f"[yellow]CPU cores:[/yellow] {cpu_cores}",
                 expand=True,
             )
             if cpu_usage and cpu_cores
@@ -203,8 +225,8 @@ class StatChecker:
         network_panel = (
             Panel(
                 f"[b]Network Stats[/b]\n"
-                + f"[yellow]Network RX:[/yellow] {network_rx.strip()} kB/s\n"
-                + f"[yellow]Network TX:[/yellow] {network_tx.strip()} kB/s",
+                + f"[yellow]Network RX:[/yellow] {network_rx:.2f} kB/s\n"
+                + f"[yellow]Network TX:[/yellow] {network_tx:.2f} kB/s",
                 expand=True,
             )
             if network_rx and network_tx

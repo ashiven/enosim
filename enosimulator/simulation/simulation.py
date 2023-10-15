@@ -110,6 +110,11 @@ class Simulation:
                             self.orchestrator.submit_flags, team_address, flags
                         )
 
+            # Send system statistics to the analytics server at the end of each round
+            await self.orchestrator.system_analytics()
+
+            # TODO:
+            # - we have to take into account the time it takes to reach this point and subtract it from the sleep time
             await asyncio.sleep(self.setup.config.ctf_json.round_length_in_seconds)
 
     def round_info(self, info_messages: List[str], remaining: int):
@@ -123,19 +128,15 @@ class Simulation:
             self.setup.info()
             self.console.print("\n[bold red]Attack info:")
             self.console.print(self.orchestrator.attack_info)
-            self.orchestrator.container_stats(
-                {"vulnbox1": self.setup.ips.public_ip_addresses["vulnbox1"]}
-            )
-            self.orchestrator.system_stats(
-                {"vulnbox1": self.setup.ips.public_ip_addresses["vulnbox1"]}
-            )
-            self.console.print("\n")
+
+        self.orchestrator.container_stats(self.setup.ips.public_ip_addresses)
+        self.orchestrator.system_stats(self.setup.ips.public_ip_addresses)
+        self.console.print("\n")
 
         with self.locks["team"]:
             self._team_info(self.setup.teams.values())
 
         if self.verbose:
-            self.console.print("\n")
             for info_message in info_messages:
                 self.console.print(info_message)
             self.console.print("\n")
