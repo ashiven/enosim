@@ -22,14 +22,30 @@ interface TeamData {
    experience: string
    points: number
    gain: number
-   exploiting: string[]
-   patched: string[]
+   exploiting: any
+   patched: any
 }
 interface TeamCardProps {
    data: TeamData
 }
 
+function extractStrings(data: any) {
+   const strings = []
+   for (const parentKey in data) {
+      const subObject = data[parentKey]
+      for (const subKey in subObject) {
+         if (subObject[subKey] === true) {
+            strings.push(`${parentKey}-${subKey}`)
+         }
+      }
+   }
+   return strings
+}
+
 export default function TeamCard(props: TeamCardProps) {
+   const exploitStrings = extractStrings(props.data.exploiting)
+   const patchedStrings = extractStrings(props.data.patched)
+
    return (
       <HoverCard>
          <Card>
@@ -62,7 +78,7 @@ export default function TeamCard(props: TeamCardProps) {
                         <h4 className="mb-4 text-sm font-medium leading-none">
                            Exploiting
                         </h4>
-                        {props.data.exploiting.map((item, index) => (
+                        {exploitStrings.map((item, index) => (
                            <React.Fragment>
                               <div className="text-sm" key={index}>
                                  {item}
@@ -75,7 +91,7 @@ export default function TeamCard(props: TeamCardProps) {
                         <h3 className="mb-4 text-sm font-medium leading-none">
                            Patched
                         </h3>
-                        {props.data.patched.map((item, index) => (
+                        {patchedStrings.map((item, index) => (
                            <React.Fragment>
                               <div className="text-sm" key={index}>
                                  {item}

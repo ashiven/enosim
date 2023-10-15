@@ -1,61 +1,22 @@
 import TeamCard from "@/components/teams/teamcard"
 
-export default function TeamStats() {
+async function getData() {
+   const res = await fetch(`http://127.0.0.1:5000/teams`)
+   if (!res.ok) {
+      throw new Error("Failed to fetch data")
+   }
+   return res.json()
+}
+
+export default async function TeamStats() {
+   const teamJson = await getData()
+
    return (
       <div className="container mx-auto mt-12 mb-8">
          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <TeamCard
-               data={{
-                  name: "Kleinmazama",
-                  id: 2,
-                  subnet: "10.1.2.0",
-                  address: "10.1.2.1",
-                  experience: "Noob",
-                  points: 20000,
-                  gain: 200,
-                  exploiting: [
-                     "CVExchange-Flagstore0",
-                     "CVExchange-Flagstore0",
-                     "CVExchange-Flagstore0",
-                     "CVExchange-Flagstore0",
-                     "CVExchange-Flagstore0",
-                     "CVExchange-Flagstore0",
-                     "CVExchange-Flagstore0",
-                     "CVExchange-Flagstore0",
-                     "CVExchange-Flagstore0",
-                     "CVExchange-Flagstore0",
-                     "CVExchange-Flagstore0",
-                     "bollwerk",
-                  ],
-                  patched: [
-                     "CVExchange",
-                     "bollwerk",
-                     "bollwerk-Flagstore0",
-                     "bollwerk-Flagstore0",
-                     "bollwerk-Flagstore0",
-                     "bollwerk-Flagstore0",
-                     "bollwerk-Flagstore0",
-                     "bollwerk-Flagstore0",
-                     "bollwerk-Flagstore0",
-                     "bollwerk-Flagstore0",
-                     "bollwerk-Flagstore0",
-                     "bollwerk-Flagstore0",
-                  ],
-               }}
-            />
-            <TeamCard
-               data={{
-                  name: "Karibu",
-                  id: 1,
-                  subnet: "10.1.1.0",
-                  address: "10.1.1.1",
-                  experience: "Noob",
-                  points: 20000,
-                  gain: 200,
-                  exploiting: ["CVExchange", "bollwerk-Flagstore0"],
-                  patched: ["CVExchange", "bollwerk"],
-               }}
-            />
+            {Object.keys(teamJson).map((team: string) => (
+               <TeamCard data={teamJson[team]} />
+            ))}
          </div>
       </div>
    )
