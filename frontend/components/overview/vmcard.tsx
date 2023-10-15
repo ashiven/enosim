@@ -9,8 +9,8 @@ import {
 interface VMData {
    name: string
    status: string
-   cpu: string
-   memory: number
+   cpu: number
+   ram: number
    disk: number
    uptime: number
    ip: string
@@ -54,10 +54,10 @@ export default function VMCard(props: VMCardProps) {
                </PopoverTrigger>
                <PopoverContent>
                   <span className="font-bold">CPU: </span>
-                  <span>{props.data.cpu}</span>
+                  <span>{props.data.cpu} Cores</span>
                   <br />
                   <span className="font-bold">Memory: </span>
-                  <span>{props.data.memory} GB</span>
+                  <span>{props.data.ram} GB</span>
                   <br />
                   <span className="font-bold">Disk size: </span>
                   <span>{props.data.disk} GB</span>
