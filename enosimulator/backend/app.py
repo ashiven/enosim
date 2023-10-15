@@ -123,6 +123,16 @@ class VMs(Resource):
         return cls
 
 
+class VMList(Resource):
+    def get(self):
+        return self.response
+
+    @classmethod
+    def create_api(cls, response):
+        cls.response = response
+        return cls
+
+
 class FlaskApp:
     def __init__(self, setup, simulation, locks):
         self.app = Flask(__name__)
@@ -137,9 +147,11 @@ class FlaskApp:
         ServiceApi = Services.create_api(self.setup.services, self.locks["service"])
         TeamApi = Teams.create_api(self.setup.teams, self.locks["team"])
         VmApi = VMs.create_api()
+        VmListApi = VMList.create_api(list(self.setup.ips.public_ip_addresses.keys()))
         self.api.add_resource(TeamApi, "/teams")
         self.api.add_resource(ServiceApi, "/services")
         self.api.add_resource(VmApi, "/vminfo")
+        self.api.add_resource(VmListApi, "/vmlist")
 
     def run(self):
         log = logging.getLogger("werkzeug")
