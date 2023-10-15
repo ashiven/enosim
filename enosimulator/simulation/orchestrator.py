@@ -191,10 +191,12 @@ class Orchestrator:
     def submit_flags(self, team_address: str, flags: List[str]):
         self.flag_submitter.submit_flags(team_address, flags)
 
+    # TODO: -figure out why the status doesn't disappear from stdout
     def container_stats(self, team_addresses: Dict[str, str]):
         with self.console.status("[bold green]Getting container stats ..."):
             self.stat_checker.check_containers(team_addresses)
 
+    # TODO: -figure out why the status doesn't disappear from stdout
     def system_stats(self, team_addresses: Dict[str, str]):
         with self.console.status("[bold green]Getting system stats ..."):
             self.stat_checker.check_system(team_addresses)
