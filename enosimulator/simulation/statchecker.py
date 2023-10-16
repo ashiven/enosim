@@ -24,7 +24,9 @@ class StatChecker:
         self.console = Console()
 
     def check_containers(self, ip_addresses: Dict[str, str]):
-        container_status = self.console.status("[bold green]Checking containers...")
+        container_status = self.console.status(
+            "[bold green]Getting container stats ..."
+        )
         container_status.start()
 
         futures = dict()
@@ -44,7 +46,7 @@ class StatChecker:
                 self.console.print(container_stat_panel)
 
     def check_system(self, ip_addresses: Dict[str, str]):
-        system_status = self.console.status("[bold green]Checking system...")
+        system_status = self.console.status("[bold green]Getting system stats ...")
         system_status.start()
 
         futures = dict()
