@@ -24,6 +24,9 @@ class StatChecker:
         self.console = Console()
 
     def check_containers(self, ip_addresses: Dict[str, str]):
+        container_status = self.console.status("[bold green]Checking containers...")
+        container_status.start()
+
         futures = dict()
         with ThreadPoolExecutor(max_workers=20) as executor:
             for name, ip_address in ip_addresses.items():
@@ -34,12 +37,16 @@ class StatChecker:
             name: future.result() for name, future in futures.items()
         }
 
+        container_status.stop()
         if self.verbose:
             for name, container_stat_panel in container_stat_panels.items():
                 self.console.print(f"\n[bold red]Docker stats for {name}:")
                 self.console.print(container_stat_panel)
 
     def check_system(self, ip_addresses: Dict[str, str]):
+        system_status = self.console.status("[bold green]Checking system...")
+        system_status.start()
+
         futures = dict()
         with ThreadPoolExecutor(max_workers=20) as executor:
             for name, ip_address in ip_addresses.items():
@@ -48,6 +55,7 @@ class StatChecker:
 
         system_stat_panels = {name: future.result() for name, future in futures.items()}
 
+        system_status.stop()
         if self.verbose:
             for name, system_stat_panel in system_stat_panels.items():
                 self.console.print(f"\n[bold red]System stats for {name}:")

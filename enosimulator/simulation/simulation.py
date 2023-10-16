@@ -137,6 +137,7 @@ class Simulation:
             self._team_info(self.setup.teams.values())
 
         if self.verbose:
+            self.console.print("\n")
             for info_message in info_messages:
                 self.console.print(info_message)
             self.console.print("\n")
