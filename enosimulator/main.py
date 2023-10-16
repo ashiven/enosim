@@ -85,15 +85,14 @@ async def main():
         # Run backend Flask app in a separate thread
         app = FlaskApp(setup, simulation, locks)
         flask_thread = Thread(target=app.run)
+        flask_thread.daemon = True
         flask_thread.start()
 
         await simulation.run()
 
-        flask_thread.join()
         setup.destroy()
 
     except asyncio.exceptions.CancelledError:
-        flask_thread.join()
         setup.destroy()
 
 
