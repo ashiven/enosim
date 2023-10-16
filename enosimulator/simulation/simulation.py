@@ -98,14 +98,13 @@ class Simulation:
             # Instruct orchestrator to send out exploit requests
             team_flags = dict()
             async with asyncio.TaskGroup() as task_group:
-                async with async_lock(self.locks["team"]):
-                    for team in self.setup.teams.values():
-                        flags = await task_group.create_task(
-                            self.orchestrator.exploit(
-                                self.round_id, team, self.setup.teams.values()
-                            )
+                for team in self.setup.teams.values():
+                    flags = await task_group.create_task(
+                        self.orchestrator.exploit(
+                            self.round_id, team, self.setup.teams.values()
                         )
-                        team_flags[team.name] = (team.address, flags)
+                    )
+                    team_flags[team.name] = (team.address, flags)
 
             # Instruct orchestrator to submit flags
             with ThreadPoolExecutor(max_workers=20) as executor:
