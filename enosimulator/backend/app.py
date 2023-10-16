@@ -5,17 +5,6 @@ import sqlite3
 from flask import Flask, request
 from flask_restful import Api, Resource
 
-#### Helpers ####
-
-
-def _get_db_connection():
-    connection = sqlite3.connect("database.db")
-    connection.row_factory = sqlite3.Row
-    return connection
-
-
-#### End Helpers ####
-
 
 class Teams(Resource):
     def get(self):
@@ -50,7 +39,7 @@ class VMs(Resource):
         vm_name = request.args.get("name")
 
         if vm_name:
-            with _get_db_connection() as conn:
+            with FlaskApp.get_db_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
                     "SELECT * FROM vminfo WHERE name = ? AND measuretime > datetime('now', '-30 minutes') ORDER BY measuretime DESC",
@@ -96,7 +85,7 @@ class VMs(Resource):
         netrx = data["netrx"]
         nettx = data["nettx"]
 
-        with _get_db_connection() as conn:
+        with FlaskApp.get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
                 "INSERT INTO vminfo(name, ip, cpu, ram, disk, status, uptime, cpuusage, ramusage, netrx, nettx) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -166,6 +155,12 @@ class FlaskApp:
 
         connection.commit()
         connection.close()
+
+    @staticmethod
+    def get_db_connection():
+        connection = sqlite3.connect("database.db")
+        connection.row_factory = sqlite3.Row
+        return connection
 
     def delete_db(self):
         if os.path.exists("database.db"):
