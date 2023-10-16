@@ -77,15 +77,16 @@ class Simulation:
             start = time()
 
             # Go through all teams and perform the random test
-            async with async_lock(self.locks["team"]):
-                info_messages = []
-                for team_name, team in self.setup.teams.items():
-                    if _random_test(team):
-                        variant, service, flagstore = _exploit_or_patch(team)
-                        info_message = self._update_team(
-                            team_name, variant, service, flagstore
-                        )
-                        info_messages.append(info_message)
+            info_messages = []
+            if self.setup.config.settings.simulation_type == "realistic":
+                async with async_lock(self.locks["team"]):
+                    for team_name, team in self.setup.teams.items():
+                        if _random_test(team):
+                            variant, service, flagstore = _exploit_or_patch(team)
+                            info_message = self._update_team(
+                                team_name, variant, service, flagstore
+                            )
+                            info_messages.append(info_message)
 
             # Display all info relevant to the current round and parse the current scores from the scoreboard
             self.round_id = await self.orchestrator.get_round_info()

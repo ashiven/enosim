@@ -130,23 +130,8 @@ class Orchestrator:
 
     async def update_team_info(self):
         async with async_lock(self.locks["service"]):
-            for service_name, service in self.setup.services.items():
-                # Get service info from checker
-                checker_address = service.checkers[0]
-                response = await self.client.get(f"{checker_address}/service")
-                if response.status_code != 200:
-                    raise Exception(f"Failed to get {service_name}-info")
-                info: CheckerInfoMessage = jsons.loads(
-                    response.content,
-                    CheckerInfoMessage,
-                    key_transformer=jsons.KEY_TRANSFORMER_SNAKECASE,
-                )
-
-                # Store service checker port for later use
-                self.service_info[info.service_name] = (
-                    _port_from_address(checker_address),
-                    service_name,
-                )
+            for service in self.setup.services.values():
+                info = self._get_service_info(service)
 
                 async with async_lock(self.locks["team"]):
                     # Update Exploiting / Patched categories for each team
@@ -156,6 +141,9 @@ class Orchestrator:
                         for flagstore_id in range(info.exploit_variants):
                             team.exploiting[info.service_name].update(
                                 {f"Flagstore{flagstore_id}": False}
+                                if self.setup.config.settings.simulation_type
+                                == "realistic"
+                                else {f"Flagstore{flagstore_id}": True}
                             )
                             team.patched[info.service_name].update(
                                 {f"Flagstore{flagstore_id}": False}
@@ -201,9 +189,29 @@ class Orchestrator:
         with self.console.status("[bold green]Collecting analytics ..."):
             await self.stat_checker.system_analytics()
 
+    async def _get_service_info(self, service: Service) -> CheckerInfoMessage:
+        # Get service info from checker
+        checker_address = service.checkers[0]
+        response = await self.client.get(f"{checker_address}/service")
+        if response.status_code != 200:
+            raise Exception(f"Failed to get {service.name}-info")
+        info = jsons.loads(
+            response.content,
+            CheckerInfoMessage,
+            key_transformer=jsons.KEY_TRANSFORMER_SNAKECASE,
+        )
+
+        # Store service checker port for later use
+        self.service_info[info.service_name] = (
+            _port_from_address(checker_address),
+            service.name,
+        )
+
+        return info
+
     def _create_exploit_requests(
         self, round_id: int, team: Team, all_teams: List[Team]
-    ):
+    ) -> Dict:
         exploit_requests = dict()
         other_teams = [other_team for other_team in all_teams if other_team != team]
         for service, flagstores in team.exploiting.items():
@@ -237,12 +245,16 @@ class Orchestrator:
                             unique_variant_index=None,
                             attack_info=attack_info,
                         )
+
                         exploit_requests[
                             other_team.name, service, flagstore
                         ] = exploit_request
+
         return exploit_requests
 
-    async def _send_exploit_requests(self, team: Team, exploit_requests: Dict):
+    async def _send_exploit_requests(
+        self, team: Team, exploit_requests: Dict
+    ) -> List[str]:
         flags = []
         for (
             (_team_name, service, _flagstore),
@@ -284,7 +296,7 @@ class Orchestrator:
 
         return flags
 
-    def _get_team_scores(self):
+    def _get_team_scores(self) -> Dict:
         team_scores = dict()
         scoreboard_url = (
             f'http://{self.setup.ips.public_ip_addresses["engine"]}:5001/scoreboard'
