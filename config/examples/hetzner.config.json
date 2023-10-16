@@ -10,7 +10,7 @@
       }
    },
    "settings": {
-      "duration-in-minutes": 30,
+      "duration-in-minutes": 300,
       "teams": 2,
       "vulnboxes": 2,
       "services": ["enowars7-service-CVExchange", "enowars7-service-bollwerk"],
