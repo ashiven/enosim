@@ -30,7 +30,11 @@ export default function VMChart({ data }: any) {
                <TabsContent value="orders">
                   <Card>
                      <CardContent className="p-6">
-                        <MyBarChart data={data.ramData} fill="#ffce90" />
+                        <MyAreaGraph
+                           data={data.ramData}
+                           stroke="#00bd56"
+                           fill="#ccf3f3"
+                        />
                      </CardContent>
                   </Card>
                </TabsContent>
@@ -38,11 +42,7 @@ export default function VMChart({ data }: any) {
                <TabsContent value="customers">
                   <Card>
                      <CardContent className="p-6">
-                        <MyAreaGraph
-                           data={data.netData}
-                           stroke="#00bd56"
-                           fill="#ccf3f3"
-                        />
+                        <MyBarChart data={data.netData} fill="#ffce90" />
                      </CardContent>
                   </Card>
                </TabsContent>
