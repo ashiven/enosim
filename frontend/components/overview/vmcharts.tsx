@@ -39,7 +39,6 @@ function filterData(data: any) {
 
 export default async function VMCharts() {
    const vmList = await getVmList()
-   //console.log(filterData(await getData("engine")))
 
    return (
       <div>
