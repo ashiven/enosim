@@ -154,7 +154,6 @@ class ConfigSetup:
 class ConfigSettings:
     duration_in_minutes: int
     teams: int
-    vulnboxes: int
     services: List[str]
     checker_ports: List[int]
     simulation_type: str
@@ -164,7 +163,6 @@ class ConfigSettings:
         new_settings = ConfigSettings(
             duration_in_minutes=settings["duration-in-minutes"],
             teams=settings["teams"],
-            vulnboxes=settings["vulnboxes"],
             services=settings["services"],
             checker_ports=settings["checker-ports"],
             simulation_type=settings["simulation-type"],

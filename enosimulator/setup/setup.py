@@ -207,7 +207,7 @@ class Setup:
 
         # Add ip addresses for teams to ctf.json and self.teams
         for id, team in enumerate(ctf_json["teams"]):
-            vulnboxes = self.config.settings.vulnboxes
+            vulnboxes = self.config.settings.teams
             vulnbox_id = (id % vulnboxes) + 1
             team["address"] = self.ips.private_ip_addresses[f"vulnbox{vulnbox_id}"]
             team["teamSubnet"] = (

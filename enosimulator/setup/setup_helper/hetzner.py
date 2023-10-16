@@ -50,12 +50,12 @@ class HetznerSetupHelper(Helper):
         await replace_line(
             f"{self.setup_path}/build.sh",
             ENGINE_PRIVATE_IP_LINE,
-            f'engine_private_ip="10.1.{self.config.settings.vulnboxes + 2}.1"\n',
+            f'engine_private_ip="10.1.{self.config.settings.teams + 2}.1"\n',
         )
 
         # Configure ip address parsing
         lines = []
-        for vulnbox_id in range(1, self.config.settings.vulnboxes + 1):
+        for vulnbox_id in range(1, self.config.settings.teams + 1):
             lines.append(
                 f"vulnbox{vulnbox_id}_ip=$(grep -oP '\"vulnbox{vulnbox_id}\"\s*=\s*\K[^\s]+' ./logs/ip_addresses.log | sed 's/\"//g')\n"
             )
@@ -63,7 +63,7 @@ class HetznerSetupHelper(Helper):
 
         # Configure writing ssh config
         lines = []
-        for vulnbox_id in range(1, self.config.settings.vulnboxes + 1):
+        for vulnbox_id in range(1, self.config.settings.teams + 1):
             lines.append(
                 f'echo -e "Host vulnbox{vulnbox_id}\\nUser root\\nHostName ${{vulnbox{vulnbox_id}_ip}}\\nIdentityFile ${{ssh_private_key_path}}\\nStrictHostKeyChecking no\\nLocalForward 1337 ${{engine_private_ip}}:1337\\n" >>${{ssh_config}}\n'
             )
@@ -92,7 +92,7 @@ class HetznerSetupHelper(Helper):
 
         # Configure vulnbox deployments
         lines = []
-        for vulnbox_id in range(1, self.config.settings.vulnboxes + 1):
+        for vulnbox_id in range(1, self.config.settings.teams + 1):
             lines.append(
                 f'\necho -e "\\n\\033[32m[+] Configuring vulnbox{vulnbox_id} ...\\033[0m"\n'
             )
@@ -148,7 +148,7 @@ class HetznerSetupHelper(Helper):
         lines = []
         lines.append(
             f'resource "hcloud_network_subnet" "snet" {{\n'
-            f"  count = {self.config.settings.vulnboxes + 2}\n"
+            f"  count = {self.config.settings.teams + 2}\n"
             '  type = "cloud"\n'
             + "  network_id = hcloud_network.vnet.id\n"
             + '  network_zone = "eu-central"\n'
@@ -168,7 +168,7 @@ class HetznerSetupHelper(Helper):
             + '  image = "ubuntu-20.04"\n'
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
-            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config.settings.vulnboxes + 1}.1"\n  }}\n'
+            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config.settings.teams + 1}.1"\n  }}\n'
             + "  public_net {\n    ipv4_enabled = true\n    ipv6_enabled = false\n  }\n"
             + f"  depends_on = [\n    hcloud_network_subnet.snet\n  ]\n"
             + "}\n"
@@ -180,14 +180,14 @@ class HetznerSetupHelper(Helper):
             + '  image = "ubuntu-20.04"\n'
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
-            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config.settings.vulnboxes + 2}.1"\n  }}\n'
+            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config.settings.teams + 2}.1"\n  }}\n'
             + "  public_net {\n    ipv4_enabled = true\n    ipv6_enabled = false\n  }\n"
             + f"  depends_on = [\n    hcloud_network_subnet.snet\n  ]\n"
             + "}\n"
         )
         lines.append(
             'resource "hcloud_server" "vulnbox_vm" {\n'
-            f"  count = {self.config.settings.vulnboxes}\n"
+            f"  count = {self.config.settings.teams}\n"
             f'  name = "vulnbox${{count.index + 1}}"\n'
             + f'  server_type = "{self.config.setup.vm_size}"\n'
             + '  image = "ubuntu-20.04"\n'
@@ -334,9 +334,9 @@ class HetznerSetupHelper(Helper):
 
         # Set private ip addresses
         private_ip_addresses = dict()
-        for vulnbox_id in range(1, self.config.settings.vulnboxes + 1):
+        for vulnbox_id in range(1, self.config.settings.teams + 1):
             private_ip_addresses[f"vulnbox{vulnbox_id}"] = f"10.1.{vulnbox_id}.1"
-        private_ip_addresses["checker"] = f"10.1.{self.config.settings.vulnboxes + 1}.1"
-        private_ip_addresses["engine"] = f"10.1.{self.config.settings.vulnboxes + 2}.1"
+        private_ip_addresses["checker"] = f"10.1.{self.config.settings.teams + 1}.1"
+        private_ip_addresses["engine"] = f"10.1.{self.config.settings.teams + 2}.1"
 
         return ip_addresses, private_ip_addresses

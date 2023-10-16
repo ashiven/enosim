@@ -48,7 +48,7 @@ class AzureSetupHelper(Helper):
 
         # Configure ip address parsing
         lines = []
-        for vulnbox_id in range(1, self.config.settings.vulnboxes + 1):
+        for vulnbox_id in range(1, self.config.settings.teams + 1):
             lines.append(
                 f'vulnbox{vulnbox_id}_ip=$(grep -oP "vulnbox{vulnbox_id}\s*=\s*\K[^\s]+" ./logs/ip_addresses.log | sed \'s/"//g\')\n'
             )
@@ -56,7 +56,7 @@ class AzureSetupHelper(Helper):
 
         # Configure writing ssh config
         lines = []
-        for vulnbox_id in range(1, self.config.settings.vulnboxes + 1):
+        for vulnbox_id in range(1, self.config.settings.teams + 1):
             lines.append(
                 f'echo -e "Host vulnbox{vulnbox_id}\\nUser groot\\nHostName ${{vulnbox{vulnbox_id}_ip}}\\nIdentityFile ${{ssh_private_key_path}}\\nStrictHostKeyChecking no\\nLocalForward 1337 ${{engine_private_ip}}:1337\\n" >>${{ssh_config}}\n'
             )
@@ -85,7 +85,7 @@ class AzureSetupHelper(Helper):
 
         # Configure vulnbox deployments
         lines = []
-        for vulnbox_id in range(1, self.config.settings.vulnboxes + 1):
+        for vulnbox_id in range(1, self.config.settings.teams + 1):
             lines.append(
                 f'\necho -e "\\n\\033[32m[+] Configuring vulnbox{vulnbox_id} ...\\033[0m"\n'
             )
@@ -178,7 +178,7 @@ class AzureSetupHelper(Helper):
         await replace_line(
             f"{self.setup_path}/variables.tf",
             TF_LINE_COUNT,
-            f"  default = {self.config.settings.vulnboxes}\n",
+            f"  default = {self.config.settings.teams}\n",
         )
 
         # Configure vm image references in variables.tf
@@ -196,8 +196,8 @@ class AzureSetupHelper(Helper):
         await insert_after(
             f"{self.setup_path}/variables.tf",
             '      name = "engine"',
-            f'      subnet_id = {self.config["settings"]["vulnboxes"] + 2}\n'
-            + f'      size = "{self.config["setup"]["vm-size"]}"\n'
+            f"      subnet_id = {self.config.settings.teams + 2}\n"
+            + f'      size = "{self.config.setup.vm_size}"\n'
             + f'      source_image_id = "{basepath}/{self.config.setup.vm_image_references["engine"]}"\n'
             if self.use_vm_images
             else "",
@@ -205,8 +205,8 @@ class AzureSetupHelper(Helper):
         await insert_after(
             f"{self.setup_path}/variables.tf",
             '      name = "checker"',
-            f'      subnet_id = {self.config["settings"]["vulnboxes"] + 1}\n'
-            + f'      size = "{self.config["setup"]["vm-size"]}"\n'
+            f"      subnet_id = {self.config.settings.teams + 1}\n"
+            + f'      size = "{self.config.setup.vm_size}"\n'
             + f'      source_image_id = "{basepath}/{self.config.setup.vm_image_references["checker"]}"\n'
             if self.use_vm_images
             else "",
@@ -215,7 +215,7 @@ class AzureSetupHelper(Helper):
             f"{self.setup_path}/variables.tf",
             '        name = "vulnbox${vulnbox_id}"',
             f"        subnet_id = vulnbox_id\n"
-            + f'        size = "{self.config["setup"]["vm-size"]}"\n'
+            + f'        size = "{self.config.setup.vm_size}"\n'
             + f'        source_image_id = "{basepath}/{self.config.setup.vm_image_references["vulnbox"]}"\n'
             if self.use_vm_images
             else "",
@@ -223,7 +223,7 @@ class AzureSetupHelper(Helper):
 
         # Add terraform outputs for private and public ip addresses
         lines = []
-        for vulnbox_id in range(1, self.config.settings.vulnboxes + 1):
+        for vulnbox_id in range(1, self.config.settings.teams + 1):
             lines.append(
                 f'output "vulnbox{vulnbox_id}" {{\n  value = azurerm_public_ip.vm_pip["vulnbox{vulnbox_id}"].ip_address\n}}\n'
             )
