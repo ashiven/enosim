@@ -61,7 +61,11 @@ export default function Navbar() {
                            </Link>
                         </NavigationMenuItem>
                         <NavigationMenuItem>
-                           <Link href="/docs" legacyBehavior passHref>
+                           <Link
+                              href="https://github.com/ashiven/enosimulator/blob/main/docs/README.md"
+                              legacyBehavior
+                              passHref
+                           >
                               <NavigationMenuLink
                                  className={navigationMenuTriggerStyle()}
                               >
