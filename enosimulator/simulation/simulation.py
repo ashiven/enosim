@@ -90,9 +90,9 @@ class Simulation:
             # Display all info relevant to the current round and parse the current scores from the scoreboard
             self.round_id = await self.orchestrator.get_round_info()
             parse_thread = Thread(target=self.orchestrator.parse_scoreboard)
-            parse_thread.daemon = True
             parse_thread.start()
             self.round_info(info_messages, rounds - round_)
+            parse_thread.join()
 
             # Instruct orchestrator to send out exploit requests
             team_flags = dict()
