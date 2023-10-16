@@ -131,7 +131,7 @@ class Orchestrator:
     async def update_team_info(self):
         async with async_lock(self.locks["service"]):
             for service in self.setup.services.values():
-                info = self._get_service_info(service)
+                info = await self._get_service_info(service)
 
                 async with async_lock(self.locks["team"]):
                     # Update Exploiting / Patched categories for each team
