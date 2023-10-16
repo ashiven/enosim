@@ -4,6 +4,7 @@ import random
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from threading import Thread
+from time import time
 from typing import Dict, List
 
 from rich.console import Console
@@ -67,11 +68,14 @@ class Simulation:
                 await self.orchestrator.get_round_info()
                 await asyncio.sleep(2)
 
+        # Calculate the number of rounds needed to complete the simulation
         rounds = self.setup.config.settings.duration_in_minutes * (
             60 // self.setup.config.ctf_json.round_length_in_seconds
         )
 
         for round_ in range(rounds):
+            start = time()
+
             # Go through all teams and perform the random test
             async with async_lock(self.locks["team"]):
                 info_messages = []
@@ -113,9 +117,13 @@ class Simulation:
             # Send system statistics to the analytics server at the end of each round
             await self.orchestrator.system_analytics()
 
-            # TODO:
-            # - we have to take into account the time it takes to reach this point and subtract it from the sleep time
-            await asyncio.sleep(self.setup.config.ctf_json.round_length_in_seconds)
+            # Wait for the round to end
+            end = time()
+            round_duration = end - start
+            if round_duration < self.setup.config.ctf_json.round_length_in_seconds:
+                await asyncio.sleep(
+                    self.setup.config.ctf_json.round_length_in_seconds - round_duration
+                )
 
     def round_info(self, info_messages: List[str], remaining: int):
         os.system("cls" if sys.platform == "win32" else "clear")
