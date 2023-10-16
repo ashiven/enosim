@@ -93,11 +93,6 @@ def _generate_service(id: int, service: str, checker_port: int, simulation_type:
         "weightFactor": 1,
         "checkers": [str(checker_port)],
     }
-    if simulation_type == "stress-test":
-        new_service["flagsPerRoundMultiplier"] = 10
-        new_service["noisesPerRoundMultiplier"] = 10
-        new_service["havocsPerRoundMultiplier"] = 10
-        new_service["weightFactor"] = 1
     return new_service
 
 
