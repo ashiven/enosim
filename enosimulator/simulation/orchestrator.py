@@ -12,8 +12,10 @@ from enochecker_core import (
     CheckerTaskMessage,
     CheckerTaskResult,
 )
+from retry import retry
 from rich.console import Console
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -296,6 +298,7 @@ class Orchestrator:
 
         return flags
 
+    @retry(TimeoutException, tries=2, delay=1)
     def _get_team_scores(self) -> Dict:
         team_scores = dict()
         scoreboard_url = (
