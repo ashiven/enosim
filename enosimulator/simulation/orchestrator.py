@@ -96,17 +96,6 @@ def _port_from_address(address: str):
     return port
 
 
-def _parse_rounds(attack_info: Dict):
-    try:
-        first_service = list(attack_info["services"].values())[0]
-        first_team = list(first_service.values())[0]
-        prev_round = list(first_team.keys())[0]
-        current_round = list(first_team.keys())[1]
-    except:
-        prev_round, current_round = 1, 1
-    return int(prev_round), int(current_round)
-
-
 def _private_to_public_ip(ip_addresses: IpAddresses):
     return {
         ip_addresses.private_ip_addresses[team_name]: ip_addresses.public_ip_addresses[
@@ -167,7 +156,7 @@ class Orchestrator:
             return None
 
         self.attack_info = attack_info
-        _prev_round, current_round = _parse_rounds(self.attack_info)
+        _prev_round, current_round = self._parse_rounds(self.attack_info)
         return current_round
 
     def parse_scoreboard(self):
@@ -177,6 +166,12 @@ class Orchestrator:
                 team.points = team_scores[team.name][0]
                 team.gain = team_scores[team.name][1]
 
+    def container_stats(self, team_addresses: Dict[str, str]):
+        self.stat_checker.check_containers(team_addresses)
+
+    def system_stats(self, team_addresses: Dict[str, str]):
+        self.stat_checker.check_system(team_addresses)
+
     async def exploit(self, round_id: int, team: Team, all_teams: List[Team]):
         exploit_requests = self._create_exploit_requests(round_id, team, all_teams)
         flags = await self._send_exploit_requests(team, exploit_requests)
@@ -184,12 +179,6 @@ class Orchestrator:
 
     def submit_flags(self, team_address: str, flags: List[str]):
         self.flag_submitter.submit_flags(team_address, flags)
-
-    def container_stats(self, team_addresses: Dict[str, str]):
-        self.stat_checker.check_containers(team_addresses)
-
-    def system_stats(self, team_addresses: Dict[str, str]):
-        self.stat_checker.check_system(team_addresses)
 
     async def system_analytics(self):
         with self.console.status("[bold green]Collecting analytics ..."):
@@ -214,6 +203,46 @@ class Orchestrator:
         )
 
         return info
+
+    def _parse_rounds(self, attack_info: Dict):
+        try:
+            first_service = list(attack_info["services"].values())[0]
+            first_team = list(first_service.values())[0]
+            prev_round = list(first_team.keys())[0]
+            current_round = list(first_team.keys())[1]
+        except:
+            prev_round, current_round = 1, 1
+        return int(prev_round), int(current_round)
+
+    @retry(TimeoutException, tries=2, delay=1)
+    def _get_team_scores(self) -> Dict:
+        team_scores = dict()
+        scoreboard_url = (
+            f'http://{self.setup.ips.public_ip_addresses["engine"]}:5001/scoreboard'
+        )
+
+        options = Options()
+        options.headless = True
+        options.add_experimental_option("excludeSwitches", ["enable-logging"])
+        driver = webdriver.Chrome(
+            service=Service(ChromeDriverManager().install()), options=options
+        )
+        driver.get(scoreboard_url)
+
+        wait = WebDriverWait(driver, 10)
+        wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "otherrow")))
+
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+        rows = soup.find_all("tr", class_="otherrow")
+
+        for row in rows:
+            [points, gain] = row.find("td", class_="team-score").text.strip().split(" ")
+            team_name = row.find("div", class_="team-name").find("a").text.strip()
+            team_scores[team_name] = (float(points), float(gain[2:-1]))
+
+        driver.quit()
+
+        return team_scores
 
     def _create_exploit_requests(
         self, round_id: int, team: Team, all_teams: List[Team]
@@ -301,33 +330,3 @@ class Orchestrator:
                 flags.append(exploit_result.flag)
 
         return flags
-
-    @retry(TimeoutException, tries=2, delay=1)
-    def _get_team_scores(self) -> Dict:
-        team_scores = dict()
-        scoreboard_url = (
-            f'http://{self.setup.ips.public_ip_addresses["engine"]}:5001/scoreboard'
-        )
-
-        options = Options()
-        options.headless = True
-        options.add_experimental_option("excludeSwitches", ["enable-logging"])
-        driver = webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()), options=options
-        )
-        driver.get(scoreboard_url)
-
-        wait = WebDriverWait(driver, 10)
-        wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "otherrow")))
-
-        soup = BeautifulSoup(driver.page_source, "html.parser")
-        rows = soup.find_all("tr", class_="otherrow")
-
-        for row in rows:
-            [points, gain] = row.find("td", class_="team-score").text.strip().split(" ")
-            team_name = row.find("div", class_="team-name").find("a").text.strip()
-            team_scores[team_name] = (float(points), float(gain[2:-1]))
-
-        driver.quit()
-
-        return team_scores
