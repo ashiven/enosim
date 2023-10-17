@@ -1,6 +1,6 @@
 import json
 import os
-from subprocess import PIPE, STDOUT, CalledProcessError, Popen
+from subprocess import PIPE, STDOUT, CalledProcessError, Popen, run
 
 import aiofiles
 from rich.console import Console
@@ -104,7 +104,6 @@ class Setup:
         self,
         config: Config,
         secrets: Secrets,
-        skip_infra: bool,
         setup_path: str,
         setup_helper: SetupHelper,
         verbose: bool,
@@ -115,9 +114,9 @@ class Setup:
         self.verbose = verbose
         self.config = config
         self.secrets = secrets
-        self.skip_infra = skip_infra
         self.setup_path = setup_path
         self.setup_helper = setup_helper
+        self.skip_infra = self._existing_infra()
         self.console = Console()
 
     @classmethod
@@ -125,7 +124,6 @@ class Setup:
         cls,
         config_path: str,
         secrets_path: str,
-        skip_infra: bool = False,
         verbose: bool = False,
     ):
         config_json = await _parse_json(config_path)
@@ -136,7 +134,7 @@ class Setup:
         dir_path = dir_path.replace("\\", "/")
         setup_path = f"{dir_path}/../../test-setup/{config.setup.location}"
         setup_helper = SetupHelper(config, secrets)
-        return cls(config, secrets, skip_infra, setup_path, setup_helper, verbose)
+        return cls(config, secrets, setup_path, setup_helper, verbose)
 
     async def build(self):
         await self.configure()
@@ -287,3 +285,21 @@ class Setup:
         for name, ip_address in private_ips.items():
             table.add_row(name, ip_address)
         self.console.print(table)
+
+    def _existing_infra(self):
+        try:
+            stdout = run(
+                ["terraform", "show"],
+                check=True,
+                cwd=self.setup_path,
+                capture_output=True,
+                text=True,
+            ).stdout
+
+            if "No state." in stdout:
+                return False
+            else:
+                return True
+
+        except CalledProcessError as e:
+            return False

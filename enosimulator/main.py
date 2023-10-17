@@ -40,12 +40,6 @@ async def main():
         help="Explicitly destroy the setup including all infrastructure in case of an unexpected error",
     )
     parser.add_argument(
-        "-S",
-        "--skip_infra",
-        action="store_true",
-        help="Skip building and configuring infrastructure if it has already been built",
-    )
-    parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
@@ -71,9 +65,7 @@ async def main():
         return
 
     try:
-        setup = await Setup.new(
-            args.config, args.secrets, args.skip_infra, args.verbose
-        )
+        setup = await Setup.new(args.config, args.secrets, args.verbose)
         await setup.build()
 
         # Create thread locks for services, vms and teams
