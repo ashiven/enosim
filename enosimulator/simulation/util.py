@@ -69,9 +69,9 @@ def checker_request(
     )
 
 
-def req_to_json(request_message: CheckerTaskMessage):
+def req_to_json(request: CheckerTaskMessage):
     return jsons.dumps(
-        request_message,
+        request,
         use_enum_name=False,
         key_transformer=jsons.KEY_TRANSFORMER_CAMELCASE,
         strict=True,
