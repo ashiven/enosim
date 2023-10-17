@@ -301,5 +301,5 @@ class Setup:
             else:
                 return True
 
-        except CalledProcessError as e:
+        except CalledProcessError:
             return False
