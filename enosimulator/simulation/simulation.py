@@ -14,29 +14,6 @@ from setup.types import OrchestratorType, SetupType, Team
 from .orchestrator import Orchestrator
 from .util import async_lock
 
-#### Helpers ####
-
-
-def _random_test(team: Team):
-    probability = team.experience.value[0]
-    random_value = random.random()
-    return random_value < probability
-
-
-def _exploit_or_patch(team: Team):
-    random_variant = random.choice(["exploiting", "patched"])
-    if random_variant == "exploiting":
-        random_service = random.choice(list(team.exploiting))
-        random_flagstore = random.choice(list(team.exploiting[random_service]))
-    else:
-        random_service = random.choice(list(team.patched))
-        random_flagstore = random.choice(list(team.patched[random_service]))
-
-    return random_variant, random_service, random_flagstore
-
-
-#### End Helpers ####
-
 
 class Simulation:
     def __init__(
@@ -81,8 +58,8 @@ class Simulation:
             if self.setup.config.settings.simulation_type == "realistic":
                 async with async_lock(self.locks["team"]):
                     for team_name, team in self.setup.teams.items():
-                        if _random_test(team):
-                            variant, service, flagstore = _exploit_or_patch(team)
+                        if self._random_test(team):
+                            variant, service, flagstore = self._exploit_or_patch(team)
                             info_message = self._update_team(
                                 team_name, variant, service, flagstore
                             )
@@ -149,6 +126,22 @@ class Simulation:
             for info_message in info_messages:
                 self.console.print(info_message)
             self.console.print("\n")
+
+    def _random_test(self, team: Team):
+        probability = team.experience.value[0]
+        random_value = random.random()
+        return random_value < probability
+
+    def _exploit_or_patch(self, team: Team):
+        random_variant = random.choice(["exploiting", "patched"])
+        if random_variant == "exploiting":
+            random_service = random.choice(list(team.exploiting))
+            random_flagstore = random.choice(list(team.exploiting[random_service]))
+        else:
+            random_service = random.choice(list(team.patched))
+            random_flagstore = random.choice(list(team.patched[random_service]))
+
+        return random_variant, random_service, random_flagstore
 
     def _update_team(self, team_name: str, variant: str, service: str, flagstore: str):
         if variant == "exploiting":

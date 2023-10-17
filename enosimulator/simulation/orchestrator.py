@@ -1,17 +1,9 @@
-import secrets
-import urllib
 from typing import Dict, List
 
 import httpx
 import jsons
 from bs4 import BeautifulSoup
-from enochecker_core import (
-    CheckerInfoMessage,
-    CheckerMethod,
-    CheckerResultMessage,
-    CheckerTaskMessage,
-    CheckerTaskResult,
-)
+from enochecker_core import CheckerInfoMessage, CheckerResultMessage, CheckerTaskResult
 from retry import retry
 from rich.console import Console
 from selenium import webdriver
@@ -21,91 +13,22 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from setup.types import IpAddresses, SetupType, Team
+from setup.types import SetupType, Team
 from webdriver_manager.chrome import ChromeDriverManager
 
 from .flagsubmitter import FlagSubmitter
 from .statchecker import StatChecker
-from .util import async_lock
+from .util import (
+    REQUEST_TIMEOUT,
+    async_lock,
+    checker_request,
+    port_from_address,
+    private_to_public_ip,
+    req_to_json,
+)
 
 FLAG_REGEX_ASCII = r"ENO[A-Za-z0-9+\/=]{48}"
-CHAIN_ID_PREFIX = secrets.token_hex(20)
-REQUEST_TIMEOUT = 10
-
-#### Helpers ####
-
-
-def _checker_request(
-    method: str,
-    round_id: int,
-    team_id: int,
-    team_name: str,
-    variant_id: int,
-    service_address: str,
-    flag: str,
-    unique_variant_index: int,
-    flag_regex: str,
-    flag_hash: str,
-    attack_info: str,
-):
-    # Generate a unique task chain id for each task according to enoengine specs
-    if not unique_variant_index:
-        unique_variant_index = variant_id
-    prefix = "havoc"
-    if method in ("putflag", "getflag"):
-        prefix = "flag"
-    elif method in ("putnoise", "getnoise"):
-        prefix = "noise"
-    elif method == "exploit":
-        prefix = "exploit"
-    task_chain_id = (
-        f"{CHAIN_ID_PREFIX}_{prefix}_s0_r{round_id}_t0_i{unique_variant_index}"
-    )
-
-    return CheckerTaskMessage(
-        task_id=round_id,
-        method=CheckerMethod(method),
-        address=service_address,
-        team_id=team_id,
-        team_name=team_name,
-        current_round_id=round_id,
-        related_round_id=round_id,
-        flag=flag,
-        variant_id=variant_id,
-        timeout=REQUEST_TIMEOUT * 1000,
-        round_length=60000,
-        task_chain_id=task_chain_id,
-        flag_regex=flag_regex,
-        flag_hash=flag_hash,
-        attack_info=attack_info,
-    )
-
-
-def _req_to_json(request_message: CheckerTaskMessage):
-    return jsons.dumps(
-        request_message,
-        use_enum_name=False,
-        key_transformer=jsons.KEY_TRANSFORMER_CAMELCASE,
-        strict=True,
-    )
-
-
-def _port_from_address(address: str):
-    url = urllib.parse.urlparse(address)
-    host, _, port = url.netloc.partition(":")
-    return port
-
-
-def _private_to_public_ip(ip_addresses: IpAddresses):
-    return {
-        ip_addresses.private_ip_addresses[team_name]: ip_addresses.public_ip_addresses[
-            team_name
-        ]
-        for team_name in ip_addresses.private_ip_addresses
-    }
-
-
-#### End Helpers ####
+FLAG_HASH = "ignore_flag_hash"
 
 
 class Orchestrator:
@@ -114,7 +37,7 @@ class Orchestrator:
         self.verbose = verbose
         self.locks = locks
         self.service_info = dict()
-        self.private_to_public_ip = _private_to_public_ip(self.setup.ips)
+        self.private_to_public_ip = private_to_public_ip(self.setup.ips)
         self.attack_info = None
         self.client = httpx.AsyncClient()
         self.flag_submitter = FlagSubmitter(
@@ -198,7 +121,7 @@ class Orchestrator:
 
         # Store service checker port for later use
         self.service_info[info.service_name] = (
-            _port_from_address(checker_address),
+            port_from_address(checker_address),
             service.name,
         )
 
@@ -267,7 +190,7 @@ class Orchestrator:
                         except:
                             attack_info = None
 
-                        exploit_request = _checker_request(
+                        exploit_request = checker_request(
                             method="exploit",
                             round_id=round_id,
                             team_id=other_team.id,
@@ -276,7 +199,7 @@ class Orchestrator:
                             service_address=other_team.address,
                             flag_regex=FLAG_REGEX_ASCII,
                             flag=None,
-                            flag_hash="ignore_flag_hash",
+                            flag_hash=FLAG_HASH,
                             unique_variant_index=None,
                             attack_info=attack_info,
                         )
@@ -309,7 +232,7 @@ class Orchestrator:
 
             r = await self.client.post(
                 exploit_checker_address,
-                data=_req_to_json(exploit_request),
+                data=req_to_json(exploit_request),
                 headers={"Content-Type": "application/json"},
                 timeout=REQUEST_TIMEOUT,
             )
