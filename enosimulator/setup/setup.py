@@ -40,6 +40,7 @@ def _delete_files(path: str):
 
 
 def _execute_command(cmd: str):
+    console = Console()
     try:
         p = Popen(
             cmd,
@@ -59,13 +60,12 @@ def _execute_command(cmd: str):
 
         p.wait()
         if p.returncode != 0:
-            c = Console()
-            c.print(
+            console.print(
                 f"\n[bold red][!] Process exited with return code: {p.returncode}\n"
             )
 
     except CalledProcessError as e:
-        print(e)
+        console.print(e)
 
 
 def _generate_ctf_json():
@@ -232,14 +232,22 @@ class Setup:
                 _execute_command(f"sh {self.setup_path}/deploy.sh")
 
     def destroy(self):
-        with self.console.status("[bold red]Destroying infrastructure ..."):
-            _execute_command(f"sh {self.setup_path}/build.sh -d")
+        try:
+            with self.console.status("[bold red]Destroying infrastructure ..."):
+                _execute_command(f"sh {self.setup_path}/build.sh -d")
 
-        # Delete all files created for this setup
-        _delete_files(f"{self.setup_path}")
-        _delete_files(f"{self.setup_path}/config")
-        _delete_files(f"{self.setup_path}/data")
-        _delete_files(f"{self.setup_path}/logs")
+            # Delete all files created for this setup
+            _delete_files(f"{self.setup_path}")
+            _delete_files(f"{self.setup_path}/config")
+            _delete_files(f"{self.setup_path}/data")
+            _delete_files(f"{self.setup_path}/logs")
+
+        except:
+            # Delete all files created for this setup
+            _delete_files(f"{self.setup_path}")
+            _delete_files(f"{self.setup_path}/config")
+            _delete_files(f"{self.setup_path}/data")
+            _delete_files(f"{self.setup_path}/logs")
 
     def info(self):
         table = Table(title="Teams")

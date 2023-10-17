@@ -58,9 +58,7 @@ async def main():
             "Please supply the path to a secrets file or set the ENOSIMULATOR_SECRETS environment variable"
         )
     if args.destroy:
-        setup = await Setup.new(
-            args.config, args.secrets, args.skip_infra, args.verbose
-        )
+        setup = await Setup.new(args.config, args.secrets, args.verbose)
         setup.destroy()
         return
 
