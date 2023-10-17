@@ -4,17 +4,6 @@ import paramiko
 from rich.console import Console
 from setup.types import Config, IpAddresses, Secrets, SetupVariant
 
-#### Helpers ####
-
-
-def _private_to_public_ip(ip_addresses: IpAddresses, team_address: str):
-    for name, ip_address in ip_addresses.private_ip_addresses.items():
-        if ip_address == team_address:
-            return name, ip_addresses.public_ip_addresses[name]
-
-
-#### End Helpers ####
-
 
 class FlagSubmitter:
     def __init__(
@@ -41,9 +30,7 @@ class FlagSubmitter:
 
         with paramiko.SSHClient() as client:
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            vm_name, team_address = _private_to_public_ip(
-                self.ip_addresses, team_address
-            )
+            vm_name, team_address = self._private_to_public_ip(team_address)
             client.connect(
                 hostname=team_address,
                 username=self.usernames[
@@ -65,3 +52,8 @@ class FlagSubmitter:
                 channel.send(flag_str.encode())
                 if self.verbose:
                     self.console.log(f"[bold blue]Submitted {flag_str}for {vm_name}\n")
+
+    def _private_to_public_ip(self, team_address: str):
+        for name, ip_address in self.ip_addresses.private_ip_addresses.items():
+            if ip_address == team_address:
+                return name, self.ip_addresses.public_ip_addresses[name]
