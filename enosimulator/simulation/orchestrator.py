@@ -107,10 +107,13 @@ def _parse_rounds(attack_info: Dict):
     return int(prev_round), int(current_round)
 
 
-def _private_to_public_ip(ip_addresses: IpAddresses, team_address: str):
-    for name, ip_address in ip_addresses.private_ip_addresses.items():
-        if ip_address == team_address:
-            return ip_addresses.public_ip_addresses[name]
+def _private_to_public_ip(ip_addresses: IpAddresses):
+    return {
+        ip_addresses.private_ip_addresses[team_name]: ip_addresses.public_ip_addresses[
+            team_name
+        ]
+        for team_name in ip_addresses.private_ip_addresses
+    }
 
 
 #### End Helpers ####
@@ -122,6 +125,7 @@ class Orchestrator:
         self.verbose = verbose
         self.locks = locks
         self.service_info = dict()
+        self.private_to_public_ip = _private_to_public_ip(self.setup.ips)
         self.attack_info = None
         self.client = httpx.AsyncClient()
         self.flag_submitter = FlagSubmitter(
@@ -259,10 +263,10 @@ class Orchestrator:
     ) -> List[str]:
         flags = []
         for (
-            (_team_name, service, _flagstore),
+            (team_name, service, flagstore),
             exploit_request,
         ) in exploit_requests.items():
-            exploit_checker_ip = _private_to_public_ip(self.setup.ips, team.address)
+            exploit_checker_ip = self.private_to_public_ip[team.address]
             exploit_checker_port = self.service_info[service][0]
             exploit_checker_address = (
                 f"http://{exploit_checker_ip}:{exploit_checker_port}"
@@ -270,7 +274,7 @@ class Orchestrator:
 
             if self.verbose:
                 self.console.log(
-                    f"[bold green]{team.name} :anger_symbol: {_team_name}-{service}-{_flagstore}"
+                    f"[bold green]{team.name} :anger_symbol: {team_name}-{service}-{flagstore}"
                 )
                 self.console.log(exploit_request)
 
