@@ -36,7 +36,6 @@ def checker_request(
     flag_hash: str,
     attack_info: str,
 ):
-    # Generate a unique task chain id for each task according to enoengine specs
     if not unique_variant_index:
         unique_variant_index = variant_id
     prefix = "havoc"
@@ -80,7 +79,7 @@ def req_to_json(request: CheckerTaskMessage):
 
 def port_from_address(address: str):
     url = urllib.parse.urlparse(address)
-    host, _, port = url.netloc.partition(":")
+    _, _, port = url.netloc.partition(":")
     return port
 
 
