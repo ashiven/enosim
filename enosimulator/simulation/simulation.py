@@ -38,12 +38,7 @@ class Simulation:
 
     async def run(self):
         # Wait for the scoreboard to become available
-        with self.console.status(
-            "[bold green]Waiting for scoreboard to become available ..."
-        ):
-            while not self.orchestrator.attack_info:
-                await self.orchestrator.get_round_info()
-                await asyncio.sleep(2)
+        await self._scoreboard_available()
 
         # Calculate the number of rounds needed to complete the simulation
         rounds = self.setup.config.settings.duration_in_minutes * (
@@ -54,49 +49,22 @@ class Simulation:
             start = time()
 
             # Go through all teams and perform the random test
-            info_messages = []
-            if self.setup.config.settings.simulation_type == "realistic":
-                async with async_lock(self.locks["team"]):
-                    for team_name, team in self.setup.teams.items():
-                        if self._random_test(team):
-                            variant, service, flagstore = self._exploit_or_patch(team)
-                            info_message = self._update_team(
-                                team_name, variant, service, flagstore
-                            )
-                            info_messages.append(info_message)
+            info_messages = await self._update_exploiting_and_patched()
+
+            # Get the current round id and attack info
+            self.round_id = await self.orchestrator.get_round_info()
 
             # Display all info relevant to the current round and parse the current scores from the scoreboard
-            self.round_id = await self.orchestrator.get_round_info()
-            parse_thread = Thread(target=self.orchestrator.parse_scoreboard)
-            parse_thread.start()
+            scoreboard_thread = Thread(target=self.orchestrator.parse_scoreboard)
+            scoreboard_thread.start()
             self.round_info(info_messages, rounds - round_)
-            parse_thread.join()
+            scoreboard_thread.join()
 
             # Instruct orchestrator to send out exploit requests
-            team_flags = []
-            for team in self.setup.teams.values():
-                team_flags.append([team.address])
-
-            async with asyncio.TaskGroup() as task_group:
-                tasks = [
-                    task_group.create_task(
-                        self.orchestrator.exploit(
-                            self.round_id, team, self.setup.teams.values()
-                        )
-                    )
-                    for team in self.setup.teams.values()
-                ]
-
-            for task_index, task in enumerate(tasks):
-                team_flags[task_index].append(task.result())
+            team_flags = await self._exploit_all_teams()
 
             # Instruct orchestrator to submit flags
-            with ThreadPoolExecutor(max_workers=20) as executor:
-                for team_address, flags in team_flags:
-                    if flags:
-                        executor.submit(
-                            self.orchestrator.submit_flags, team_address, flags
-                        )
+            self._submit_all_flags(team_flags)
 
             # Send system statistics to the analytics server at the end of each round
             await self.orchestrator.system_analytics()
@@ -134,6 +102,14 @@ class Simulation:
                 self.console.print(info_message)
             self.console.print("\n")
 
+    async def _scoreboard_available(self):
+        with self.console.status(
+            "[bold green]Waiting for scoreboard to become available ..."
+        ):
+            while not self.orchestrator.attack_info:
+                await self.orchestrator.get_round_info()
+                await asyncio.sleep(2)
+
     def _random_test(self, team: Team):
         probability = team.experience.value[0]
         random_value = random.random()
@@ -158,6 +134,20 @@ class Simulation:
             self.setup.teams[team_name].patched[service][flagstore] = True
             info_text = "patched"
         return f"[bold red][!] Team {team_name} {info_text} {service}-{flagstore}"
+
+    async def _update_exploiting_and_patched(self):
+        info_messages = []
+        if self.setup.config.settings.simulation_type == "realistic":
+            async with async_lock(self.locks["team"]):
+                for team_name, team in self.setup.teams.items():
+                    if self._random_test(team):
+                        variant, service, flagstore = self._exploit_or_patch(team)
+                        info_message = self._update_team(
+                            team_name, variant, service, flagstore
+                        )
+                        info_messages.append(info_message)
+
+        return info_messages
 
     def _team_info(self, teams: List[Team]):
         for team in teams:
@@ -192,3 +182,29 @@ class Simulation:
             for exploit_info, patch_info in info_list:
                 table.add_row(exploit_info, patch_info)
             self.console.print(table)
+
+    async def _exploit_all_teams(self) -> List:
+        team_flags = []
+        for team in self.setup.teams.values():
+            team_flags.append([team.address])
+
+        async with asyncio.TaskGroup() as task_group:
+            tasks = [
+                task_group.create_task(
+                    self.orchestrator.exploit(
+                        self.round_id, team, self.setup.teams.values()
+                    )
+                )
+                for team in self.setup.teams.values()
+            ]
+
+        for task_index, task in enumerate(tasks):
+            team_flags[task_index].append(task.result())
+
+        return team_flags
+
+    def _submit_all_flags(self, team_flags: List):
+        with ThreadPoolExecutor(max_workers=20) as executor:
+            for team_address, flags in team_flags:
+                if flags:
+                    executor.submit(self.orchestrator.submit_flags, team_address, flags)
