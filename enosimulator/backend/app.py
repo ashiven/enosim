@@ -4,6 +4,7 @@ import sqlite3
 
 from flask import Flask, request
 from flask_restful import Api, Resource
+from retry import retry
 
 
 class Teams(Resource):
@@ -85,25 +86,7 @@ class VMs(Resource):
         netrx = data["netrx"]
         nettx = data["nettx"]
 
-        with FlaskApp.get_db_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "INSERT INTO vminfo(name, ip, cpu, ram, disk, status, uptime, cpuusage, ramusage, netrx, nettx) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                (
-                    name,
-                    ip,
-                    cpu,
-                    ram,
-                    disk,
-                    status,
-                    uptime,
-                    cpuusage,
-                    ramusage,
-                    netrx,
-                    nettx,
-                ),
-            )
-            conn.commit()
+        FlaskApp.db_insert_values("vminfo", data)
 
         return {"message": "VM info updated successfully"}, 200
 
@@ -161,6 +144,19 @@ class FlaskApp:
         connection = sqlite3.connect("database.db")
         connection.row_factory = sqlite3.Row
         return connection
+
+    @staticmethod
+    @retry(sqlite3.OperationalError, tries=3, delay=1)
+    def db_insert_values(table_name, data):
+        value_names = ",".join(data.keys())
+        value_placeholders = ",".join(["?" for _ in data.keys()])
+        with FlaskApp.get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                f"INSERT INTO {table_name}({value_names}) VALUES ({value_placeholders})",
+                (tuple([value for value in data.values()])),
+            )
+            conn.commit()
 
     def delete_db(self):
         if os.path.exists("database.db"):
