@@ -73,19 +73,26 @@ class Simulation:
             parse_thread.join()
 
             # Instruct orchestrator to send out exploit requests
-            team_flags = dict()
+            team_flags = []
+            for team in self.setup.teams.values():
+                team_flags.append([team.address])
+
             async with asyncio.TaskGroup() as task_group:
-                for team in self.setup.teams.values():
-                    flags = await task_group.create_task(
+                tasks = [
+                    task_group.create_task(
                         self.orchestrator.exploit(
                             self.round_id, team, self.setup.teams.values()
                         )
                     )
-                    team_flags[team.name] = (team.address, flags)
+                    for team in self.setup.teams.values()
+                ]
+
+            for task_index, task in enumerate(tasks):
+                team_flags[task_index].append(task.result())
 
             # Instruct orchestrator to submit flags
             with ThreadPoolExecutor(max_workers=20) as executor:
-                for team_address, flags in team_flags.values():
+                for team_address, flags in team_flags:
                     if flags:
                         executor.submit(
                             self.orchestrator.submit_flags, team_address, flags
