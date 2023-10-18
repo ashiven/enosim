@@ -191,7 +191,9 @@ class Simulation:
         return team_flags
 
     def _submit_all_flags(self, team_flags: List):
-        with ThreadPoolExecutor(max_workers=20) as executor:
+        with ThreadPoolExecutor(
+            max_workers=self.setup.config.settings.teams
+        ) as executor:
             for team_address, flags in team_flags:
                 if flags:
                     executor.submit(self.orchestrator.submit_flags, team_address, flags)

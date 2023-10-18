@@ -19,6 +19,7 @@ class StatChecker:
             SetupVariant.HETZNER: "root",
             SetupVariant.LOCAL: "root",
         }
+        self.vm_count = config.settings.teams + 2
         self.vm_stats = dict()
         self.client = AsyncClient()
         self.console = Console()
@@ -30,7 +31,7 @@ class StatChecker:
         container_status.start()
 
         futures = dict()
-        with ThreadPoolExecutor(max_workers=20) as executor:
+        with ThreadPoolExecutor(max_workers=self.vm_count) as executor:
             for name, ip_address in ip_addresses.items():
                 future = executor.submit(self._container_stats, ip_address)
                 futures[name] = future
@@ -50,7 +51,7 @@ class StatChecker:
         system_status.start()
 
         futures = dict()
-        with ThreadPoolExecutor(max_workers=20) as executor:
+        with ThreadPoolExecutor(max_workers=self.vm_count) as executor:
             for name, ip_address in ip_addresses.items():
                 future = executor.submit(self._system_stats, name, ip_address)
                 futures[name] = future
