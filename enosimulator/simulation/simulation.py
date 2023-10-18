@@ -62,7 +62,7 @@ class Simulation:
             flags = await exploit_task
             self._submit_all_flags(flags)
 
-            # Print system analytics and send them to the backend
+            # Print system analytics and store them in the database
             self._print_system_analytics(container_panels, system_panels)
             await self.orchestrator.collect_system_analytics()
 
@@ -94,26 +94,6 @@ class Simulation:
                 self.console.print(info_message)
             self.console.print("\n")
 
-    def _print_system_analytics(self, container_panels, system_panels):
-        if self.verbose:
-            for name, container_stat_panel in container_panels.items():
-                self.console.print(f"\n[bold red]Docker stats for {name}:")
-                self.console.print(container_stat_panel)
-
-            for name, system_stat_panel in system_panels.items():
-                self.console.print(f"\n[bold red]System stats for {name}:")
-                self.console.print(Columns(system_stat_panel))
-
-    def _system_analytics(self):
-        container_panels = self.orchestrator.container_stats(
-            self.setup.ips.public_ip_addresses
-        )
-        system_panels = self.orchestrator.system_stats(
-            self.setup.ips.public_ip_addresses
-        )
-
-        return container_panels, system_panels
-
     async def _scoreboard_available(self):
         with self.console.status(
             "[bold green]Waiting for scoreboard to become available ..."
@@ -121,6 +101,40 @@ class Simulation:
             while not self.orchestrator.attack_info:
                 await self.orchestrator.get_round_info()
                 await asyncio.sleep(2)
+
+    def _team_info(self, teams: List[Team]):
+        for team in teams:
+            table = Table(
+                title=f"Team {team.name} - {str(team.experience)}",
+                title_style="bold magenta",
+                title_justify="left",
+            )
+            table.add_column("Exploiting", justify="center", style="magenta")
+            table.add_column("Patched", justify="center", style="cyan")
+
+            exploiting = []
+            for service, flagstores in team.exploiting.items():
+                for flagstore, do_exploit in flagstores.items():
+                    if do_exploit:
+                        exploiting.append(service + "-" + flagstore)
+
+            patched = []
+            for service, flagstores in team.patched.items():
+                for flagstore, do_patch in flagstores.items():
+                    if do_patch:
+                        patched.append(service + "-" + flagstore)
+            max_len = max(len(exploiting), len(patched))
+            info_list = [
+                (
+                    exploiting[i] if i < len(exploiting) else None,
+                    patched[i] if i < len(patched) else None,
+                )
+                for i in range(max_len)
+            ]
+
+            for exploit_info, patch_info in info_list:
+                table.add_row(exploit_info, patch_info)
+            self.console.print(table)
 
     def _random_test(self, team: Team):
         probability = team.experience.value[0]
@@ -161,40 +175,6 @@ class Simulation:
 
         return info_messages
 
-    def _team_info(self, teams: List[Team]):
-        for team in teams:
-            table = Table(
-                title=f"Team {team.name} - {str(team.experience)}",
-                title_style="bold magenta",
-                title_justify="left",
-            )
-            table.add_column("Exploiting", justify="center", style="magenta")
-            table.add_column("Patched", justify="center", style="cyan")
-
-            exploiting = []
-            for service, flagstores in team.exploiting.items():
-                for flagstore, do_exploit in flagstores.items():
-                    if do_exploit:
-                        exploiting.append(service + "-" + flagstore)
-
-            patched = []
-            for service, flagstores in team.patched.items():
-                for flagstore, do_patch in flagstores.items():
-                    if do_patch:
-                        patched.append(service + "-" + flagstore)
-            max_len = max(len(exploiting), len(patched))
-            info_list = [
-                (
-                    exploiting[i] if i < len(exploiting) else None,
-                    patched[i] if i < len(patched) else None,
-                )
-                for i in range(max_len)
-            ]
-
-            for exploit_info, patch_info in info_list:
-                table.add_row(exploit_info, patch_info)
-            self.console.print(table)
-
     async def _exploit_all_teams(self) -> List:
         exploit_status = self.console.status("[bold green]Sending exploits ...")
         if not self.verbose:
@@ -222,6 +202,16 @@ class Simulation:
 
         return team_flags
 
+    def _system_analytics(self):
+        container_panels = self.orchestrator.container_stats(
+            self.setup.ips.public_ip_addresses
+        )
+        system_panels = self.orchestrator.system_stats(
+            self.setup.ips.public_ip_addresses
+        )
+
+        return container_panels, system_panels
+
     def _submit_all_flags(self, team_flags: List):
         with ThreadPoolExecutor(
             max_workers=self.setup.config.settings.teams
@@ -229,3 +219,13 @@ class Simulation:
             for team_address, flags in team_flags:
                 if flags:
                     executor.submit(self.orchestrator.submit_flags, team_address, flags)
+
+    def _print_system_analytics(self, container_panels, system_panels):
+        if self.verbose:
+            for name, container_stat_panel in container_panels.items():
+                self.console.print(f"\n[bold red]Docker stats for {name}:")
+                self.console.print(container_stat_panel)
+
+            for name, system_stat_panel in system_panels.items():
+                self.console.print(f"\n[bold red]System stats for {name}:")
+                self.console.print(Columns(system_stat_panel))
