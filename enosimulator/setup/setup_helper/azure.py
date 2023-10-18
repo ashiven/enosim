@@ -197,7 +197,7 @@ class AzureSetupHelper(Helper):
             f"{self.setup_path}/variables.tf",
             '      name = "engine"',
             f"      subnet_id = {self.config.settings.teams + 2}\n"
-            + f'      size = "{self.config.setup.vm_size}"\n'
+            + f'      size = "{self.config.setup.vm_sizes["engine"]}"\n'
             + f'      source_image_id = "{basepath}/{self.config.setup.vm_image_references["engine"]}"\n'
             if self.use_vm_images
             else "",
@@ -206,7 +206,7 @@ class AzureSetupHelper(Helper):
             f"{self.setup_path}/variables.tf",
             '      name = "checker"',
             f"      subnet_id = {self.config.settings.teams + 1}\n"
-            + f'      size = "{self.config.setup.vm_size}"\n'
+            + f'      size = "{self.config.setup.vm_sizes["checker"]}"\n'
             + f'      source_image_id = "{basepath}/{self.config.setup.vm_image_references["checker"]}"\n'
             if self.use_vm_images
             else "",
@@ -215,7 +215,7 @@ class AzureSetupHelper(Helper):
             f"{self.setup_path}/variables.tf",
             '        name = "vulnbox${vulnbox_id}"',
             f"        subnet_id = vulnbox_id\n"
-            + f'        size = "{self.config.setup.vm_size}"\n'
+            + f'        size = "{self.config.setup.vm_sizes["vulnbox"]}"\n'
             + f'        source_image_id = "{basepath}/{self.config.setup.vm_image_references["vulnbox"]}"\n'
             if self.use_vm_images
             else "",

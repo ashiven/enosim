@@ -2,7 +2,11 @@
    "setup": {
       "ssh-config-path": "C:/Users/janni/.ssh/simconfig",
       "location": "hetzner",
-      "vm-size": "cx11",
+      "vm-sizes": {
+         "vulnbox": "cx11",
+         "checker": "cx11",
+         "engine": "cx11"
+      },
       "vm-image-references": {
          "vulnbox": "vulnbox-checker-CVExchange-bollwerk-expenses",
          "checker": "vulnbox-checker-CVExchange-bollwerk-expenses",

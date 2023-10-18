@@ -2,7 +2,11 @@
    "setup": {
       "ssh-config-path": "C:/Users/janni/.ssh/simconfig",
       "location": "azure",
-      "vm-size": "Standard_A1_v2",
+      "vm-sizes": {
+         "vulnbox": "Standard_A1_v2",
+         "checker": "Standard_A1_v2",
+         "engine": "Standard_A1_v2"
+      },
       "vm-image-references": {
          "vulnbox": "vulnbox-CVExchange-bollwerk-expenses",
          "checker": "vulnbox-checker-CVExchange-bollwerk-expenses",

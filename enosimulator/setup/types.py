@@ -70,8 +70,8 @@ class Team:
     team_subnet: str
     address: str
     experience: Experience
-    exploiting: dict
-    patched: dict
+    exploiting: Dict
+    patched: Dict
     points: float
     gain: float
 
@@ -128,23 +128,23 @@ class Service:
 
 @dataclass
 class IpAddresses:
-    public_ip_addresses: dict
-    private_ip_addresses: dict
+    public_ip_addresses: Dict
+    private_ip_addresses: Dict
 
 
 @dataclass
 class ConfigSetup:
     ssh_config_path: str
     location: str
-    vm_size: str
-    vm_image_references: dict
+    vm_sizes: Dict
+    vm_image_references: Dict
 
     @staticmethod
     def from_(setup):
         new_setup = ConfigSetup(
             ssh_config_path=setup["ssh-config-path"],
             location=setup["location"],
-            vm_size=setup["vm-size"],
+            vm_sizes=setup["vm-sizes"],
             vm_image_references=setup["vm-image-references"],
         )
         return new_setup

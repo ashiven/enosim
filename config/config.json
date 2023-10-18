@@ -2,7 +2,11 @@
    "setup": {
       "ssh-config-path": "<string> <required> <the path, including filename, where the ssh config for the simulation should be saved locally>",
       "location": "<string> <required> <'local' or the name of the cloud provider to be used for the simulation setup>",
-      "vm-size": "<string> <required> <the size of the vms that should be used for the simulation setup>",
+      "vm-sizes": {
+         "vulnbox": "<string> <required> <the size of the vms that should be used for the vulnboxes>",
+         "checker": "<string> <required> <the size of the vms that should be used for the checkers>",
+         "engine": "<string> <required> <the size of the vms that should be used for the engine>"
+      },
       "vm-image-references": {
          "vulnbox": "<string> <optional> <a vm image that should be used for vulnboxes>",
          "checker": "<string> <optional> <a vm image that should be used for checkers>",

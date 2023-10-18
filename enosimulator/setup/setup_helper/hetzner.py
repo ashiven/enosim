@@ -164,7 +164,7 @@ class HetznerSetupHelper(Helper):
         lines.append(
             'resource "hcloud_server" "checker_vm" {\n'
             '  name = "checker"\n'
-            + f'  server_type = "{self.config.setup.vm_size}"\n'
+            + f'  server_type = "{self.config.setup.vm_sizes["checker"]}"\n'
             + '  image = "ubuntu-20.04"\n'
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
@@ -176,7 +176,7 @@ class HetznerSetupHelper(Helper):
         lines.append(
             'resource "hcloud_server" "engine_vm" {\n'
             '  name = "engine"\n'
-            + f'  server_type = "{self.config.setup.vm_size}"\n'
+            + f'  server_type = "{self.config.setup.vm_sizes["engine"]}"\n'
             + '  image = "ubuntu-20.04"\n'
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
@@ -189,7 +189,7 @@ class HetznerSetupHelper(Helper):
             'resource "hcloud_server" "vulnbox_vm" {\n'
             f"  count = {self.config.settings.teams}\n"
             f'  name = "vulnbox${{count.index + 1}}"\n'
-            + f'  server_type = "{self.config.setup.vm_size}"\n'
+            + f'  server_type = "{self.config.setup.vm_sizes["vulnbox"]}"\n'
             + '  image = "ubuntu-20.04"\n'
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
