@@ -88,8 +88,8 @@ class Simulation:
         with self.locks["team"]:
             self._team_info(self.setup.teams.values())
 
+        self.console.print("\n")
         if self.verbose:
-            self.console.print("\n")
             for info_message in info_messages:
                 self.console.print(info_message)
             self.console.print("\n")
