@@ -74,20 +74,7 @@ class VMs(Resource):
         if any(field not in data for field in required_fields):
             return {"message": "Missing field"}, 400
 
-        name = data["name"]
-        ip = data["ip"]
-        cpu = data["cpu"]
-        ram = data["ram"]
-        disk = data["disk"]
-        status = data["status"]
-        uptime = data["uptime"]
-        cpuusage = data["cpuusage"]
-        ramusage = data["ramusage"]
-        netrx = data["netrx"]
-        nettx = data["nettx"]
-
         FlaskApp.db_insert_values("vminfo", data)
-
         return {"message": "VM info updated successfully"}, 200
 
     @classmethod
