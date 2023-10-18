@@ -3,7 +3,6 @@ from typing import Dict
 
 import paramiko
 from httpx import AsyncClient
-from rich.columns import Columns
 from rich.console import Console
 from rich.panel import Panel
 from setup.types import Config, Secrets, SetupVariant
@@ -25,11 +24,6 @@ class StatChecker:
         self.console = Console()
 
     def check_containers(self, ip_addresses: Dict[str, str]):
-        container_status = self.console.status(
-            "[bold green]Getting container stats ..."
-        )
-        container_status.start()
-
         futures = dict()
         with ThreadPoolExecutor(max_workers=self.vm_count) as executor:
             for name, ip_address in ip_addresses.items():
@@ -40,16 +34,9 @@ class StatChecker:
             name: future.result() for name, future in futures.items()
         }
 
-        container_status.stop()
-        if self.verbose:
-            for name, container_stat_panel in container_stat_panels.items():
-                self.console.print(f"\n[bold red]Docker stats for {name}:")
-                self.console.print(container_stat_panel)
+        return container_stat_panels
 
     def check_system(self, ip_addresses: Dict[str, str]):
-        system_status = self.console.status("[bold green]Getting system stats ...")
-        system_status.start()
-
         futures = dict()
         with ThreadPoolExecutor(max_workers=self.vm_count) as executor:
             for name, ip_address in ip_addresses.items():
@@ -58,11 +45,7 @@ class StatChecker:
 
         system_stat_panels = {name: future.result() for name, future in futures.items()}
 
-        system_status.stop()
-        if self.verbose:
-            for name, system_stat_panel in system_stat_panels.items():
-                self.console.print(f"\n[bold red]System stats for {name}:")
-                self.console.print(Columns(system_stat_panel))
+        return system_stat_panels
 
     async def system_analytics(self):
         FLASK_PORT = 5000

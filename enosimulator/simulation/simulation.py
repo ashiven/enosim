@@ -7,6 +7,7 @@ from threading import Thread
 from time import time
 from typing import Dict, List
 
+from rich.columns import Columns
 from rich.console import Console
 from rich.table import Table
 from setup.types import OrchestratorType, SetupType, Team
@@ -54,9 +55,15 @@ class Simulation:
             self.round_info(info_messages, self.total_rounds - round_)
             scoreboard_thread.join()
 
-            flags = await self._exploit_all_teams()
+            exploit_task = asyncio.get_event_loop().create_task(
+                self._exploit_all_teams()
+            )
+            container_panels, system_panels = self._system_analytics()
+
+            flags = await exploit_task
             self._submit_all_flags(flags)
 
+            self._print_system_stats(container_panels, system_panels)
             await self.orchestrator.collect_system_analytics()
 
             round_end = time()
@@ -76,8 +83,6 @@ class Simulation:
             self.console.print("\n[bold red]Attack info:")
             self.console.print(self.orchestrator.attack_info)
 
-        self.orchestrator.container_stats(self.setup.ips.public_ip_addresses)
-        self.orchestrator.system_stats(self.setup.ips.public_ip_addresses)
         self.console.print("\n")
 
         with self.locks["team"]:
@@ -88,6 +93,26 @@ class Simulation:
             for info_message in info_messages:
                 self.console.print(info_message)
             self.console.print("\n")
+
+    def _print_system_stats(self, container_panels, system_panels):
+        if self.verbose:
+            for name, container_stat_panel in container_panels.items():
+                self.console.print(f"\n[bold red]Docker stats for {name}:")
+                self.console.print(container_stat_panel)
+
+            for name, system_stat_panel in system_panels.items():
+                self.console.print(f"\n[bold red]System stats for {name}:")
+                self.console.print(Columns(system_stat_panel))
+
+    def _system_analytics(self):
+        container_panels = self.orchestrator.container_stats(
+            self.setup.ips.public_ip_addresses
+        )
+        system_panels = self.orchestrator.system_stats(
+            self.setup.ips.public_ip_addresses
+        )
+
+        return container_panels, system_panels
 
     async def _scoreboard_available(self):
         with self.console.status(
@@ -171,6 +196,10 @@ class Simulation:
             self.console.print(table)
 
     async def _exploit_all_teams(self) -> List:
+        exploit_status = self.console.status("[bold green]Sending exploits ...")
+        if not self.verbose:
+            exploit_status.start()
+
         team_flags = []
         for team in self.setup.teams.values():
             team_flags.append([team.address])
@@ -187,6 +216,9 @@ class Simulation:
 
         for task_index, task in enumerate(tasks):
             team_flags[task_index].append(task.result())
+
+        if not self.verbose:
+            exploit_status.stop()
 
         return team_flags
 

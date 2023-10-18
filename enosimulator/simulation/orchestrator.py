@@ -83,17 +83,18 @@ class Orchestrator:
         return current_round
 
     def parse_scoreboard(self):
-        team_scores = self._get_team_scores()
-        with self.locks["team"]:
-            for team in self.setup.teams.values():
-                team.points = team_scores[team.name][0]
-                team.gain = team_scores[team.name][1]
+        with self.console.status("[bold green]Parsing scoreboard ..."):
+            team_scores = self._get_team_scores()
+            with self.locks["team"]:
+                for team in self.setup.teams.values():
+                    team.points = team_scores[team.name][0]
+                    team.gain = team_scores[team.name][1]
 
     def container_stats(self, team_addresses: Dict[str, str]):
-        self.stat_checker.check_containers(team_addresses)
+        return self.stat_checker.check_containers(team_addresses)
 
     def system_stats(self, team_addresses: Dict[str, str]):
-        self.stat_checker.check_system(team_addresses)
+        return self.stat_checker.check_system(team_addresses)
 
     async def exploit(self, round_id: int, team: Team, all_teams: List[Team]):
         exploit_requests = self._create_exploit_requests(round_id, team, all_teams)
