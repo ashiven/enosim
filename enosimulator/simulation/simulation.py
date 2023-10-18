@@ -3,7 +3,6 @@ import os
 import random
 import sys
 from concurrent.futures import ThreadPoolExecutor
-from threading import Thread
 from time import time
 from typing import Dict, List
 
@@ -48,22 +47,23 @@ class Simulation:
             round_start = time()
             self.round_id = await self.orchestrator.get_round_info()
 
-            scoreboard_thread = Thread(target=self.orchestrator.parse_scoreboard)
-            scoreboard_thread.start()
-
             info_messages = await self._update_exploiting_and_patched()
             self.round_info(info_messages, self.total_rounds - round_)
-            scoreboard_thread.join()
 
+            self.orchestrator.parse_scoreboard()
+
+            # Send out exploit tasks while collecting system analytics
             exploit_task = asyncio.get_event_loop().create_task(
                 self._exploit_all_teams()
             )
             container_panels, system_panels = self._system_analytics()
 
+            # Submit collected flags
             flags = await exploit_task
             self._submit_all_flags(flags)
 
-            self._print_system_stats(container_panels, system_panels)
+            # Print system analytics and send them to the backend
+            self._print_system_analytics(container_panels, system_panels)
             await self.orchestrator.collect_system_analytics()
 
             round_end = time()
@@ -94,7 +94,7 @@ class Simulation:
                 self.console.print(info_message)
             self.console.print("\n")
 
-    def _print_system_stats(self, container_panels, system_panels):
+    def _print_system_analytics(self, container_panels, system_panels):
         if self.verbose:
             for name, container_stat_panel in container_panels.items():
                 self.console.print(f"\n[bold red]Docker stats for {name}:")
