@@ -44,32 +44,23 @@ class Simulation:
         await self._scoreboard_available()
 
         for round_ in range(self.total_rounds):
-            start = time()
-
-            # Go through all teams and perform the random test
-            info_messages = await self._update_exploiting_and_patched()
-
-            # Get the current round id and attack info
+            round_start = time()
             self.round_id = await self.orchestrator.get_round_info()
 
-            # Display all info relevant to the current round and parse the current scores from the scoreboard
             scoreboard_thread = Thread(target=self.orchestrator.parse_scoreboard)
             scoreboard_thread.start()
+
+            info_messages = await self._update_exploiting_and_patched()
             self.round_info(info_messages, self.total_rounds - round_)
             scoreboard_thread.join()
 
-            # Instruct orchestrator to send out exploit requests
-            team_flags = await self._exploit_all_teams()
+            flags = await self._exploit_all_teams()
+            self._submit_all_flags(flags)
 
-            # Instruct orchestrator to submit flags
-            self._submit_all_flags(team_flags)
+            await self.orchestrator.collect_system_analytics()
 
-            # Send system statistics to the analytics server at the end of each round
-            await self.orchestrator.system_analytics()
-
-            # Wait for the round to end
-            end = time()
-            round_duration = end - start
+            round_end = time()
+            round_duration = round_end - round_start
             if round_duration < self.round_length:
                 await asyncio.sleep(self.round_length - round_duration)
 

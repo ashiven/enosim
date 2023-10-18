@@ -103,7 +103,7 @@ class Orchestrator:
     def submit_flags(self, team_address: str, flags: List[str]):
         self.flag_submitter.submit_flags(team_address, flags)
 
-    async def system_analytics(self):
+    async def collect_system_analytics(self):
         with self.console.status("[bold green]Collecting analytics ..."):
             await self.stat_checker.system_analytics()
 
