@@ -106,12 +106,10 @@ class Setup:
         secrets: Secrets,
         setup_path: str,
         setup_helper: SetupHelper,
-        verbose: bool,
     ):
         self.ips = IpAddresses(dict(), dict())
         self.teams = dict()
         self.services = dict()
-        self.verbose = verbose
         self.config = config
         self.secrets = secrets
         self.setup_path = setup_path
@@ -124,7 +122,6 @@ class Setup:
         cls,
         config_path: str,
         secrets_path: str,
-        verbose: bool = False,
     ):
         config_json = await _parse_json(config_path)
         config = Config.from_(config_json)
@@ -134,7 +131,7 @@ class Setup:
         dir_path = dir_path.replace("\\", "/")
         setup_path = f"{dir_path}/../../test-setup/{config.setup.location}"
         setup_helper = SetupHelper(config, secrets)
-        return cls(config, secrets, setup_path, setup_helper, verbose)
+        return cls(config, secrets, setup_path, setup_helper)
 
     async def build(self):
         await self.configure()

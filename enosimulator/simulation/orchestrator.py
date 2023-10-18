@@ -32,16 +32,19 @@ FLAG_HASH = "ignore_flag_hash"
 
 
 class Orchestrator:
-    def __init__(self, setup: SetupType, locks: Dict, verbose: bool = False):
+    def __init__(
+        self, setup: SetupType, locks: Dict, verbose: bool = False, debug: bool = False
+    ):
         self.setup = setup
         self.verbose = verbose
+        self.debug = debug
         self.locks = locks
         self.service_info = dict()
         self.private_to_public_ip = private_to_public_ip(self.setup.ips)
         self.attack_info = None
         self.client = httpx.AsyncClient()
         self.flag_submitter = FlagSubmitter(
-            setup.ips, setup.config, setup.secrets, self.verbose
+            setup.ips, setup.config, setup.secrets, verbose, debug
         )
         self.stat_checker = StatChecker(setup.config, setup.secrets, verbose)
         self.console = Console()
@@ -225,7 +228,7 @@ class Orchestrator:
                 f"http://{exploit_checker_ip}:{exploit_checker_port}"
             )
 
-            if self.verbose:
+            if self.debug:
                 self.console.log(
                     f"[bold green]{team.name} :anger_symbol: {team_name}-{service}-{flagstore}"
                 )
@@ -245,9 +248,9 @@ class Orchestrator:
             )
 
             if CheckerTaskResult(exploit_result.result) is not CheckerTaskResult.OK:
-                print(exploit_result.message)
+                self.console.print(exploit_result.message)
             else:
-                if self.verbose:
+                if self.debug:
                     self.console.log(
                         f"[bold green]:triangular_flag:: {exploit_result.flag}\n"
                     )

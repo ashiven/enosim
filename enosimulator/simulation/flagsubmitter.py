@@ -12,11 +12,13 @@ class FlagSubmitter:
         config: Config,
         secrets: Secrets,
         verbose: bool = False,
+        debug: bool = False,
     ):
         self.config = config
         self.secrets = secrets
         self.ip_addresses = ip_addresses
         self.verbose = verbose
+        self.debug = debug
         self.usernames = {
             SetupVariant.AZURE: "groot",
             SetupVariant.HETZNER: "root",
@@ -50,7 +52,7 @@ class FlagSubmitter:
                 ("localhost", 0),
             ) as channel:
                 channel.send(flag_str.encode())
-                if self.verbose:
+                if self.debug:
                     self.console.log(f"[bold blue]Submitted {flag_str}for {vm_name}\n")
 
     def _private_to_public_ip(self, team_address: str):

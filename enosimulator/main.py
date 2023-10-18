@@ -34,7 +34,7 @@ async def main():
         ),
     )
     parser.add_argument(
-        "-d",
+        "-D",
         "--destroy",
         action="store_true",
         help="Explicitly destroy the setup including all infrastructure in case of an unexpected error",
@@ -42,6 +42,12 @@ async def main():
     parser.add_argument(
         "-v",
         "--verbose",
+        action="store_true",
+        help="Display additional statistics in each round",
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
         action="store_true",
         help="Display additional information useful for debugging",
     )
@@ -58,19 +64,19 @@ async def main():
             "Please supply the path to a secrets file or set the ENOSIMULATOR_SECRETS environment variable"
         )
     if args.destroy:
-        setup = await Setup.new(args.config, args.secrets, args.verbose)
+        setup = await Setup.new(args.config, args.secrets)
         setup.destroy()
         return
 
     try:
-        setup = await Setup.new(args.config, args.secrets, args.verbose)
+        setup = await Setup.new(args.config, args.secrets)
         await setup.build()
 
         # Create thread locks for services, vms and teams
         service_lock, team_lock = Lock(), Lock()
         locks = {"service": service_lock, "team": team_lock}
 
-        simulation = await Simulation.new(setup, locks, args.verbose)
+        simulation = await Simulation.new(setup, locks, args.verbose, args.debug)
 
         # Run backend Flask app in a separate thread
         app = FlaskApp(setup, simulation, locks)

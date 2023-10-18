@@ -22,11 +22,13 @@ class Simulation:
         orchestrator: OrchestratorType,
         locks: Dict,
         verbose: bool,
+        debug: bool,
     ):
         self.setup = setup
         self.locks = locks
         self.orchestrator = orchestrator
         self.verbose = verbose
+        self.debug = debug
         self.console = Console()
         self.round_id = 0
         self.total_rounds = setup.config.settings.duration_in_minutes * (
@@ -35,10 +37,12 @@ class Simulation:
         self.round_length = setup.config.ctf_json.round_length_in_seconds
 
     @classmethod
-    async def new(cls, setup: SetupType, locks: Dict, verbose: bool = False):
-        orchestrator = Orchestrator(setup, locks, verbose)
+    async def new(
+        cls, setup: SetupType, locks: Dict, verbose: bool = False, debug: bool = False
+    ):
+        orchestrator = Orchestrator(setup, locks, verbose, debug)
         await orchestrator.update_team_info()
-        return cls(setup, orchestrator, locks, verbose)
+        return cls(setup, orchestrator, locks, verbose, debug)
 
     async def run(self):
         await self._scoreboard_available()
@@ -80,7 +84,7 @@ class Simulation:
 
         if self.verbose:
             self.setup.info()
-            self.console.print("\n[bold red]Attack info:")
+            self.console.print("\n\n[bold red]Attack info:")
             self.console.print(self.orchestrator.attack_info)
 
         self.console.print("\n")
@@ -177,7 +181,7 @@ class Simulation:
 
     async def _exploit_all_teams(self) -> List:
         exploit_status = self.console.status("[bold green]Sending exploits ...")
-        if not self.verbose:
+        if not self.debug:
             exploit_status.start()
 
         team_flags = []
@@ -197,7 +201,7 @@ class Simulation:
         for task_index, task in enumerate(tasks):
             team_flags[task_index].append(task.result())
 
-        if not self.verbose:
+        if not self.debug:
             exploit_status.stop()
 
         return team_flags
@@ -223,9 +227,13 @@ class Simulation:
     def _print_system_analytics(self, container_panels, system_panels):
         if self.verbose:
             for name, container_stat_panel in container_panels.items():
-                self.console.print(f"\n[bold red]Docker stats for {name}:")
+                self.console.print(f"[bold red]Docker stats for {name}:")
                 self.console.print(container_stat_panel)
+                self.console.print("")
 
             for name, system_stat_panel in system_panels.items():
-                self.console.print(f"\n[bold red]System stats for {name}:")
+                self.console.print(f"[bold red]System stats for {name}:")
                 self.console.print(Columns(system_stat_panel))
+                self.console.print("")
+
+            self.console.print("\n")
