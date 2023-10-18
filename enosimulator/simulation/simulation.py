@@ -32,6 +32,7 @@ class Simulation:
         self.total_rounds = setup.config.settings.duration_in_minutes * (
             60 // setup.config.ctf_json.round_length_in_seconds
         )
+        self.round_length = setup.config.ctf_json.round_length_in_seconds
 
     @classmethod
     async def new(cls, setup: SetupType, locks: Dict, verbose: bool = False):
@@ -69,10 +70,8 @@ class Simulation:
             # Wait for the round to end
             end = time()
             round_duration = end - start
-            if round_duration < self.setup.config.ctf_json.round_length_in_seconds:
-                await asyncio.sleep(
-                    self.setup.config.ctf_json.round_length_in_seconds - round_duration
-                )
+            if round_duration < self.round_length:
+                await asyncio.sleep(self.round_length - round_duration)
 
     def round_info(self, info_messages: List[str], remaining: int):
         os.system("cls" if sys.platform == "win32" else "clear")
