@@ -27,8 +27,11 @@ class Simulation:
         self.locks = locks
         self.orchestrator = orchestrator
         self.verbose = verbose
-        self.round_id = 0
         self.console = Console()
+        self.round_id = 0
+        self.total_rounds = setup.config.settings.duration_in_minutes * (
+            60 // setup.config.ctf_json.round_length_in_seconds
+        )
 
     @classmethod
     async def new(cls, setup: SetupType, locks: Dict, verbose: bool = False):
@@ -37,15 +40,9 @@ class Simulation:
         return cls(setup, orchestrator, locks, verbose)
 
     async def run(self):
-        # Wait for the scoreboard to become available
         await self._scoreboard_available()
 
-        # Calculate the number of rounds needed to complete the simulation
-        rounds = self.setup.config.settings.duration_in_minutes * (
-            60 // self.setup.config.ctf_json.round_length_in_seconds
-        )
-
-        for round_ in range(rounds):
+        for round_ in range(self.total_rounds):
             start = time()
 
             # Go through all teams and perform the random test
@@ -57,7 +54,7 @@ class Simulation:
             # Display all info relevant to the current round and parse the current scores from the scoreboard
             scoreboard_thread = Thread(target=self.orchestrator.parse_scoreboard)
             scoreboard_thread.start()
-            self.round_info(info_messages, rounds - round_)
+            self.round_info(info_messages, self.total_rounds - round_)
             scoreboard_thread.join()
 
             # Instruct orchestrator to send out exploit requests
