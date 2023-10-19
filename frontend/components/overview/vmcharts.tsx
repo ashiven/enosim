@@ -35,7 +35,8 @@ function filterData(data: any) {
    }))
    const netData = data.map((item: any) => ({
       date: item.measuretime,
-      value: item.netrx,
+      line1: item.netrx,
+      line2: item.nettx,
    }))
 
    return { cpuData, ramData, netData }

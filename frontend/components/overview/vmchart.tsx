@@ -1,7 +1,7 @@
 "use client"
 import { Card, CardContent } from "@/components/ui/card"
 import { MyAreaGraph } from "@/components/ui/charts/areagraph"
-import { MyBarChart } from "@/components/ui/charts/barchart"
+import { MyLineChart } from "@/components/ui/charts/linechart"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function VMChart({ data }: any) {
@@ -42,7 +42,11 @@ export default function VMChart({ data }: any) {
                <TabsContent value="customers">
                   <Card>
                      <CardContent className="p-6">
-                        <MyBarChart data={data.netData} fill="#ffce90" />
+                        <MyLineChart
+                           data={data.netData}
+                           fill1="#ffce90"
+                           fill2="#82ca9d"
+                        />
                      </CardContent>
                   </Card>
                </TabsContent>
