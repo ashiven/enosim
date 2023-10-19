@@ -1,23 +1,33 @@
 import VMCard from "@components/overview/vmcard"
 
 async function getVmList() {
-   const res = await fetch(`http://127.0.0.1:5000/vmlist`)
-   if (!res.ok) {
-      throw new Error("Failed to fetch data")
+   try {
+      const res = await fetch(`http://127.0.0.1:5000/vmlist`, {
+         next: { revalidate: 0 },
+      })
+      if (!res.ok) {
+         throw new Error("Failed to fetch data")
+      }
+      const vmList = eval(await res.text())
+      return vmList
+   } catch (e) {
+      return []
    }
-   const vmList = eval(await res.text())
-   return vmList
 }
 
 async function getData(vmName: string) {
-   const res = await fetch(`http://127.0.0.1:5000/vminfo?name=${vmName}`, {
-      next: { revalidate: 0 },
-   })
-   if (!res.ok) {
-      throw new Error("Failed to fetch data")
+   try {
+      const res = await fetch(`http://127.0.0.1:5000/vminfo?name=${vmName}`, {
+         next: { revalidate: 0 },
+      })
+      if (!res.ok) {
+         throw new Error("Failed to fetch data")
+      }
+      const dataList = eval(await res.text())
+      return dataList[0]
+   } catch (e) {
+      return {}
    }
-   const dataList = eval(await res.text())
-   return dataList[0]
 }
 
 function filterVmJson(data: any) {
