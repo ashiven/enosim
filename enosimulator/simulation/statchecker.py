@@ -56,13 +56,14 @@ class StatChecker:
                 stats["uptime"] = 0
             await self.client.post(f"http://localhost:{FLASK_PORT}/vminfo", json=stats)
 
-        for vm_name, stats in self.container_stats.items():
+        for vm_name, containers in self.container_stats.items():
             # We currently only want to collect analytics on the containers of vulnbox1 since it has all the service containers
             if vm_name != "vulnbox1":
                 continue
-            await self.client.post(
-                f"http://localhost:{FLASK_PORT}/containerinfo", json=stats
-            )
+            for stats in containers.values():
+                await self.client.post(
+                    f"http://localhost:{FLASK_PORT}/containerinfo", json=stats
+                )
 
     def _container_stats(self, vm_name: str, ip_address: str):
         with paramiko.SSHClient() as client:

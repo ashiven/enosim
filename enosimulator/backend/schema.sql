@@ -16,7 +16,7 @@ CREATE TABLE vminfo (
     PRIMARY KEY (name, measuretime)
 );
 
-CREATE INDEX name_measuretime ON vminfo (name, measuretime);
+CREATE INDEX name_measuretime_vms ON vminfo (name, measuretime);
 
 
 DROP TABLE IF EXISTS containerinfo;
@@ -31,4 +31,4 @@ CREATE TABLE containerinfo (
     PRIMARY KEY (name, measuretime)
 );
 
-CREATE INDEX name_measuretime ON containerinfo (name, measuretime);
+CREATE INDEX name_measuretime_containers ON containerinfo (name, measuretime);
