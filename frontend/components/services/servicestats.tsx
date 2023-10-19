@@ -5,9 +5,6 @@ async function getData() {
       const res = await fetch("http://127.0.0.1:5000/services", {
          next: { revalidate: 0 },
       })
-      if (!res.ok) {
-         throw new Error("Failed to fetch data")
-      }
       return res.json()
    } catch (e) {
       return {}

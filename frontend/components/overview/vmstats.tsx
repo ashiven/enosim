@@ -5,9 +5,6 @@ async function getVmList() {
       const res = await fetch(`http://127.0.0.1:5000/vmlist`, {
          next: { revalidate: 0 },
       })
-      if (!res.ok) {
-         throw new Error("Failed to fetch data")
-      }
       const vmList = eval(await res.text())
       return vmList
    } catch (e) {
@@ -20,9 +17,6 @@ async function getData(vmName: string) {
       const res = await fetch(`http://127.0.0.1:5000/vminfo?name=${vmName}`, {
          next: { revalidate: 0 },
       })
-      if (!res.ok) {
-         throw new Error("Failed to fetch data")
-      }
       const dataList = eval(await res.text())
       return dataList[0]
    } catch (e) {
