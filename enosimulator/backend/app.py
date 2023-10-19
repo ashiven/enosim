@@ -92,6 +92,61 @@ class VMList(Resource):
         return cls
 
 
+class Containers(Resource):
+    def get(self):
+        container_name = request.args.get("name")
+
+        if container_name:
+            with FlaskApp.get_db_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "SELECT * FROM containerinfo WHERE name = ? AND measuretime > datetime('now', '-30 minutes') ORDER BY measuretime DESC",
+                    (container_name,),
+                )
+                container_infos = cursor.fetchall()
+
+                response = [dict(container_info) for container_info in container_infos]
+                return response
+        else:
+            return {"message": "Missing container name"}, 400
+
+    def post(self):
+        data = request.get_json()
+        if not data:
+            return {"message": "Invalid JSON"}, 400
+
+        required_fields = [
+            "name",
+            "cpuusage",
+            "ramusage",
+            "netrx",
+            "nettx",
+        ]
+        if any(field not in data for field in required_fields):
+            return {"message": "Missing field"}, 400
+
+        FlaskApp.db_insert_values("containerinfo", data)
+        return {"message": "Container info updated successfully"}, 200
+
+    @classmethod
+    def create_api(cls):
+        return cls
+
+
+class ContainerList(Resource):
+    def get(self):
+        with FlaskApp.get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT DISTINCT name FROM containerinfo")
+            container_names = cursor.fetchall()
+
+            return [row[0] for row in container_names]
+
+    @classmethod
+    def create_api(cls):
+        return cls
+
+
 class FlaskApp:
     def __init__(self, setup, simulation, locks):
         self.app = Flask(__name__)
@@ -107,10 +162,14 @@ class FlaskApp:
         TeamApi = Teams.create_api(self.setup.teams, self.locks["team"])
         VmApi = VMs.create_api()
         VmListApi = VMList.create_api(list(self.setup.ips.public_ip_addresses.keys()))
+        ContainerApi = Containers.create_api()
+        ContainerListApi = ContainerList.create_api()
         self.api.add_resource(TeamApi, "/teams")
         self.api.add_resource(ServiceApi, "/services")
         self.api.add_resource(VmApi, "/vminfo")
         self.api.add_resource(VmListApi, "/vmlist")
+        self.api.add_resource(ContainerApi, "/containerinfo")
+        self.api.add_resource(ContainerListApi, "/containerlist")
 
     def run(self):
         log = logging.getLogger("werkzeug")

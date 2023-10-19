@@ -20,6 +20,7 @@ class StatChecker:
         }
         self.vm_count = config.settings.teams + 2
         self.vm_stats = dict()
+        self.container_stats = dict()
         self.client = AsyncClient()
         self.console = Console()
 
@@ -27,7 +28,7 @@ class StatChecker:
         futures = dict()
         with ThreadPoolExecutor(max_workers=self.vm_count) as executor:
             for name, ip_address in ip_addresses.items():
-                future = executor.submit(self._container_stats, ip_address)
+                future = executor.submit(self._container_stats, name, ip_address)
                 futures[name] = future
 
         container_stat_panels = {
@@ -55,7 +56,15 @@ class StatChecker:
                 stats["uptime"] = 0
             await self.client.post(f"http://localhost:{FLASK_PORT}/vminfo", json=stats)
 
-    def _container_stats(self, ip_address: str):
+        for vm_name, stats in self.container_stats.items():
+            # We currently only want to collect analytics on the containers of vulnbox1 since it has all the service containers
+            if vm_name != "vulnbox1":
+                continue
+            await self.client.post(
+                f"http://localhost:{FLASK_PORT}/containerinfo", json=stats
+            )
+
+    def _container_stats(self, vm_name: str, ip_address: str):
         with paramiko.SSHClient() as client:
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             client.connect(
@@ -70,7 +79,32 @@ class StatChecker:
             _, stdout, _ = client.exec_command("docker stats --no-stream")
             container_stats_blank = stdout.read().decode("utf-8")
 
+            self._save_container_stats(vm_name, container_stats_blank)
+
         return self._beautify_container_stats(container_stats_blank)
+
+    def _save_container_stats(self, vm_name: str, container_stats: str):
+        stats = dict()
+        lines = container_stats.splitlines()
+        for i, line in enumerate(lines):
+            if i == 0:
+                continue
+            parts = line.split()
+            name = parts[1]
+            cpu_usage = parts[2]
+            ram_usage = parts[6]
+            network_rx = parts[7]
+            network_tx = parts[9]
+
+            stats[name] = {
+                "name": name,
+                "cpuusage": cpu_usage,
+                "ramusage": ram_usage,
+                "netrx": network_rx,
+                "nettx": network_tx,
+            }
+
+        self.container_stats[vm_name] = stats
 
     def _beautify_container_stats(self, container_stats_blank: str):
         def _beautify_line(line: str):
@@ -124,6 +158,41 @@ class StatChecker:
             )
             network_usage = stdout.read().decode("utf-8")
 
+        (
+            ram_percent,
+            ram_total,
+            ram_used,
+            cpu_usage,
+            cpu_cores,
+            disk_size,
+            network_rx,
+            network_tx,
+        ) = self._parse_system_stats(system_stats, network_usage)
+
+        self._save_system_stats(
+            vm_name,
+            ip_address,
+            ram_percent,
+            ram_total,
+            ram_used,
+            cpu_usage,
+            cpu_cores,
+            disk_size,
+            network_rx,
+            network_tx,
+        )
+
+        return self._beautify_system_stats(
+            ram_percent,
+            ram_total,
+            ram_used,
+            cpu_usage,
+            cpu_cores,
+            network_rx,
+            network_tx,
+        )
+
+    def _parse_system_stats(self, system_stats: str, network_usage: str):
         if system_stats:
             [
                 ram_percent,
@@ -157,6 +226,30 @@ class StatChecker:
         else:
             network_rx, network_tx = None, None
 
+        return (
+            ram_percent,
+            ram_total,
+            ram_used,
+            cpu_usage,
+            cpu_cores,
+            disk_size,
+            network_rx,
+            network_tx,
+        )
+
+    def _save_system_stats(
+        self,
+        vm_name: str,
+        ip_address: str,
+        ram_percent: float,
+        ram_total: float,
+        ram_used: float,
+        cpu_usage: float,
+        cpu_cores: int,
+        disk_size: float,
+        network_rx: float,
+        network_tx: float,
+    ):
         prev_uptime = (
             self.vm_stats[vm_name]["uptime"] if vm_name in self.vm_stats else 0
         )
@@ -174,16 +267,6 @@ class StatChecker:
             "nettx": network_tx,
         }
         self.vm_stats[vm_name]["uptime"] = prev_uptime + 1
-
-        return self._beautify_system_stats(
-            ram_percent,
-            ram_total,
-            ram_used,
-            cpu_usage,
-            cpu_cores,
-            network_rx,
-            network_tx,
-        )
 
     def _beautify_system_stats(
         self,
