@@ -42,7 +42,7 @@ export const MyAreaGraph: React.FC<AreaGraphProps> = ({
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" />
             <YAxis dataKey="value" />
-            <Tooltip label="Daily Revenue" />
+            <Tooltip />
             <Area type="monotone" dataKey="value" stroke={stroke} fill={fill} />
          </AreaChart>
       </ResponsiveContainer>

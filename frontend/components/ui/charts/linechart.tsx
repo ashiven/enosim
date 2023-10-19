@@ -4,6 +4,7 @@ import {
    Line,
    LineChart,
    ResponsiveContainer,
+   Tooltip,
    XAxis,
    YAxis,
 } from "recharts"
@@ -43,6 +44,7 @@ export const MyLineChart: React.FC<LineChartProps> = ({
             <XAxis dataKey="date" />
             <YAxis />
             <CartesianGrid strokeDasharray="3 3" />
+            <Tooltip />
             <Line dataKey="line1" fill={fill1} />
             <Line dataKey="line2" fill={fill2} />
          </LineChart>
