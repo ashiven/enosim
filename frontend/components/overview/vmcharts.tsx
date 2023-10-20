@@ -1,4 +1,4 @@
-import VMChart from "@/components/overview/vmchart"
+import VMSelect from "@/components/overview/vmchartselect"
 
 async function getVmList() {
    try {
@@ -44,15 +44,13 @@ function filterData(data: any) {
 
 export default async function VMCharts() {
    const vmList = await getVmList()
+   const vmDataPromises = vmList.map(async (vmName: string) => ({
+      [vmName]: filterData(await getData(vmName)),
+   }))
+   const vmDataArray = await Promise.all(vmDataPromises)
+   const vmData = vmDataArray.reduce((acc, vmDataItem) => {
+      return { ...acc, ...vmDataItem }
+   }, {})
 
-   return (
-      <div>
-         {vmList.map(async (vmName: string) => (
-            <div>
-               <span className="text-xl font-bold">{vmName}:</span>
-               <VMChart data={filterData(await getData(vmName))} />
-            </div>
-         ))}
-      </div>
-   )
+   return <VMSelect vmList={vmList} vmData={vmData} />
 }
