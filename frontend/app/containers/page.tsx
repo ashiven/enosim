@@ -1,4 +1,4 @@
-import ContainerCharts from "@/components/overview/vmcharts"
+import ContainerCharts from "@/components/containers/containercharts"
 
 import Navbar from "@components/navbar"
 import Sidebar from "@components/sidebar"
