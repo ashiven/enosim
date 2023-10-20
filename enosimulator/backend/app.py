@@ -43,7 +43,7 @@ class VMs(Resource):
             with FlaskApp.get_db_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
-                    "SELECT * FROM vminfo WHERE name = ? AND measuretime > datetime('now', '-30 minutes') ORDER BY measuretime DESC",
+                    "SELECT * FROM vminfo WHERE name = ? AND datetime(measuretime) > datetime('now', '-30 minutes') ORDER BY measuretime DESC",
                     (vm_name,),
                 )
                 vm_infos = cursor.fetchall()
@@ -100,7 +100,7 @@ class Containers(Resource):
             with FlaskApp.get_db_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
-                    "SELECT * FROM containerinfo WHERE name = ? AND measuretime > datetime('now', '-30 minutes') ORDER BY measuretime DESC",
+                    "SELECT * FROM containerinfo WHERE name = ? AND datetime(measuretime) > datetime('now', '-30 minutes') ORDER BY measuretime DESC",
                     (container_name,),
                 )
                 container_infos = cursor.fetchall()
