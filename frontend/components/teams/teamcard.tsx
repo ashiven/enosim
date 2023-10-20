@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
    HoverCard,
@@ -111,17 +112,10 @@ export default function TeamCard(props: TeamCardProps) {
             </CardContent>
          </Card>
          <HoverCardContent>
-            <span className="font-bold">Id: </span>
-            <span>{props.data.id}</span>
-            <br />
-            <span className="font-bold">Team Subnet: </span>
-            <span>{props.data.subnet}</span>
-            <br />
-            <span className="font-bold">Address: </span>
-            <span>{props.data.address}</span>
-            <br />
-            <span className="font-bold">Experience Level: </span>
-            <span>{props.data.experience}</span>
+            <Badge>Id: {props.data.id}</Badge>
+            <Badge>Team Subnet: {props.data.subnet}</Badge>
+            <Badge>Address: {props.data.address}</Badge>
+            <Badge>Experience Level: {props.data.experience}</Badge>
          </HoverCardContent>
       </HoverCard>
    )
