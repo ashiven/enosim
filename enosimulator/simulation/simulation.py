@@ -107,6 +107,7 @@ class Simulation:
                 await asyncio.sleep(2)
 
     def _team_info(self, teams: List[Team]):
+        tables = []
         for team in teams:
             table = Table(
                 title=f"Team {team.name} - {str(team.experience)}",
@@ -138,7 +139,8 @@ class Simulation:
 
             for exploit_info, patch_info in info_list:
                 table.add_row(exploit_info, patch_info)
-            self.console.print(table)
+            tables.append(table)
+        self.console.print(Columns(tables))
 
     def _random_test(self, team: Team):
         probability = team.experience.value[0]
