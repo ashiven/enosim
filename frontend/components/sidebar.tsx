@@ -68,12 +68,12 @@ export default function Sidebar() {
                   <li className="rounded-sm p-1">
                      <Button
                         variant={
-                           pathname === "/settings" ? "default" : "secondary"
+                           pathname === "/containers" ? "default" : "secondary"
                         }
                      >
                         <Container className="w-6 h-6" size={24} />
                         <Link
-                           href="/settings"
+                           href="/containers"
                            className="flex items-center p-2 space-x-3 rounded-md"
                         >
                            <span className="w-24">Containers</span>

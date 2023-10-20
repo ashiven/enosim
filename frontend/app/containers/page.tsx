@@ -1,4 +1,4 @@
-import VMStats from "@/components/overview/vmstats"
+import ContainerCharts from "@/components/overview/vmcharts"
 
 import Navbar from "@components/navbar"
 import Sidebar from "@components/sidebar"
@@ -10,7 +10,7 @@ export default function Home() {
          <div className="flex">
             <Sidebar />
             <div className="container">
-               <VMStats />
+               <ContainerCharts />
             </div>
          </div>
       </main>
