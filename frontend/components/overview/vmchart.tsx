@@ -10,12 +10,12 @@ export default function VMChart({ data }: any) {
          <Card className="p-5">
             <Tabs defaultValue="revenue">
                <TabsList>
-                  <TabsTrigger value="revenue">CPU Usage</TabsTrigger>
-                  <TabsTrigger value="orders">RAM Usage</TabsTrigger>
-                  <TabsTrigger value="customers">Network Usage</TabsTrigger>
+                  <TabsTrigger value="cpu">CPU Usage</TabsTrigger>
+                  <TabsTrigger value="ram">RAM Usage</TabsTrigger>
+                  <TabsTrigger value="network">Network Usage</TabsTrigger>
                </TabsList>
                {/* CPU Usage */}
-               <TabsContent value="revenue">
+               <TabsContent value="cpu">
                   <Card>
                      <CardContent className="p-6">
                         <MyAreaGraph
@@ -27,7 +27,7 @@ export default function VMChart({ data }: any) {
                   </Card>
                </TabsContent>
                {/* RAM Usage */}
-               <TabsContent value="orders">
+               <TabsContent value="ram">
                   <Card>
                      <CardContent className="p-6">
                         <MyAreaGraph
@@ -39,7 +39,7 @@ export default function VMChart({ data }: any) {
                   </Card>
                </TabsContent>
                {/* Network Usage */}
-               <TabsContent value="customers">
+               <TabsContent value="network">
                   <Card>
                      <CardContent className="p-6">
                         <MyLineChart
