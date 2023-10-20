@@ -5,7 +5,8 @@ import { Button } from "@components/ui/button"
 import {
    DropdownMenu,
    DropdownMenuContent,
-   DropdownMenuItem,
+   DropdownMenuRadioGroup,
+   DropdownMenuRadioItem,
    DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu"
 
@@ -15,20 +16,22 @@ export default function ContainerSelect({ containerList, containerData }: any) {
    const [selectedContainer, setSelectedContainer] = useState(containerList[0])
 
    return (
-      <div>
+      <div className="mt-8">
          <DropdownMenu>
             <DropdownMenuTrigger>
-               <Button variant="outline">{selectedContainer}</Button>
+               <Button variant="outline">Select Container</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-               {containerList.map((containerName: string) => (
-                  <DropdownMenuItem
-                     key={containerName}
-                     onSelect={() => setSelectedContainer(containerName)}
-                  >
-                     {containerName}
-                  </DropdownMenuItem>
-               ))}
+               <DropdownMenuRadioGroup
+                  value={selectedContainer}
+                  onValueChange={setSelectedContainer}
+               >
+                  {containerList.map((containerName: string) => (
+                     <DropdownMenuRadioItem value={containerName}>
+                        {containerName}
+                     </DropdownMenuRadioItem>
+                  ))}
+               </DropdownMenuRadioGroup>
             </DropdownMenuContent>
          </DropdownMenu>
 
