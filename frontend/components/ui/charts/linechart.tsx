@@ -10,11 +10,10 @@ import {
    YAxis,
 } from "recharts"
 
-const formatDate = new Intl.DateTimeFormat("en-US", {
-   month: "short",
-   year: "numeric",
-   day: "numeric",
-})
+function getTimestamp(date: string) {
+   const timestamp = date.split(" ")[1]
+   return timestamp
+}
 
 interface Datum {
    date: string
@@ -37,11 +36,14 @@ export const MyLineChart: React.FC<LineChartProps> = ({
    name1,
    name2,
 }) => {
-   const formatted = data.map(({ date, rx, tx }) => ({
-      date: formatDate.format(new Date(date)),
-      rx,
-      tx,
-   }))
+   const formatted = data
+      .slice()
+      .reverse()
+      .map(({ date, rx, tx }) => ({
+         date: getTimestamp(date),
+         rx,
+         tx,
+      }))
 
    console.log(name1)
    console.log(name2)

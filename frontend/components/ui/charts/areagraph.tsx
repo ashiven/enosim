@@ -10,11 +10,10 @@ import {
    YAxis,
 } from "recharts"
 
-const formatter = new Intl.DateTimeFormat("en-US", {
-   month: "short",
-   year: "numeric",
-   day: "numeric",
-})
+function getTimestamp(date: string) {
+   const timestamp = date.split(" ")[1]
+   return timestamp
+}
 
 interface Datum {
    date: string
@@ -34,10 +33,13 @@ export const MyAreaGraph: React.FC<AreaGraphProps> = ({
    fill,
    name,
 }) => {
-   const formatted = data.map(({ date, percentage }) => ({
-      date: formatter.format(new Date(date)),
-      percentage,
-   }))
+   const formatted = data
+      .slice()
+      .reverse()
+      .map(({ date, percentage }) => ({
+         date: getTimestamp(date),
+         percentage,
+      }))
 
    return (
       <ResponsiveContainer aspect={3.5}>
