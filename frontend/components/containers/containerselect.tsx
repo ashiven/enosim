@@ -15,6 +15,10 @@ import {
 import { useState } from "react"
 
 export default function ContainerSelect({ containerList, containerData }: any) {
+   if (containerList.length == 0) {
+      return <div></div>
+   }
+
    const [selectedContainer, setSelectedContainer] = useState(containerList[0])
 
    return (

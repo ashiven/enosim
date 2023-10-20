@@ -15,6 +15,10 @@ import {
 import { useState } from "react"
 
 export default function VMSelect({ vmList, vmData }: any) {
+   if (vmList.length == 0) {
+      return <div></div>
+   }
+
    const [selectedVm, setSelectedVm] = useState(vmList[0])
 
    return (
