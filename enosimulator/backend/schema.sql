@@ -12,7 +12,7 @@ CREATE TABLE vminfo (
     ramusage REAL NOT NULL,
     netrx REAL NOT NULL,
     nettx REAL NOT NULL,
-    measuretime DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    measuretime DATETIME DEFAULT (datetime('now','localtime')) NOT NULL,
     PRIMARY KEY (name, measuretime)
 );
 
@@ -27,7 +27,7 @@ CREATE TABLE containerinfo (
     ramusage REAL NOT NULL,
     netrx REAL NOT NULL,
     nettx REAL NOT NULL,
-    measuretime DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    measuretime DATETIME DEFAULT (datetime('now','localtime')) NOT NULL,
     PRIMARY KEY (name, measuretime)
 );
 
