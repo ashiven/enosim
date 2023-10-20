@@ -248,7 +248,8 @@ class Orchestrator:
             )
 
             if CheckerTaskResult(exploit_result.result) is not CheckerTaskResult.OK:
-                self.console.print(exploit_result.message)
+                if self.debug:
+                    self.console.print(exploit_result.message)
             else:
                 if self.debug:
                     self.console.log(
