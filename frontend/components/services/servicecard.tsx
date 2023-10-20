@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 import Link from "next/link"
@@ -44,21 +45,11 @@ export default function ServiceCard(props: ServiceCardProps) {
             </Link>
          </CardHeader>
          <CardContent>
-            <span className="font-bold">Id: </span>
-            <span>{props.data.id}</span>
-            <br />
-            <span className="font-bold">Flags per Round: </span>
-            <span>{props.data.flagsPerRound}</span>
-            <br />
-            <span className="font-bold">Noises per Round: </span>
-            <span>{props.data.noisesPerRound}</span>
-            <br />
-            <span className="font-bold">Havocs per Round: </span>
-            <span>{props.data.havocsPerRound}</span>
-            <br />
-            <span className="font-bold">Weight Factor: </span>
-            <span>{props.data.weightFactor}</span>
-            <br />
+            <Badge>Id: {props.data.id}</Badge>
+            <Badge>Flags per Round: {props.data.flagsPerRound}</Badge>
+            <Badge>Noises per Round: {props.data.noisesPerRound}</Badge>
+            <Badge>Havocs per Round: {props.data.havocsPerRound}</Badge>
+            <Badge>Weight Factor: {props.data.weightFactor}</Badge>
          </CardContent>
       </Card>
    )

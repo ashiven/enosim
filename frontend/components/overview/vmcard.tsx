@@ -54,7 +54,9 @@ export default function VMCard(props: VMCardProps) {
                </PopoverTrigger>
                <PopoverContent>
                   <span className="font-bold">CPU: </span>
-                  <span>{props.data.cpu} Cores</span>
+                  <span>
+                     {props.data.cpu} {props.data.cpu > 1 ? "Cores" : "Core"}
+                  </span>
                   <br />
                   <span className="font-bold">Memory: </span>
                   <span>{props.data.ram} GB</span>
