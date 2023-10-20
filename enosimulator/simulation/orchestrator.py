@@ -141,7 +141,7 @@ class Orchestrator:
             prev_round, current_round = 1, 1
         return int(prev_round), int(current_round)
 
-    @retry(TimeoutException, tries=2, delay=1)
+    @retry(TimeoutException, tries=3, delay=1)
     def _get_team_scores(self) -> Dict:
         team_scores = dict()
         scoreboard_url = (

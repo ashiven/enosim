@@ -17,7 +17,7 @@ const formatter = new Intl.DateTimeFormat("en-US", {
 
 interface Datum {
    date: string
-   value: string
+   percentage: string
 }
 
 interface AreaGraphProps {
@@ -31,9 +31,9 @@ export const MyAreaGraph: React.FC<AreaGraphProps> = ({
    stroke,
    fill,
 }) => {
-   const formatted = data.map(({ date, value }) => ({
+   const formatted = data.map(({ date, percentage }) => ({
       date: formatter.format(new Date(date)),
-      value,
+      percentage,
    }))
 
    return (
@@ -41,7 +41,7 @@ export const MyAreaGraph: React.FC<AreaGraphProps> = ({
          <AreaChart data={formatted}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="date" />
-            <YAxis dataKey="value" />
+            <YAxis dataKey="percentage" />
             <Tooltip />
             <Area type="monotone" dataKey="value" stroke={stroke} fill={fill} />
          </AreaChart>
