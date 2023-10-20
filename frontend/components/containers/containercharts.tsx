@@ -1,4 +1,4 @@
-import ContainerChart from "@/components/overview/vmchart"
+import ContainerSelect from "@/components/containers/containerselect"
 
 async function getContainerList() {
    try {
@@ -47,17 +47,20 @@ function filterData(data: any) {
 
 export default async function ContainerCharts() {
    const containerList = await getContainerList()
+   const containerDataPromises = containerList.map(
+      async (containerName: string) => ({
+         [containerName]: filterData(await getData(containerName)),
+      })
+   )
+   const containerDataArray = await Promise.all(containerDataPromises)
+   const containerData = containerDataArray.reduce((acc, containerDataItem) => {
+      return { ...acc, ...containerDataItem }
+   }, {})
 
    return (
-      <div>
-         {containerList.map(async (containerName: string) => (
-            <div>
-               <span className="text-xl font-bold">{containerName}:</span>
-               <ContainerChart
-                  data={filterData(await getData(containerName))}
-               />
-            </div>
-         ))}
-      </div>
+      <ContainerSelect
+         containerList={containerList}
+         containerData={containerData}
+      />
    )
 }
