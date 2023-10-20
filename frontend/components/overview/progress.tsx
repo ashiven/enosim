@@ -9,7 +9,7 @@ export default function SimulationProgress() {
             <Separator orientation="vertical" />
             <div>20 Rounds remaining</div>
             <Separator orientation="vertical" />
-            <div>40s until next round</div>
+            <div>40s Until next round</div>
          </div>
          <Progress value={50} />
       </div>
