@@ -11,7 +11,7 @@ export default function Home() {
          <Navbar />
          <div className="flex">
             <Sidebar />
-            <div className="container space-y-12">
+            <div className="container space-y-16">
                <SimulationProgress />
                <VMStats />
                <VMCharts />
