@@ -30,11 +30,11 @@ async function getData(containerName: string) {
 function filterData(data: any) {
    const cpuData = data.map((item: any) => ({
       date: item.measuretime,
-      value: item.cpuusage,
+      percentage: item.cpuusage,
    }))
    const ramData = data.map((item: any) => ({
       date: item.measuretime,
-      value: item.ramusage,
+      percentage: item.ramusage,
    }))
    const netData = data.map((item: any) => ({
       date: item.measuretime,
