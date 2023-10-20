@@ -5,8 +5,10 @@ import { Button } from "@components/ui/button"
 import {
    DropdownMenu,
    DropdownMenuContent,
+   DropdownMenuLabel,
    DropdownMenuRadioGroup,
    DropdownMenuRadioItem,
+   DropdownMenuSeparator,
    DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu"
 
@@ -22,6 +24,8 @@ export default function ContainerSelect({ containerList, containerData }: any) {
                <Button variant="outline">Select Container</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+               <DropdownMenuLabel>Container Statistics</DropdownMenuLabel>
+               <DropdownMenuSeparator />
                <DropdownMenuRadioGroup
                   value={selectedContainer}
                   onValueChange={setSelectedContainer}

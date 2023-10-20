@@ -5,8 +5,10 @@ import { Button } from "@components/ui/button"
 import {
    DropdownMenu,
    DropdownMenuContent,
+   DropdownMenuLabel,
    DropdownMenuRadioGroup,
    DropdownMenuRadioItem,
+   DropdownMenuSeparator,
    DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu"
 
@@ -22,6 +24,8 @@ export default function VMSelect({ vmList, vmData }: any) {
                <Button variant="outline">Select VM</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
+               <DropdownMenuLabel>VM Statistics</DropdownMenuLabel>
+               <DropdownMenuSeparator />
                <DropdownMenuRadioGroup
                   value={selectedVm}
                   onValueChange={setSelectedVm}
