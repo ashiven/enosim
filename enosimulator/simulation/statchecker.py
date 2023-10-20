@@ -91,9 +91,13 @@ class StatChecker:
             parts = line.split()
             name = parts[1]
             cpu_usage = parts[2]
+            cpu_usage = round(float(cpu_usage[:-1]), 2)
             ram_usage = parts[6]
+            ram_usage = round(float(ram_usage[:-1]), 2)
             network_rx = parts[7]
+            network_rx = round(float(network_rx[:-2]), 2)
             network_tx = parts[9]
+            network_tx = round(float(network_tx[:-2]), 2)
 
             stats[name] = {
                 "name": name,

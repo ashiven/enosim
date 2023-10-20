@@ -47,7 +47,6 @@ function filterData(data: any) {
 
 export default async function ContainerCharts() {
    const containerList = await getContainerList()
-   console.log(containerList)
 
    return (
       <div>
