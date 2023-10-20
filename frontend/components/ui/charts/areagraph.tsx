@@ -3,6 +3,7 @@ import {
    Area,
    AreaChart,
    CartesianGrid,
+   Legend,
    ResponsiveContainer,
    Tooltip,
    XAxis,
@@ -43,7 +44,13 @@ export const MyAreaGraph: React.FC<AreaGraphProps> = ({
             <XAxis dataKey="date" />
             <YAxis dataKey="percentage" />
             <Tooltip />
-            <Area type="monotone" dataKey="value" stroke={stroke} fill={fill} />
+            <Legend />
+            <Area
+               type="monotone"
+               dataKey="percentage"
+               stroke={stroke}
+               fill={fill}
+            />
          </AreaChart>
       </ResponsiveContainer>
    )
