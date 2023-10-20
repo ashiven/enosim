@@ -52,7 +52,7 @@ export default async function ContainerCharts() {
       <div>
          {containerList.map(async (containerName: string) => (
             <div>
-               <span className="text-xl font-bold">{containerName}-stats:</span>
+               <span className="text-xl font-bold">{containerName}:</span>
                <ContainerChart
                   data={filterData(await getData(containerName))}
                />

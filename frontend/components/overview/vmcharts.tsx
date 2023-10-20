@@ -49,7 +49,7 @@ export default async function VMCharts() {
       <div>
          {vmList.map(async (vmName: string) => (
             <div>
-               <span className="text-xl font-bold">{vmName}-stats:</span>
+               <span className="text-xl font-bold">{vmName}:</span>
                <VMChart data={filterData(await getData(vmName))} />
             </div>
          ))}
