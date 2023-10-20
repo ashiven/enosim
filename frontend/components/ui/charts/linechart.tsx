@@ -24,14 +24,18 @@ interface Datum {
 
 interface LineChartProps {
    data: Datum[]
-   fill1: string
-   fill2: string
+   stroke1: string
+   stroke2: string
+   name1: string
+   name2: string
 }
 
 export const MyLineChart: React.FC<LineChartProps> = ({
    data,
-   fill1,
-   fill2,
+   stroke1,
+   stroke2,
+   name1,
+   name2,
 }) => {
    const formatted = data.map(({ date, rx, tx }) => ({
       date: formatDate.format(new Date(date)),
@@ -39,6 +43,8 @@ export const MyLineChart: React.FC<LineChartProps> = ({
       tx,
    }))
 
+   console.log(name1)
+   console.log(name2)
    return (
       <ResponsiveContainer aspect={3.5}>
          <LineChart data={formatted}>
@@ -47,11 +53,12 @@ export const MyLineChart: React.FC<LineChartProps> = ({
             <CartesianGrid strokeDasharray="3 3" />
             <Tooltip />
             <Legend />
-            <Line type="monotone" dataKey="rx" fill={fill1} />
+            <Line name={name1} type="monotone" dataKey="rx" stroke={stroke1} />
             <Line
+               name={name2}
                type="monotone"
                dataKey="tx"
-               fill={fill2}
+               stroke={stroke2}
                activeDot={{ r: 8 }}
             />
          </LineChart>

@@ -25,12 +25,14 @@ interface AreaGraphProps {
    data: Datum[]
    stroke: string
    fill: string
+   name: string
 }
 
 export const MyAreaGraph: React.FC<AreaGraphProps> = ({
    data,
    stroke,
    fill,
+   name,
 }) => {
    const formatted = data.map(({ date, percentage }) => ({
       date: formatter.format(new Date(date)),
@@ -46,6 +48,7 @@ export const MyAreaGraph: React.FC<AreaGraphProps> = ({
             <Tooltip />
             <Legend />
             <Area
+               name={name}
                type="monotone"
                dataKey="percentage"
                stroke={stroke}

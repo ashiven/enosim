@@ -19,6 +19,7 @@ export default function VMChart({ data }: any) {
                   <Card>
                      <CardContent className="p-6">
                         <MyAreaGraph
+                           name="CPU Usage %"
                            data={data.cpuData}
                            stroke="#8884d8"
                            fill="#cfeafc"
@@ -31,6 +32,7 @@ export default function VMChart({ data }: any) {
                   <Card>
                      <CardContent className="p-6">
                         <MyAreaGraph
+                           name="RAM Usage %"
                            data={data.ramData}
                            stroke="#00bd56"
                            fill="#ccf3f3"
@@ -44,8 +46,10 @@ export default function VMChart({ data }: any) {
                      <CardContent className="p-6">
                         <MyLineChart
                            data={data.netData}
-                           fill1="#ffce90"
-                           fill2="#82ca9d"
+                           stroke1="#ffce90"
+                           stroke2="#82ca9d"
+                           name1="Received in kB/s"
+                           name2="Transmitted in kB/s"
                         />
                      </CardContent>
                   </Card>
