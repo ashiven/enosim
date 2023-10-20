@@ -79,7 +79,7 @@ class Simulation:
         os.system("cls" if sys.platform == "win32" else "clear")
         self.console.print("\n")
         self.console.log(
-            f"[bold blue]Round {self.round_id} info ({remaining} rounds remaining):\n"
+            f"[bold blue]Round {self.round_id} ({remaining} rounds remaining):\n"
         )
 
         if self.verbose:
