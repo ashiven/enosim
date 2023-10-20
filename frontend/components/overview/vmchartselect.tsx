@@ -12,7 +12,7 @@ import {
 import { useState } from "react"
 
 export default function VMSelect({ vmList, vmData }: any) {
-   const [selectedVm, setSelectedVm] = useState(vmList[0]) // Initialize with the first VM
+   const [selectedVm, setSelectedVm] = useState(vmList[0])
 
    return (
       <div>
