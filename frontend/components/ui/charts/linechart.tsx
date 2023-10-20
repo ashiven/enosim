@@ -1,6 +1,7 @@
 import React from "react"
 import {
    CartesianGrid,
+   Legend,
    Line,
    LineChart,
    ResponsiveContainer,
@@ -17,8 +18,8 @@ const formatDate = new Intl.DateTimeFormat("en-US", {
 
 interface Datum {
    date: string
-   line1: string
-   line2: string
+   rx: string
+   tx: string
 }
 
 interface LineChartProps {
@@ -32,10 +33,10 @@ export const MyLineChart: React.FC<LineChartProps> = ({
    fill1,
    fill2,
 }) => {
-   const formatted = data.map(({ date, line1, line2 }) => ({
+   const formatted = data.map(({ date, rx, tx }) => ({
       date: formatDate.format(new Date(date)),
-      line1,
-      line2,
+      rx,
+      tx,
    }))
 
    return (
@@ -45,8 +46,14 @@ export const MyLineChart: React.FC<LineChartProps> = ({
             <YAxis />
             <CartesianGrid strokeDasharray="3 3" />
             <Tooltip />
-            <Line dataKey="line1" fill={fill1} />
-            <Line dataKey="line2" fill={fill2} />
+            <Legend />
+            <Line type="monotone" dataKey="rx" fill={fill1} />
+            <Line
+               type="monotone"
+               dataKey="tx"
+               fill={fill2}
+               activeDot={{ r: 8 }}
+            />
          </LineChart>
       </ResponsiveContainer>
    )
