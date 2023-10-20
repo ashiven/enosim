@@ -4,7 +4,7 @@ import sqlite3
 
 from flask import Flask, request
 from flask_restful import Api, Resource
-from retry import retry
+from tenacity import retry, stop_after_attempt
 
 
 class Teams(Resource):
@@ -192,7 +192,7 @@ class FlaskApp:
         return connection
 
     @staticmethod
-    @retry(sqlite3.OperationalError, tries=3, delay=1)
+    @retry(stop=stop_after_attempt(3))
     def db_insert_values(table_name, data):
         value_names = ",".join(data.keys())
         value_placeholders = ",".join(["?" for _ in data.keys()])

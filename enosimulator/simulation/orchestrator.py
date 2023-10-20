@@ -4,16 +4,15 @@ import httpx
 import jsons
 from bs4 import BeautifulSoup
 from enochecker_core import CheckerInfoMessage, CheckerResultMessage, CheckerTaskResult
-from retry import retry
 from rich.console import Console
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from setup.types import SetupType, Team
+from tenacity import retry, stop_after_attempt
 from webdriver_manager.chrome import ChromeDriverManager
 
 from .flagsubmitter import FlagSubmitter
@@ -141,7 +140,7 @@ class Orchestrator:
             prev_round, current_round = 1, 1
         return int(prev_round), int(current_round)
 
-    @retry(TimeoutException, tries=3, delay=1)
+    @retry(stop=stop_after_attempt(3))
     def _get_team_scores(self) -> Dict:
         team_scores = dict()
         scoreboard_url = (
