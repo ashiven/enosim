@@ -1,3 +1,4 @@
+import SimulationProgress from "@/components/overview/progress"
 import VMCharts from "@/components/overview/vmcharts"
 import VMStats from "@/components/overview/vmstats"
 
@@ -11,6 +12,7 @@ export default function Home() {
          <div className="flex">
             <Sidebar />
             <div className="container">
+               <SimulationProgress />
                <VMStats />
                <VMCharts />
             </div>
