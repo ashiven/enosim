@@ -8,7 +8,7 @@ export default function ContainerChart({ data }: any) {
    return (
       <div className="container mx-auto mt-12 mb-8">
          <Card className="p-5">
-            <Tabs defaultValue="revenue">
+            <Tabs defaultValue="cpu">
                <TabsList>
                   <TabsTrigger value="cpu">CPU Usage</TabsTrigger>
                   <TabsTrigger value="ram">RAM Usage</TabsTrigger>
