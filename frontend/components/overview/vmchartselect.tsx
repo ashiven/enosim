@@ -5,7 +5,8 @@ import { Button } from "@components/ui/button"
 import {
    DropdownMenu,
    DropdownMenuContent,
-   DropdownMenuItem,
+   DropdownMenuRadioGroup,
+   DropdownMenuRadioItem,
    DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu"
 
@@ -18,17 +19,19 @@ export default function VMSelect({ vmList, vmData }: any) {
       <div>
          <DropdownMenu>
             <DropdownMenuTrigger>
-               <Button variant="outline">{selectedVm}</Button>
+               <Button variant="outline">Select VM</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-               {vmList.map((vmName: string) => (
-                  <DropdownMenuItem
-                     key={vmName}
-                     onSelect={() => setSelectedVm(vmName)}
-                  >
-                     {vmName}
-                  </DropdownMenuItem>
-               ))}
+               <DropdownMenuRadioGroup
+                  value={selectedVm}
+                  onValueChange={setSelectedVm}
+               >
+                  {vmList.map((vmName: string) => (
+                     <DropdownMenuRadioItem value={vmName}>
+                        {vmName}
+                     </DropdownMenuRadioItem>
+                  ))}
+               </DropdownMenuRadioGroup>
             </DropdownMenuContent>
          </DropdownMenu>
 
