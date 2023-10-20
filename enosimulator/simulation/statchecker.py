@@ -94,10 +94,10 @@ class StatChecker:
             cpu_usage = round(float(cpu_usage[:-1]), 2)
             ram_usage = parts[6]
             ram_usage = round(float(ram_usage[:-1]), 2)
-            network_rx = parts[7]
-            network_rx = round(float(network_rx[:-2]), 2)
-            network_tx = parts[9]
-            network_tx = round(float(network_tx[:-2]), 2)
+            network_rx = "".join((c if c in "0123456789." else "") for c in parts[7])
+            network_rx = round(float(network_rx) * (1024 if "MB" in parts[7] else 1), 2)
+            network_tx = "".join((c if c in "0123456789." else "") for c in parts[9])
+            network_tx = round(float(network_tx) * (1024 if "MB" in parts[9] else 1), 2)
 
             stats[name] = {
                 "name": name,
