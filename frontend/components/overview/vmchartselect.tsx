@@ -17,7 +17,7 @@ import { useState } from "react"
 export default function VMSelect({ vmList, vmData }: any) {
    const [selectedVm, setSelectedVm] = useState(vmList[0])
 
-   return vmList && vmData ? (
+   return vmList.length > 0 && vmData ? (
       <div>
          <DropdownMenu>
             <DropdownMenuTrigger>

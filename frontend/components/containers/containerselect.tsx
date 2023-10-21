@@ -17,7 +17,7 @@ import { useState } from "react"
 export default function ContainerSelect({ containerList, containerData }: any) {
    const [selectedContainer, setSelectedContainer] = useState(containerList[0])
 
-   return containerList && containerData ? (
+   return containerList.length > 0 && containerData ? (
       <div className="mt-8">
          <DropdownMenu>
             <DropdownMenuTrigger>
