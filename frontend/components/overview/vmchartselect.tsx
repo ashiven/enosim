@@ -43,7 +43,9 @@ export default function VMSelect({ vmList, vmData }: any) {
             </DropdownMenuContent>
          </DropdownMenu>
 
-         <VMChart data={vmData[selectedVm]} />
+         <div>
+            <VMChart data={vmData[selectedVm]} />
+         </div>
       </div>
    )
 }
