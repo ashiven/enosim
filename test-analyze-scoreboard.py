@@ -5,25 +5,14 @@ import requests
 from bs4 import BeautifulSoup
 
 url = "https://ctftime.org/event/2040"
-POINTS_PER_FLAG = 1  # the number of points gained from submitting one flag
-PARTICIPATING_TEAMS = 99  # the number of teams participating in the competition
+
+POINTS_PER_FLAG = 1
+PARTICIPATING_TEAMS = 100
 TOTAL_FLAGSTORES = 10  # in enowars7 there were 6 services with a total of 10 flagstores
 TOTAL_ROUNDS = 8 * 60  # 8 hours with one round per minute
-
-
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36"
-}
-scoreboard = requests.get(url, headers=headers)
-soup = BeautifulSoup(scoreboard.content, "html.parser")
-points_html = soup.find_all("td", class_="points")
-
-# TODO:
-# - this currently only takes into account the total number of points reached
-# - it would be more accurate to take into account the number of points gained from exploiting and the number of points gained from defending
-# - this way, it would be possible to derive an exploit probability and a defend probability for each experience level
-points = [float(p.text) for p in points_html]
-highest_score = max(points)
+SLA_POINTS_PER_ROUND = 50
+TOTAL_SLA_POINTS = SLA_POINTS_PER_ROUND * TOTAL_ROUNDS
+POINTS_PER_ROUND_PER_FLAGSTORE = (PARTICIPATING_TEAMS - 1) * POINTS_PER_FLAG
 
 
 # these percentages were adjusted to model a normal distribution
@@ -33,6 +22,21 @@ BEGINNER = 0.22
 INTERMEDIATE = 0.35
 ADVANCED = 0.52
 PROFESSIONAL = 0.73
+
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36"
+}
+scoreboard = requests.get(url, headers=headers)
+soup = BeautifulSoup(scoreboard.content, "html.parser")
+points_html = soup.find_all("td", class_="points")
+
+# TODO:
+# - this currently only takes into account the total number of points reached by exploiting and defending combined
+# - it would be more accurate to take into account the number of points gained from defending and exploiting separately
+# - this way, it would be possible to derive an exploit probability and a defend probability for each experience level
+points = [float(p.text) - (TOTAL_SLA_POINTS) for p in points_html]
+highest_score = max(points) - (TOTAL_SLA_POINTS)
+
 
 # these are the average points for each experience level
 # they were calculated by taking the average of the lowest and highest score for each experience level
@@ -69,19 +73,12 @@ plt.plot(list(reversed(distribution.keys())), list(reversed(distribution.values(
 plt.show()
 
 
-POINTS_PER_ROUND_PER_FLAGSTORE = (
-    PARTICIPATING_TEAMS * POINTS_PER_FLAG
-)  # exploiting PARTICIPATING_TEAMS per round with each flag yielding POINTS_PER_FLAG points
-
-
 def exploit_probability(points_from_exploiting):
-    POINTS_PER_FLAGSTORE = (
-        points_from_exploiting // TOTAL_FLAGSTORES
-    )  # the number of points gained from exploiting one of TOTAL_FLAGSTORES flagstore
-    ROUNDS_TO_REACH_POINTS_FROM_EXPLOITING = (
-        POINTS_PER_FLAGSTORE // POINTS_PER_ROUND_PER_FLAGSTORE
+    points_per_flagstore = points_from_exploiting // TOTAL_FLAGSTORES
+    rounds_to_reach_points_from_exploiting = (
+        points_per_flagstore // POINTS_PER_ROUND_PER_FLAGSTORE
     )
-    exploit_probability = ROUNDS_TO_REACH_POINTS_FROM_EXPLOITING / TOTAL_ROUNDS
+    exploit_probability = rounds_to_reach_points_from_exploiting / TOTAL_ROUNDS
     return exploit_probability * 100
 
 

@@ -30,7 +30,7 @@ class Experience(Enum):
     An enum representing the experience level of a team.
 
     The first value stands for the probability of the team exploiting / patching a vulnerability in any round.
-    The second value stands for their occurences in a simulation setup.
+    The second value stands for their prevalence in real ctf competitions.
     """
 
     NOOB = (0.015, 0.08)
