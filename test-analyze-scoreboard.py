@@ -14,15 +14,6 @@ SLA_POINTS_PER_ROUND = 50
 TOTAL_SLA_POINTS = SLA_POINTS_PER_ROUND * TOTAL_ROUNDS
 POINTS_PER_ROUND_PER_FLAGSTORE = (PARTICIPATING_TEAMS - 1) * POINTS_PER_FLAG
 
-
-# these percentages were adjusted to model a normal distribution
-# they represent the percentage of achieved points compared to the highest score in the competition
-NOOB = 0
-BEGINNER = 0.22
-INTERMEDIATE = 0.35
-ADVANCED = 0.52
-PROFESSIONAL = 0.73
-
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36"
 }
@@ -31,12 +22,21 @@ soup = BeautifulSoup(scoreboard.content, "html.parser")
 points_html = soup.find_all("td", class_="points")
 
 # TODO:
-# - this currently only takes into account the total number of points reached by exploiting and defending combined
-# - it would be more accurate to take into account the number of points gained from defending and exploiting separately
-# - this way, it would be possible to derive an exploit probability and a defend probability for each experience level
-points = [float(p.text) - (TOTAL_SLA_POINTS) for p in points_html]
-highest_score = max(points) - (TOTAL_SLA_POINTS)
+# - this currently only takes into account the total number of points reached by exploiting and defending and sla combined
+# - instead, i should do these calculations only with the points gained through attacking
+points = sorted([float(p.text) for p in points_html])
+highest_score = points[-1]
 
+# these percentages were adjusted to model a normal distribution
+# they represent the percentage of achieved points compared to the highest score in the competition
+EXPERIENCE_LEVELS = 5
+STEP_SIZE = PARTICIPATING_TEAMS // EXPERIENCE_LEVELS
+
+NOOB = points[1 * STEP_SIZE - 1] / highest_score
+BEGINNER = points[2 * STEP_SIZE - 1] / highest_score
+INTERMEDIATE = points[3 * STEP_SIZE - 1] / highest_score
+ADVANCED = points[4 * STEP_SIZE - 1] / highest_score
+PROFESSIONAL = points[5 * STEP_SIZE - 1] / highest_score
 
 # these are the average points for each experience level
 # they were calculated by taking the average of the lowest and highest score for each experience level
