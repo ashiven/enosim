@@ -15,13 +15,9 @@ import {
 import { useState } from "react"
 
 export default function ContainerSelect({ containerList, containerData }: any) {
-   if (containerList.length == 0) {
-      return <div></div>
-   }
-
    const [selectedContainer, setSelectedContainer] = useState(containerList[0])
 
-   return (
+   return containerList && containerData ? (
       <div className="mt-8">
          <DropdownMenu>
             <DropdownMenuTrigger>
@@ -47,5 +43,7 @@ export default function ContainerSelect({ containerList, containerData }: any) {
             <ContainerChart data={containerData[selectedContainer]} />
          </div>
       </div>
+   ) : (
+      <div></div>
    )
 }
