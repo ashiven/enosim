@@ -20,8 +20,6 @@ sudo systemctl enable docker
 sudo apt-get install -y docker-compose-plugin
 export DOCKER_BUILDKIT=0
 
-pat="<insert-your-pat-here>"
-
 retry() {
   local retries=3
   until "$@" || [ "$retries" -eq 0 ]; do
@@ -31,32 +29,22 @@ retry() {
   done
 }
 
-sudo git clone "https://${pat}@github.com/enowars/enowars7-service-CVExchange.git"
-sudo find "enowars7-service-CVExchange" \( -name "requirements*" -o -name "Dockerfile*" \) -exec sed -i "s|enochecker3[^ ]*|git+https://github.com/ashiven/enochecker3|g" "{}" \;
+pat="<insert-your-pat-here>"
 
-cd "enowars7-service-CVExchange/service"
-retry sudo docker compose up --build --force-recreate -d
+services=(
+  "enowars7-service-CVExchange"
+  "enowars7-service-bollwerk"
+  "enowars7-service-expenses"
+)
 
-cd "../checker"
-retry sudo docker compose up --build --force-recreate -d
-cd ../../
+for service in "${services[@]}"; do
+  sudo git clone "https//${pat}@github.com/enowars/${service}.git"
+  sudo find "${service}" \( -name "requirements*" -o -name "Dockerfile*" \) -exec sed -i "s|enochecker3[^ ]*|git+https://github.com/ashiven/enochecker3|g" "{}" \;
 
-sudo git clone "https://${pat}@github.com/enowars/enowars7-service-bollwerk.git"
-sudo find "enowars7-service-bollwerk" \( -name "requirements*" -o -name "Dockerfile*" \) -exec sed -i "s|enochecker3[^ ]*|git+https://github.com/ashiven/enochecker3|g" "{}" \;
+  cd "${service}/service"
+  retry sudo docker compose up --build --force-recreate -d
 
-cd "enowars7-service-bollwerk/service"
-retry sudo docker compose up --build --force-recreate -d
-
-cd "../checker"
-retry sudo docker compose up --build --force-recreate -d
-cd ../../
-
-sudo git clone "https://${pat}@github.com/enowars/enowars7-service-expenses.git"
-sudo find "enowars7-service-expenses" \( -name "requirements*" -o -name "Dockerfile*" \) -exec sed -i "s|enochecker3[^ ]*|git+https://github.com/ashiven/enochecker3|g" "{}" \;
-
-cd "enowars7-service-expenses/service"
-retry sudo docker compose up --build --force-recreate -d
-
-cd "../checker"
-retry sudo docker compose up --build --force-recreate -d
-cd ../../
+  cd "../checker"
+  retry sudo docker compose up --build --force-recreate -d
+  cd ../../
+done
