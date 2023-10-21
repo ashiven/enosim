@@ -31,9 +31,11 @@ class Simulation:
         self.debug = debug
         self.console = Console()
         self.round_id = 0
+        self.round_start = 0
         self.total_rounds = setup.config.settings.duration_in_minutes * (
             60 // setup.config.ctf_json.round_length_in_seconds
         )
+        self.remaining_rounds = self.total_rounds
         self.round_length = setup.config.ctf_json.round_length_in_seconds
 
     @classmethod
@@ -48,11 +50,13 @@ class Simulation:
         await self._scoreboard_available()
 
         for round_ in range(self.total_rounds):
-            round_start = time()
-            self.round_id = await self.orchestrator.get_round_info()
+            async with async_lock(self.locks["round_info"]):
+                self.round_start = time()
+                self.remaining_rounds = self.total_rounds - round_
+                self.round_id = await self.orchestrator.get_round_info()
 
             info_messages = await self._update_exploiting_and_patched()
-            self.round_info(info_messages, self.total_rounds - round_)
+            self.info(info_messages)
 
             self.orchestrator.parse_scoreboard()
 
@@ -71,15 +75,15 @@ class Simulation:
             await self.orchestrator.collect_system_analytics()
 
             round_end = time()
-            round_duration = round_end - round_start
+            round_duration = round_end - self.round_start
             if round_duration < self.round_length:
                 await asyncio.sleep(self.round_length - round_duration)
 
-    def round_info(self, info_messages: List[str], remaining: int):
+    def info(self, info_messages: List[str]):
         os.system("cls" if sys.platform == "win32" else "clear")
         self.console.print("\n")
         self.console.log(
-            f"[bold blue]Round {self.round_id} ({remaining} rounds remaining):\n"
+            f"[bold blue]Round {self.round_id} ({self.remaining_rounds} rounds remaining):\n"
         )
 
         if self.verbose:

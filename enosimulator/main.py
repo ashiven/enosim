@@ -72,9 +72,13 @@ async def main():
         setup = await Setup.new(args.config, args.secrets)
         await setup.build()
 
-        # Create thread locks for services, vms and teams
-        service_lock, team_lock = Lock(), Lock()
-        locks = {"service": service_lock, "team": team_lock}
+        # Create thread locks for services, teams, and round info
+        service_lock, team_lock, round_info_lock = Lock(), Lock(), Lock()
+        locks = {
+            "service": service_lock,
+            "team": team_lock,
+            "round_info": round_info_lock,
+        }
 
         simulation = await Simulation.new(setup, locks, args.verbose, args.debug)
 

@@ -1,6 +1,7 @@
 import logging
 import os
 import sqlite3
+from time import time
 
 from flask import Flask, request
 from flask_restful import Api, Resource
@@ -147,6 +148,23 @@ class ContainerList(Resource):
         return cls
 
 
+class RoundInfo(Resource):
+    def get(self):
+        with self.round_info_lock:
+            return {
+                "round_id": self.simulation.round_id,
+                "remaining_rounds": self.simulation.remaining_rounds,
+                "round_duration": round(time() - self.simulation.round_start, 2),
+                "round_length": self.simulation.round_length,
+            }
+
+    @classmethod
+    def create_api(cls, simulation, round_info_lock):
+        cls.simulation = simulation
+        cls.round_info_lock = round_info_lock
+        return cls
+
+
 class FlaskApp:
     def __init__(self, setup, simulation, locks):
         self.app = Flask(__name__)
@@ -164,12 +182,14 @@ class FlaskApp:
         VmListApi = VMList.create_api(list(self.setup.ips.public_ip_addresses.keys()))
         ContainerApi = Containers.create_api()
         ContainerListApi = ContainerList.create_api()
+        RoundInfoApi = RoundInfo.create_api(self.simulation, self.locks["round_info"])
         self.api.add_resource(TeamApi, "/teams")
         self.api.add_resource(ServiceApi, "/services")
         self.api.add_resource(VmApi, "/vminfo")
         self.api.add_resource(VmListApi, "/vmlist")
         self.api.add_resource(ContainerApi, "/containerinfo")
         self.api.add_resource(ContainerListApi, "/containerlist")
+        self.api.add_resource(RoundInfoApi, "/roundinfo")
 
     def run(self):
         log = logging.getLogger("werkzeug")
