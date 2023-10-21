@@ -18,6 +18,7 @@ export default function SimulationProgressClient({ data }: any) {
             setCountdown(countdown - 1)
          } else {
             clearInterval(countdownInterval)
+            window.location.reload()
          }
       }, 1000)
 
