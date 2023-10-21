@@ -4,6 +4,9 @@ from .hetzner import HetznerSetupHelper
 from .local import LocalSetupHelper
 
 TEAM_NAMES = [
+    "Edible Frog",
+    "Jonah Crab",
+    "English Cream Golden Retriever",
     "Vampire Squid",
     "Bolognese Dog",
     "Abyssinian Guinea Pig",
@@ -32,7 +35,6 @@ TEAM_NAMES = [
     "Aye-Aye",
     "Dorking Chicken",
     "Elk",
-    "Jonah Crab",
     "Xenoposeidon",
     "Urutu Snake",
     "Hamburg Chicken",
@@ -68,7 +70,6 @@ TEAM_NAMES = [
     "San Francisco Garter Snake",
     "Zebu",
     "New Hampshire Red Chicken",
-    "English Cream Golden Retriever",
     "False Water Cobra",
     "Earless Monitor Lizard",
     "Chicken Snake",
@@ -101,7 +102,6 @@ TEAM_NAMES = [
     "Norwegian Elkhound",
     "Yabby",
     "Midget Faded Rattlesnake",
-    "Edible Frog",
     "Pomchi",
     "Jack-Chi",
     "Herring",

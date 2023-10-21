@@ -301,8 +301,12 @@ class Setup:
         new_service = {
             "id": id,
             "name": service,
-            "flagsPerRoundMultiplier": 1,
-            "noisesPerRoundMultiplier": 1,
+            "flagsPerRoundMultiplier": 30
+            if self.config.settings.simulation_type == "basic-stress-test"
+            else 1,
+            "noisesPerRoundMultiplier": 30
+            if self.config.settings.simulation_type == "basic-stress-test"
+            else 1,
             "havocsPerRoundMultiplier": 1,
             "weightFactor": 1,
             "checkers": [str(checker_port)],

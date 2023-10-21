@@ -63,6 +63,8 @@ class Orchestrator:
                                 {f"Flagstore{flagstore_id}": False}
                                 if self.setup.config.settings.simulation_type
                                 == "realistic"
+                                or self.setup.config.settings.simulation_type
+                                == "basic-stress-test"
                                 else {f"Flagstore{flagstore_id}": True}
                             )
                             team.patched[info.service_name].update(
