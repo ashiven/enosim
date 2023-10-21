@@ -151,7 +151,7 @@ class StatChecker:
                 "free -m | grep Mem | awk '{print ($3/$2)*100}' &&"
                 + "free -m | grep Mem | awk '{print $2}' &&"
                 + "free -m | grep Mem | awk '{print $3}' &&"
-                + "sar 1 1 | grep 'Average' | sed 's/^.* //' | awk '{print 100 - $1}' &&"
+                + "sar 1 2 | grep 'Average' | sed 's/^.* //' | awk '{print 100 - $1}' &&"
                 + "nproc &&"
                 + "df -h / | awk 'NR == 2 {print $2}'"
             )
