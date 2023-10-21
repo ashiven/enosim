@@ -156,6 +156,7 @@ class RoundInfo(Resource):
                 "remaining_rounds": self.simulation.remaining_rounds,
                 "round_duration": round(time() - self.simulation.round_start, 2),
                 "round_length": self.simulation.round_length,
+                "total_rounds": self.simulation.total_rounds,
             }
 
     @classmethod

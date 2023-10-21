@@ -1,30 +1,17 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
+import SimulationProgressClient from "@/components/overview/progressclient"
 
-export default function SimulationProgress() {
-   return (
-      <div className="container mx-auto mt-12 mb-8">
-         <Card className="mt-8">
-            <CardContent>
-               <div className="mt-8">
-                  <div>
-                     <h4 className=" font-medium leading-none">
-                        Simulation Progress
-                     </h4>
-                  </div>
-                  <Separator className="my-4" />
-                  <div className="flex h-5 items-center space-x-4 text-sm mb-4">
-                     <div>Round 10</div>
-                     <Separator orientation="vertical" />
-                     <div>20 Rounds remaining</div>
-                     <Separator orientation="vertical" />
-                     <div>40s Until next round</div>
-                  </div>
-                  <Progress value={50} />
-               </div>
-            </CardContent>
-         </Card>
-      </div>
-   )
+async function getData() {
+   try {
+      const res = await fetch("http://127.0.0.1:5000/roundinfo", {
+         next: { revalidate: 0 },
+      })
+      return res.json()
+   } catch (e) {
+      return {}
+   }
+}
+
+export default async function SimulationProgress() {
+   const data = await getData()
+   return <SimulationProgressClient data={data} />
 }
