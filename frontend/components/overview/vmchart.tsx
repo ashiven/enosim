@@ -1,7 +1,7 @@
 "use client"
-import { Card, CardContent } from "@/components/ui/card"
-import { MyAreaGraph } from "@/components/ui/charts/areagraph"
-import { MyLineChart } from "@/components/ui/charts/linechart"
+import { MyAreaGraph } from "@/components/charts/areagraph"
+import { MyLineChart } from "@/components/charts/linechart"
+import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function VMChart({ data }: any) {
@@ -16,43 +16,31 @@ export default function VMChart({ data }: any) {
                </TabsList>
                {/* CPU Usage */}
                <TabsContent value="cpu">
-                  <Card>
-                     <CardContent className="p-6">
-                        <MyAreaGraph
-                           name="CPU Usage %"
-                           data={data.cpuData}
-                           stroke="#8884d8"
-                           fill="#cfeafc"
-                        />
-                     </CardContent>
-                  </Card>
+                  <MyAreaGraph
+                     name="CPU Usage %"
+                     data={data.cpuData}
+                     stroke="#8884d8"
+                     fill="#cfeafc"
+                  />
                </TabsContent>
                {/* RAM Usage */}
                <TabsContent value="ram">
-                  <Card>
-                     <CardContent className="p-6">
-                        <MyAreaGraph
-                           name="RAM Usage %"
-                           data={data.ramData}
-                           stroke="#00bd56"
-                           fill="#ccf3f3"
-                        />
-                     </CardContent>
-                  </Card>
+                  <MyAreaGraph
+                     name="RAM Usage %"
+                     data={data.ramData}
+                     stroke="#00bd56"
+                     fill="#ccf3f3"
+                  />
                </TabsContent>
                {/* Network Usage */}
                <TabsContent value="network">
-                  <Card>
-                     <CardContent className="p-6">
-                        <MyLineChart
-                           data={data.netData}
-                           stroke1="#8884d8"
-                           stroke2="#82ca9d"
-                           name1="Received in kB/s"
-                           name2="Transmitted in kB/s"
-                        />
-                     </CardContent>
-                  </Card>
+                  <MyLineChart
+                     data={data.netData}
+                     stroke1="#8884d8"
+                     stroke2="#82ca9d"
+                     name1="Received in kB/s"
+                     name2="Transmitted in kB/s"
+                  />
                </TabsContent>
             </Tabs>
          </Card>
