@@ -74,9 +74,9 @@ plt.show()
 
 
 def exploit_probability(points_from_exploiting):
-    points_per_flagstore = points_from_exploiting // TOTAL_FLAGSTORES
+    points_per_flagstore = points_from_exploiting / TOTAL_FLAGSTORES
     rounds_to_reach_points_from_exploiting = (
-        points_per_flagstore // POINTS_PER_ROUND_PER_FLAGSTORE
+        points_per_flagstore / POINTS_PER_ROUND_PER_FLAGSTORE
     )
     exploit_probability = rounds_to_reach_points_from_exploiting / TOTAL_ROUNDS
     return exploit_probability * 100
