@@ -68,34 +68,6 @@ def _execute_command(cmd: str):
         console.print(e)
 
 
-def _generate_ctf_json():
-    new_ctf_json = {
-        "title": "eno-ctf",
-        "flagValidityInRounds": 2,
-        "checkedRoundsPerRound": 3,
-        "roundLengthInSeconds": 60,
-        "dnsSuffix": "eno.host",
-        "teamSubnetBytesLength": 15,
-        "flagSigningKey": "ir7PRm0SzqzA0lmFyBfUv68E6Yb7cjbJDp6dummqwr0Od70Sar7P27HVY6oc8PuW",
-        "teams": [],
-        "services": [],
-    }
-    return new_ctf_json
-
-
-def _generate_service(id: int, service: str, checker_port: int, simulation_type: str):
-    new_service = {
-        "id": id,
-        "name": service,
-        "flagsPerRoundMultiplier": 1,
-        "noisesPerRoundMultiplier": 1,
-        "havocsPerRoundMultiplier": 1,
-        "weightFactor": 1,
-        "checkers": [str(checker_port)],
-    }
-    return new_service
-
-
 #### End Helpers ####
 
 
@@ -148,7 +120,7 @@ class Setup:
                 await service_file.write(f"{service}\n")
 
         # Configure ctf.json from config.json
-        ctf_json = _generate_ctf_json()
+        ctf_json = self._generate_ctf_json()
         for setting, value in vars(self.config.ctf_json).items():
             ctf_json[_kebab_to_camel(setting)] = value
 
@@ -162,7 +134,7 @@ class Setup:
         ctf_json["services"].clear()
         for service_id, service in enumerate(self.config.settings.services):
             checker_port = self.config.settings.checker_ports[service_id]
-            new_service = _generate_service(
+            new_service = self._generate_service(
                 service_id + 1,
                 service,
                 checker_port,
@@ -308,3 +280,31 @@ class Setup:
 
         except CalledProcessError:
             return False
+
+    def _generate_ctf_json(self):
+        new_ctf_json = {
+            "title": "eno-ctf",
+            "flagValidityInRounds": 2,
+            "checkedRoundsPerRound": 3,
+            "roundLengthInSeconds": 60,
+            "dnsSuffix": "eno.host",
+            "teamSubnetBytesLength": 15,
+            "flagSigningKey": "ir7PRm0SzqzA0lmFyBfUv68E6Yb7cjbJDp6dummqwr0Od70Sar7P27HVY6oc8PuW",
+            "teams": [],
+            "services": [],
+        }
+        return new_ctf_json
+
+    def _generate_service(
+        self, id: int, service: str, checker_port: int, simulation_type: str
+    ):
+        new_service = {
+            "id": id,
+            "name": service,
+            "flagsPerRoundMultiplier": 1,
+            "noisesPerRoundMultiplier": 1,
+            "havocsPerRoundMultiplier": 1,
+            "weightFactor": 1,
+            "checkers": [str(checker_port)],
+        }
+        return new_service

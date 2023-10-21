@@ -196,12 +196,15 @@ class Config:
 
     @staticmethod
     def from_(config):
-        new_config = Config(
-            setup=ConfigSetup.from_(config["setup"]),
-            settings=ConfigSettings.from_(config["settings"]),
-            ctf_json=ConfigCtfJson.from_(config["ctf-json"]),
-        )
-        return new_config
+        try:
+            new_config = Config(
+                setup=ConfigSetup.from_(config["setup"]),
+                settings=ConfigSettings.from_(config["settings"]),
+                ctf_json=ConfigCtfJson.from_(config["ctf-json"]),
+            )
+            return new_config
+        except:
+            Console().print("[bold red][!] Invalid config file.")
 
 
 @dataclass
@@ -241,11 +244,14 @@ class Secrets:
 
     @staticmethod
     def from_(secrets):
-        new_secrets = Secrets(
-            vm_secrets=VmSecrets.from_(secrets["vm-secrets"]),
-            cloud_secrets=CloudSecrets.from_(secrets["cloud-secrets"]),
-        )
-        return new_secrets
+        try:
+            new_secrets = Secrets(
+                vm_secrets=VmSecrets.from_(secrets["vm-secrets"]),
+                cloud_secrets=CloudSecrets.from_(secrets["cloud-secrets"]),
+            )
+            return new_secrets
+        except:
+            Console().print("[bold red][!] Invalid secrets file.")
 
 
 @dataclass
