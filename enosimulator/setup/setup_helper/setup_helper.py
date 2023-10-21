@@ -112,9 +112,10 @@ TEAM_NAMES = [
 
 
 def _generate_ctf_team(id: int):
+    name = TEAM_NAMES[id - 1] if id <= len(TEAM_NAMES) else f"Team {id}"
     new_team = {
         "id": id,
-        "name": TEAM_NAMES[id - 1],
+        "name": name,
         "teamSubnet": "::ffff:<placeholder>",
         "address": "<placeholder>",
     }
@@ -122,10 +123,11 @@ def _generate_ctf_team(id: int):
 
 
 def _generate_setup_team(id: int, experience: Experience):
+    name = TEAM_NAMES[id - 1] if id <= len(TEAM_NAMES) else f"Team {id}"
     new_team = {
         TEAM_NAMES[id - 1]: Team(
             id=id,
-            name=TEAM_NAMES[id - 1],
+            name=name,
             team_subnet="::ffff:<placeholder>",
             address="<placeholder>",
             experience=experience,
