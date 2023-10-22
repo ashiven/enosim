@@ -6,13 +6,12 @@ from bs4 import BeautifulSoup
 
 url = "https://ctftime.org/event/2040"
 
-POINTS_PER_FLAG = 1
-PARTICIPATING_TEAMS = 100
+POINTS_PER_FLAG = 1  # the number of points gained from submitting one flag
+PARTICIPATING_TEAMS = 99  # the number of teams participating in the competition
 TOTAL_FLAGSTORES = 10  # in enowars7 there were 6 services with a total of 10 flagstores
 TOTAL_ROUNDS = 8 * 60  # 8 hours with one round per minute
-SLA_POINTS_PER_ROUND = 50
-TOTAL_SLA_POINTS = SLA_POINTS_PER_ROUND * TOTAL_ROUNDS
-POINTS_PER_ROUND_PER_FLAGSTORE = (PARTICIPATING_TEAMS - 1) * POINTS_PER_FLAG
+POINTS_PER_ROUND_PER_FLAGSTORE = PARTICIPATING_TEAMS * POINTS_PER_FLAG
+
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36"
@@ -24,19 +23,19 @@ points_html = soup.find_all("td", class_="points")
 # TODO:
 # - this currently only takes into account the total number of points reached by exploiting and defending and sla combined
 # - instead, i should do these calculations only with the points gained through attacking
-points = sorted([float(p.text) for p in points_html])
-highest_score = points[-1]
+points = [float(p.text) for p in points_html]
+highest_score = max(points)
 
+
+# TODO:
+# - these values have to be adjusted in such a way that the second graph models a bell curve
 # these percentages were adjusted to model a normal distribution
 # they represent the percentage of achieved points compared to the highest score in the competition
-EXPERIENCE_LEVELS = 5
-STEP_SIZE = PARTICIPATING_TEAMS // EXPERIENCE_LEVELS
-
-NOOB = points[1 * STEP_SIZE - 1] / highest_score
-BEGINNER = points[2 * STEP_SIZE - 1] / highest_score
-INTERMEDIATE = points[3 * STEP_SIZE - 1] / highest_score
-ADVANCED = points[4 * STEP_SIZE - 1] / highest_score
-PROFESSIONAL = points[5 * STEP_SIZE - 1] / highest_score
+NOOB = 0
+BEGINNER = 0.22
+INTERMEDIATE = 0.35
+ADVANCED = 0.52
+PROFESSIONAL = 0.73
 
 # these are the average points for each experience level
 # they were calculated by taking the average of the lowest and highest score for each experience level
