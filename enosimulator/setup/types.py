@@ -204,7 +204,7 @@ class Config:
             )
             return new_config
         except:
-            Console().print("[bold red][!] Invalid config file.")
+            raise ValueError("Invalid config file.")
 
 
 @dataclass
@@ -251,7 +251,7 @@ class Secrets:
             )
             return new_secrets
         except:
-            Console().print("[bold red][!] Invalid secrets file.")
+            raise ValueError("Invalid secrets file.")
 
 
 @dataclass
