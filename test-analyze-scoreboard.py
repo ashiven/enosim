@@ -6,11 +6,11 @@ from bs4 import BeautifulSoup
 
 url = "https://ctftime.org/event/2040"
 
-POINTS_PER_FLAG = 1  # the number of points gained from submitting one flag
-PARTICIPATING_TEAMS = 99  # the number of teams participating in the competition
+POINTS_PER_FLAG = 1  #
+PARTICIPATING_TEAMS = 100
 TOTAL_FLAGSTORES = 10  # in enowars7 there were 6 services with a total of 10 flagstores
 TOTAL_ROUNDS = 8 * 60  # 8 hours with one round per minute
-POINTS_PER_ROUND_PER_FLAGSTORE = PARTICIPATING_TEAMS * POINTS_PER_FLAG
+POINTS_PER_ROUND_PER_FLAGSTORE = (PARTICIPATING_TEAMS - 1) * POINTS_PER_FLAG
 
 
 headers = {
