@@ -105,7 +105,7 @@ export default function TeamCard(props: TeamCardProps) {
                </Popover>
             </CardHeader>
             <CardContent>
-               <div className="text-2xl font-bold ">+{props.data.points}</div>
+               <div className="text-2xl font-bold ">{props.data.points}</div>
                <div className="text-xs text-muted-foreground">
                   +{props.data.gain} since last round
                </div>
