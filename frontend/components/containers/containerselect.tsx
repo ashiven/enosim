@@ -1,6 +1,6 @@
 "use client"
 
-import ContainerChart from "@/components/overview/vmchart"
+import ContainerChart from "@/components/containers/containerchart"
 import { Button } from "@components/ui/button"
 import {
    DropdownMenu,
