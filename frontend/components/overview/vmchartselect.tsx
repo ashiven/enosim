@@ -20,7 +20,7 @@ export default function VMSelect({ vmList, vmData }: any) {
    return vmList.length > 0 && vmData ? (
       <div>
          <DropdownMenu>
-            <DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild>
                <Button variant="outline">Select VM</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>

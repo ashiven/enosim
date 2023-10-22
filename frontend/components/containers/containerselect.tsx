@@ -20,7 +20,7 @@ export default function ContainerSelect({ containerList, containerData }: any) {
    return containerList.length > 0 && containerData ? (
       <div className="mt-8">
          <DropdownMenu>
-            <DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild>
                <Button variant="outline">Select Container</Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
@@ -41,7 +41,6 @@ export default function ContainerSelect({ containerList, containerData }: any) {
                </DropdownMenuRadioGroup>
             </DropdownMenuContent>
          </DropdownMenu>
-
          <div>
             <ContainerChart data={containerData[selectedContainer]} />
          </div>
