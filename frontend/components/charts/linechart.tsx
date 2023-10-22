@@ -45,8 +45,6 @@ export const MyLineChart: React.FC<LineChartProps> = ({
          tx,
       }))
 
-   console.log(name1)
-   console.log(name2)
    return (
       <ResponsiveContainer aspect={3.5}>
          <LineChart data={formatted}>
