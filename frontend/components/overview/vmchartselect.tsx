@@ -31,7 +31,7 @@ export default function VMSelect({ vmList, vmData }: any) {
                   onValueChange={setSelectedVm}
                >
                   {vmList.map((vmName: string) => (
-                     <DropdownMenuRadioItem value={vmName}>
+                     <DropdownMenuRadioItem value={vmName} key={vmName}>
                         {vmName}
                      </DropdownMenuRadioItem>
                   ))}

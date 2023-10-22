@@ -31,7 +31,10 @@ export default function ContainerSelect({ containerList, containerData }: any) {
                   onValueChange={setSelectedContainer}
                >
                   {containerList.map((containerName: string) => (
-                     <DropdownMenuRadioItem value={containerName}>
+                     <DropdownMenuRadioItem
+                        value={containerName}
+                        key={containerName}
+                     >
                         {containerName}
                      </DropdownMenuRadioItem>
                   ))}
