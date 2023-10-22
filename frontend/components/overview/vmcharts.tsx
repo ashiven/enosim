@@ -44,13 +44,13 @@ function filterData(data: any) {
 
 export default async function VMCharts() {
    const vmList = await getVmList()
-   const vmDataPromises = vmList.map(async (vmName: string) => ({
-      [vmName]: filterData(await getData(vmName)),
-   }))
-   const vmDataArray = await Promise.all(vmDataPromises)
-   const vmData = vmDataArray.reduce((acc, vmDataItem) => {
-      return { ...acc, ...vmDataItem }
-   }, {})
+   const vmData: any = {}
+
+   await Promise.all(
+      vmList.map(async (vmName: string) => {
+         vmData[vmName] = filterData(await getData(vmName))
+      })
+   )
 
    return <VMSelect vmList={vmList} vmData={vmData} />
 }

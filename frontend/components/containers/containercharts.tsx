@@ -47,15 +47,13 @@ function filterData(data: any) {
 
 export default async function ContainerCharts() {
    const containerList = await getContainerList()
-   const containerDataPromises = containerList.map(
-      async (containerName: string) => ({
-         [containerName]: filterData(await getData(containerName)),
+   const containerData: any = {}
+
+   await Promise.all(
+      containerList.map(async (containerName: string) => {
+         containerData[containerName] = filterData(await getData(containerName))
       })
    )
-   const containerDataArray = await Promise.all(containerDataPromises)
-   const containerData = containerDataArray.reduce((acc, containerDataItem) => {
-      return { ...acc, ...containerDataItem }
-   }, {})
 
    return (
       <ContainerSelect

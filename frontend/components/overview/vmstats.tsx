@@ -39,12 +39,19 @@ function filterVmJson(data: any) {
 
 export default async function VMStats() {
    const vmList = await getVmList()
+   const vmData: any = {}
+
+   await Promise.all(
+      vmList.map(async (vmName: string) => {
+         vmData[vmName] = filterVmJson(await getData(vmName))
+      })
+   )
 
    return (
       <div className="container mx-auto mt-12 mb-8">
          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {vmList.map(async (vmName: string) => (
-               <VMCard data={filterVmJson(await getData(vmName))} />
+               <VMCard data={vmData[vmName]} />
             ))}
          </div>
       </div>
