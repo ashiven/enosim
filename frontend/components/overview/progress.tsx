@@ -13,5 +13,7 @@ async function getData() {
 
 export default async function SimulationProgress() {
    const data = await getData()
-   return <SimulationProgressClient data={data} />
+   return (
+      Object.keys(data).length > 0 && <SimulationProgressClient data={data} />
+   )
 }
