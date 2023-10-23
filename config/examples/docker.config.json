@@ -1,0 +1,29 @@
+{
+   "setup": {
+      "ssh-config-path": "/app/config/simconfig",
+      "location": "hetzner",
+      "vm-sizes": {
+         "vulnbox": "cx11",
+         "checker": "cx11",
+         "engine": "cx11"
+      },
+      "vm-image-references": {
+         "vulnbox": "vulnbox-checker-CVExchange-bollwerk-expenses",
+         "checker": "vulnbox-checker-CVExchange-bollwerk-expenses",
+         "engine": "engine"
+      }
+   },
+   "settings": {
+      "duration-in-minutes": 300,
+      "teams": 3,
+      "services": ["enowars7-service-CVExchange", "enowars7-service-bollwerk"],
+      "checker-ports": [7331, 6008],
+      "simulation-type": "stress-test"
+   },
+   "ctf-json": {
+      "title": "ctf-sim",
+      "flag-validity-in-rounds": 2,
+      "checked-rounds-per-round": 3,
+      "round-length-in-seconds": 60
+   }
+}
