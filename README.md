@@ -12,8 +12,11 @@ This software can be used to simulate an attack/defense cybersecurity competitio
 -  Download and install the latest version of [Terraform](https://developer.hashicorp.com/terraform/downloads?product_intent=terraform).
 -  Download and install the latest version of [Packer](https://www.packer.io/downloads).
 -  Create an account with your preferred cloud provider (currently supporting [Microsoft Azure](https://azure.microsoft.com/en-us) and [Hetzner Cloud](https://www.hetzner.com/cloud)).
+-  If you are using Windows, make sure to install [Git Bash](https://gitforwindows.org/) and add `C:\Program Files\Git\bin` to your **PATH** environment variable to be able to run shell scripts.
 
 ### Setup
+
+####
 
 1. Clone the repository to your local machine as follows:
 
@@ -33,6 +36,28 @@ This software can be used to simulate an attack/defense cybersecurity competitio
 
    ```bash
    python enosimulator -c /path/to/config.json -s /path/to/secrets.json
+   ```
+
+#### Docker
+
+1. Clone the repository to your local machine as follows:
+
+   ```bash
+   git clone https://github.com/ashiven/enosimulator.git
+   ```
+
+2. Create an SSH key pair in the **config** directory:
+
+   ```bash
+   ssh-keygen -f ./config/simkey
+   ```
+
+3. Specify simulation details in **config/config.json** and **config/secrets.json**.
+
+4. Start the docker containers:
+
+   ```bash
+   docker compose up -d
    ```
 
 ### Configuration
