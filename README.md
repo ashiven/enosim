@@ -52,7 +52,24 @@ This software can be used to simulate an attack/defense cybersecurity competitio
    ssh-keygen -f ./config/simkey
    ```
 
-3. Specify simulation details in **config/config.json** and **config/secrets.json**.
+3. Specify simulation details in **config/config.json** and **config/secrets.json** with the following SSH key paths.
+
+   ```json
+   {
+      "vm-secrets": {
+         "ssh-public-key-path": "/app/config/simkey.pub",
+         "ssh-private-key-path": "/app/config/simkey"
+      }
+   }
+   ```
+
+   ```json
+   {
+      "setup": {
+         "ssh-config-path": "/app/config/simconfig"
+      }
+   }
+   ```
 
 4. Start the docker containers:
 
