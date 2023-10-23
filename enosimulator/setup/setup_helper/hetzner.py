@@ -1,4 +1,5 @@
 import os
+from typing import Dict, Tuple
 
 import aiofiles
 from types_ import Config, Secrets
@@ -18,7 +19,7 @@ class HetznerSetupHelper(Helper):
             ref != "" for ref in self.config.setup.vm_image_references.values()
         )
 
-    async def convert_buildscript(self):
+    async def convert_buildscript(self) -> None:
         # Copy build.sh template for configuration
         await copy_file(
             f"{self.setup_path}/templates/build.sh",
@@ -69,7 +70,7 @@ class HetznerSetupHelper(Helper):
             )
         await insert_after(f"{self.setup_path}/build.sh", 'echo -e "Host engine', lines)
 
-    async def convert_deploy_script(self):
+    async def convert_deploy_script(self) -> None:
         # Copy deploy.sh template for configuration
         await copy_file(
             f"{self.setup_path}/templates/deploy.sh",
@@ -109,7 +110,7 @@ class HetznerSetupHelper(Helper):
             f"{self.setup_path}/deploy.sh", "retry ssh -F ${ssh_config} checker", lines
         )
 
-    async def convert_tf_files(self):
+    async def convert_tf_files(self) -> None:
         # Copy terraform file templates for configuration
         await copy_file(
             f"{self.setup_path}/templates/versions.tf",
@@ -242,7 +243,7 @@ class HetznerSetupHelper(Helper):
                 "  image = data.hcloud_image.vulnbox.id\n",
             )
 
-    async def convert_vm_scripts(self):
+    async def convert_vm_scripts(self) -> None:
         # Copy vm script templates for configuration
         await copy_file(
             f"{self.setup_path}/templates/data/vulnbox.sh",
@@ -316,7 +317,7 @@ class HetznerSetupHelper(Helper):
                 ],
             )
 
-    async def get_ip_addresses(self):
+    async def get_ip_addresses(self) -> Tuple[Dict, Dict]:
         # Parse public ip addresses from ip_addresses.log
         ip_addresses = dict()
         async with aiofiles.open(

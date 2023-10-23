@@ -3,6 +3,7 @@ import secrets
 import urllib
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
+from typing import Dict
 
 import jsons
 from enochecker_core import CheckerMethod, CheckerTaskMessage
@@ -14,7 +15,7 @@ _pool = ThreadPoolExecutor()
 
 
 @asynccontextmanager
-async def async_lock(lock):
+async def async_lock(lock) -> None:
     loop = asyncio.get_event_loop()
     await loop.run_in_executor(_pool, lock.acquire)
     try:
@@ -35,7 +36,7 @@ def checker_request(
     flag_regex: str,
     flag_hash: str,
     attack_info: str,
-):
+) -> CheckerTaskMessage:
     if not unique_variant_index:
         unique_variant_index = variant_id
     prefix = "havoc"
@@ -68,7 +69,7 @@ def checker_request(
     )
 
 
-def req_to_json(request: CheckerTaskMessage):
+def req_to_json(request: CheckerTaskMessage) -> Dict:
     return jsons.dumps(
         request,
         use_enum_name=False,
@@ -77,13 +78,13 @@ def req_to_json(request: CheckerTaskMessage):
     )
 
 
-def port_from_address(address: str):
+def port_from_address(address: str) -> str:
     url = urllib.parse.urlparse(address)
     _, _, port = url.netloc.partition(":")
     return port
 
 
-def private_to_public_ip(ip_addresses: IpAddresses):
+def private_to_public_ip(ip_addresses: IpAddresses) -> Dict[str, str]:
     return {
         ip_addresses.private_ip_addresses[team_name]: ip_addresses.public_ip_addresses[
             team_name

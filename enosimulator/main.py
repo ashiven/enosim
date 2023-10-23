@@ -10,7 +10,7 @@ from setup.setup import Setup
 from simulation.simulation import Simulation
 
 
-async def main():
+async def main() -> None:
     load_dotenv()
     sys.path.append("..")
     sys.path.append("../..")

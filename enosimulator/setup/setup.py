@@ -1,6 +1,7 @@
 import json
 import os
 from subprocess import PIPE, STDOUT, CalledProcessError, Popen, run
+from typing import Dict
 
 import aiofiles
 from rich.console import Console
@@ -12,25 +13,25 @@ from .setup_helper.setup_helper import SetupHelper
 ####  Helpers ####
 
 
-def _kebab_to_camel(s: str):
+def _kebab_to_camel(s: str) -> str:
     words = s.split("-")
     return words[0] + "".join(w.title() for w in words[1:])
 
 
-async def _parse_json(path: str):
+async def _parse_json(path: str) -> Dict:
     async with aiofiles.open(path, "r") as json_file:
         content = await json_file.read()
         return json.loads(content)
 
 
-async def _create_file(path: str):
+async def _create_file(path: str) -> None:
     if os.path.exists(path):
         os.remove(path)
     async with aiofiles.open(path, "w") as file:
         await file.write("")
 
 
-def _delete_files(path: str):
+def _delete_files(path: str) -> None:
     for file in os.listdir(path):
         if file == ".gitkeep":
             continue
@@ -39,7 +40,7 @@ def _delete_files(path: str):
             os.remove(file_path)
 
 
-def _execute_command(cmd: str):
+def _execute_command(cmd: str) -> None:
     console = Console()
     try:
         p = Popen(
@@ -105,12 +106,12 @@ class Setup:
         setup_helper = SetupHelper(config, secrets)
         return cls(config, secrets, setup_path, setup_helper)
 
-    async def build(self):
+    async def build(self) -> None:
         await self.configure()
         await self.build_infra()
         self.deploy()
 
-    async def configure(self):
+    async def configure(self) -> None:
         # Create services.txt
         await _create_file(f"{self.setup_path}/config/services.txt")
         async with aiofiles.open(
@@ -153,7 +154,7 @@ class Setup:
         # Convert template files (terraform, deploy.sh, build.sh, etc.) according to config
         await self.setup_helper.convert_templates()
 
-    async def build_infra(self):
+    async def build_infra(self) -> None:
         if not self.skip_infra:
             with self.console.status("[bold green]Building infrastructure ..."):
                 _execute_command(f"sh {self.setup_path}/build.sh")
@@ -192,7 +193,7 @@ class Setup:
 
         self.info()
 
-    def deploy(self):
+    def deploy(self) -> None:
         if not self.skip_infra:
             with self.console.status("[bold green]Configuring infrastructure ..."):
                 self.console.print("\n[green][+] Configuring known hosts ...")
@@ -200,7 +201,7 @@ class Setup:
                     _execute_command(f"ssh-keygen -R {public_ip}")
                 _execute_command(f"sh {self.setup_path}/deploy.sh")
 
-    def destroy(self):
+    def destroy(self) -> None:
         try:
             with self.console.status("[bold red]Destroying infrastructure ..."):
                 _execute_command(f"sh {self.setup_path}/build.sh -d")
@@ -218,7 +219,7 @@ class Setup:
             _delete_files(f"{self.setup_path}/data")
             _delete_files(f"{self.setup_path}/logs")
 
-    def info(self):
+    def info(self) -> None:
         table = Table(title="Teams")
         table.add_column("ID", justify="center", style="magenta")
         table.add_column("Name", justify="center", style="magenta")
@@ -263,7 +264,7 @@ class Setup:
             table.add_row(name, ip_address)
         self.console.print(table)
 
-    def _existing_infra(self):
+    def _existing_infra(self) -> bool:
         try:
             stdout = run(
                 ["terraform", "show"],
@@ -281,7 +282,7 @@ class Setup:
         except CalledProcessError:
             return False
 
-    def _generate_ctf_json(self):
+    def _generate_ctf_json(self) -> Dict:
         new_ctf_json = {
             "title": "eno-ctf",
             "flagValidityInRounds": 2,
@@ -297,7 +298,7 @@ class Setup:
 
     def _generate_service(
         self, id: int, service: str, checker_port: int, simulation_type: str
-    ):
+    ) -> Dict:
         new_service = {
             "id": id,
             "name": service,

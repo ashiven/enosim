@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import paramiko
 from rich.console import Console
@@ -26,7 +26,7 @@ class FlagSubmitter:
         }
         self.console = Console()
 
-    def submit_flags(self, team_address: str, flags: List[str]):
+    def submit_flags(self, team_address: str, flags: List[str]) -> None:
         SUBMISSION_ENDPOINT_PORT = 1337
         flag_str = "\n".join(flags) + "\n"
 
@@ -55,7 +55,7 @@ class FlagSubmitter:
                 if self.debug:
                     self.console.log(f"[bold blue]Submitted {flag_str}for {vm_name}\n")
 
-    def _private_to_public_ip(self, team_address: str):
+    def _private_to_public_ip(self, team_address: str) -> Tuple[str, str]:
         for name, ip_address in self.ip_addresses.private_ip_addresses.items():
             if ip_address == team_address:
                 return name, self.ip_addresses.public_ip_addresses[name]

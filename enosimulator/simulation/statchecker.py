@@ -1,5 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
-from typing import Dict
+from typing import Dict, List, Tuple
 
 import paramiko
 from httpx import AsyncClient
@@ -24,7 +24,7 @@ class StatChecker:
         self.client = AsyncClient()
         self.console = Console()
 
-    def check_containers(self, ip_addresses: Dict[str, str]):
+    def check_containers(self, ip_addresses: Dict[str, str]) -> Dict[str, Panel]:
         futures = dict()
         with ThreadPoolExecutor(max_workers=self.vm_count) as executor:
             for name, ip_address in ip_addresses.items():
@@ -37,7 +37,7 @@ class StatChecker:
 
         return container_stat_panels
 
-    def check_system(self, ip_addresses: Dict[str, str]):
+    def check_system(self, ip_addresses: Dict[str, str]) -> Dict[str, List[Panel]]:
         futures = dict()
         with ThreadPoolExecutor(max_workers=self.vm_count) as executor:
             for name, ip_address in ip_addresses.items():
@@ -48,7 +48,7 @@ class StatChecker:
 
         return system_stat_panels
 
-    async def system_analytics(self):
+    async def system_analytics(self) -> None:
         FLASK_PORT = 5000
         for stats in self.vm_stats.values():
             if any(stat is None for stat in stats.values()):
@@ -63,7 +63,7 @@ class StatChecker:
                 f"http://localhost:{FLASK_PORT}/containerinfo", json=stats
             )
 
-    def _container_stats(self, vm_name: str, ip_address: str):
+    def _container_stats(self, vm_name: str, ip_address: str) -> Panel:
         with paramiko.SSHClient() as client:
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             client.connect(
@@ -82,7 +82,7 @@ class StatChecker:
 
         return self._beautify_container_stats(container_stats_blank)
 
-    def _save_container_stats(self, vm_name: str, container_stats: str):
+    def _save_container_stats(self, vm_name: str, container_stats: str) -> None:
         stats = dict()
         lines = container_stats.splitlines()
         for i, line in enumerate(lines):
@@ -109,7 +109,7 @@ class StatChecker:
 
         self.container_stats[vm_name] = stats
 
-    def _beautify_container_stats(self, container_stats_blank: str):
+    def _beautify_container_stats(self, container_stats_blank: str) -> Panel:
         def _beautify_line(line: str):
             word_index = 0
             words = line.split(" ")
@@ -135,7 +135,7 @@ class StatChecker:
 
         return Panel("\n".join(container_stats), expand=True)
 
-    def _system_stats(self, vm_name: str, ip_address: str):
+    def _system_stats(self, vm_name: str, ip_address: str) -> List[Panel]:
         with paramiko.SSHClient() as client:
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             client.connect(
@@ -194,7 +194,7 @@ class StatChecker:
             network_tx,
         )
 
-    def _parse_system_stats(self, system_stats: str, network_usage: str):
+    def _parse_system_stats(self, system_stats: str, network_usage: str) -> Tuple:
         if system_stats:
             [
                 ram_percent,
@@ -250,7 +250,7 @@ class StatChecker:
         disk_size: float,
         network_rx: float,
         network_tx: float,
-    ):
+    ) -> None:
         prev_uptime = (
             self.vm_stats[vm_name]["uptime"] if vm_name in self.vm_stats else 0
         )
@@ -278,7 +278,7 @@ class StatChecker:
         cpu_cores: int,
         network_rx: float,
         network_tx: float,
-    ):
+    ) -> List[Panel]:
         ram_panel = (
             Panel(
                 f"[b]RAM Stats[/b]\n"

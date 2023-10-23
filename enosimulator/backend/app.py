@@ -2,10 +2,12 @@ import logging
 import os
 import sqlite3
 from time import time
+from typing import Dict
 
 from flask import Flask, request
 from flask_restful import Api, Resource
 from tenacity import retry, stop_after_attempt
+from types_ import SetupType, SimulationType
 
 
 class Teams(Resource):
@@ -167,7 +169,7 @@ class RoundInfo(Resource):
 
 
 class FlaskApp:
-    def __init__(self, setup, simulation, locks):
+    def __init__(self, setup: SetupType, simulation: SimulationType, locks: Dict):
         self.app = Flask(__name__)
         self.setup = setup
         self.simulation = simulation
@@ -192,12 +194,12 @@ class FlaskApp:
         self.api.add_resource(ContainerListApi, "/containerlist")
         self.api.add_resource(RoundInfoApi, "/roundinfo")
 
-    def run(self):
+    def run(self) -> None:
         log = logging.getLogger("werkzeug")
         log.setLevel(logging.ERROR)
         self.app.run(debug=False)
 
-    def init_db(self):
+    def init_db(self) -> None:
         connection = sqlite3.connect("database.db")
 
         with open(f"{self.path}/schema.sql") as f:
@@ -207,14 +209,14 @@ class FlaskApp:
         connection.close()
 
     @staticmethod
-    def get_db_connection():
+    def get_db_connection() -> sqlite3.Connection:
         connection = sqlite3.connect("database.db")
         connection.row_factory = sqlite3.Row
         return connection
 
     @staticmethod
     @retry(stop=stop_after_attempt(3))
-    def db_insert_values(table_name, data):
+    def db_insert_values(table_name, data) -> None:
         value_names = ",".join(data.keys())
         value_placeholders = ",".join(["?" for _ in data.keys()])
         with FlaskApp.get_db_connection() as conn:
@@ -225,7 +227,7 @@ class FlaskApp:
             )
             conn.commit()
 
-    def delete_db(self):
+    def delete_db(self) -> None:
         if os.path.exists("database.db"):
             os.remove("database.db")
 

@@ -1,10 +1,16 @@
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import httpx
 import jsons
 from bs4 import BeautifulSoup
-from enochecker_core import CheckerInfoMessage, CheckerResultMessage, CheckerTaskResult
+from enochecker_core import (
+    CheckerInfoMessage,
+    CheckerResultMessage,
+    CheckerTaskMessage,
+    CheckerTaskResult,
+)
 from rich.console import Console
+from rich.panel import Panel
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -48,7 +54,7 @@ class Orchestrator:
         self.stat_checker = StatChecker(setup.config, setup.secrets, verbose)
         self.console = Console()
 
-    async def update_team_info(self):
+    async def update_team_info(self) -> None:
         async with async_lock(self.locks["service"]):
             for service in self.setup.services.values():
                 info = await self._get_service_info(service)
@@ -71,7 +77,7 @@ class Orchestrator:
                                 {f"Flagstore{flagstore_id}": False}
                             )
 
-    async def get_round_info(self):
+    async def get_round_info(self) -> int:
         attack_info_text = await self.client.get(
             f'http://{self.setup.ips.public_ip_addresses["engine"]}:5001/scoreboard/attack.json'
         )
@@ -86,7 +92,7 @@ class Orchestrator:
         _prev_round, current_round = self._parse_rounds(self.attack_info)
         return current_round
 
-    def parse_scoreboard(self):
+    def parse_scoreboard(self) -> None:
         with self.console.status("[bold green]Parsing scoreboard ..."):
             team_scores = self._get_team_scores()
             with self.locks["team"]:
@@ -94,21 +100,23 @@ class Orchestrator:
                     team.points = team_scores[team.name][0]
                     team.gain = team_scores[team.name][1]
 
-    def container_stats(self, team_addresses: Dict[str, str]):
+    def container_stats(self, team_addresses: Dict[str, str]) -> Dict[str, Panel]:
         return self.stat_checker.check_containers(team_addresses)
 
-    def system_stats(self, team_addresses: Dict[str, str]):
+    def system_stats(self, team_addresses: Dict[str, str]) -> Dict[str, List[Panel]]:
         return self.stat_checker.check_system(team_addresses)
 
-    async def exploit(self, round_id: int, team: Team, all_teams: List[Team]):
+    async def exploit(
+        self, round_id: int, team: Team, all_teams: List[Team]
+    ) -> List[str]:
         exploit_requests = self._create_exploit_requests(round_id, team, all_teams)
         flags = await self._send_exploit_requests(team, exploit_requests)
         return flags
 
-    def submit_flags(self, team_address: str, flags: List[str]):
+    def submit_flags(self, team_address: str, flags: List[str]) -> None:
         self.flag_submitter.submit_flags(team_address, flags)
 
-    async def collect_system_analytics(self):
+    async def collect_system_analytics(self) -> None:
         with self.console.status("[bold green]Collecting analytics ..."):
             await self.stat_checker.system_analytics()
 
@@ -132,7 +140,7 @@ class Orchestrator:
 
         return info
 
-    def _parse_rounds(self, attack_info: Dict):
+    def _parse_rounds(self, attack_info: Dict) -> Tuple[int, int]:
         try:
             first_service = list(attack_info["services"].values())[0]
             first_team = list(first_service.values())[0]
@@ -143,7 +151,7 @@ class Orchestrator:
         return int(prev_round), int(current_round)
 
     @retry(stop=stop_after_attempt(3))
-    def _get_team_scores(self) -> Dict:
+    def _get_team_scores(self) -> Dict[str, Tuple[float, float]]:
         team_scores = dict()
         scoreboard_url = (
             f'http://{self.setup.ips.public_ip_addresses["engine"]}:5001/scoreboard'
@@ -174,7 +182,7 @@ class Orchestrator:
 
     def _create_exploit_requests(
         self, round_id: int, team: Team, all_teams: List[Team]
-    ) -> Dict:
+    ) -> Dict[Tuple[str, str, str], CheckerTaskMessage]:
         exploit_requests = dict()
         other_teams = [other_team for other_team in all_teams if other_team != team]
         for service, flagstores in team.exploiting.items():

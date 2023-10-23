@@ -265,6 +265,7 @@ class HelperType:
 @dataclass
 class TeamGeneratorType:
     config: Config
+    team_distribution: Dict[Experience, int]
 
 
 @dataclass
@@ -280,12 +281,11 @@ class SetupType:
     ips: IpAddresses
     teams: Dict[str, Team]
     services: Dict[str, Service]
-    verbose: bool
     config: Config
     secrets: Secrets
-    skip_infra: bool
     setup_path: str
     setup_helper: SetupHelperType
+    skip_infra: bool
     console: Console
 
 
@@ -295,6 +295,7 @@ class FlagSubmitterType:
     secrets: Secrets
     ip_addresses: IpAddresses
     verbose: bool
+    debug: bool
     usernames: Dict[SetupVariant, str]
     console: Console
 
@@ -303,7 +304,12 @@ class FlagSubmitterType:
 class StatCheckerType:
     config: Config
     secrets: Secrets
+    verbose: bool
     usernames: Dict[SetupVariant, str]
+    vm_count: int
+    vm_stats: Dict
+    container_stats: Dict
+    client: AsyncClient
     console: Console
 
 
@@ -311,9 +317,27 @@ class StatCheckerType:
 class OrchestratorType:
     setup: SetupType
     verbose: bool
+    debug: bool
+    locks: Dict
     service_info: Dict[str, Tuple[str, str]]
+    private_to_public_ip: Dict[str, str]
     attack_info: Dict
     client: AsyncClient
     flag_submitter: FlagSubmitterType
     stat_checker: StatCheckerType
     console: Console
+
+
+@dataclass
+class SimulationType:
+    setup: SetupType
+    locks: Dict
+    orchestrator: OrchestratorType
+    verbose: bool
+    debug: bool
+    console: Console
+    round_id: int
+    round_start: int
+    total_rounds: int
+    remaining_rounds: int
+    round_length: int

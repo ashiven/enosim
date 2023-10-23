@@ -4,10 +4,11 @@ import random
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from time import time
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from rich.columns import Columns
 from rich.console import Console
+from rich.panel import Panel
 from rich.table import Table
 from types_ import OrchestratorType, SetupType, Team
 
@@ -46,7 +47,7 @@ class Simulation:
         await orchestrator.update_team_info()
         return cls(setup, orchestrator, locks, verbose, debug)
 
-    async def run(self):
+    async def run(self) -> None:
         await self._scoreboard_available()
 
         for round_ in range(self.total_rounds):
@@ -79,7 +80,7 @@ class Simulation:
             if round_duration < self.round_length:
                 await asyncio.sleep(self.round_length - round_duration)
 
-    def info(self, info_messages: List[str]):
+    def info(self, info_messages: List[str]) -> None:
         os.system("cls" if sys.platform == "win32" else "clear")
         self.console.print("\n")
         self.console.log(
@@ -102,7 +103,7 @@ class Simulation:
                 self.console.print(info_message)
             self.console.print("\n")
 
-    async def _scoreboard_available(self):
+    async def _scoreboard_available(self) -> None:
         with self.console.status(
             "[bold green]Waiting for scoreboard to become available ..."
         ):
@@ -110,7 +111,7 @@ class Simulation:
                 await self.orchestrator.get_round_info()
                 await asyncio.sleep(2)
 
-    def _team_info(self, teams: List[Team]):
+    def _team_info(self, teams: List[Team]) -> None:
         tables = []
         for team in teams:
             table = Table(
@@ -146,12 +147,12 @@ class Simulation:
             tables.append(table)
         self.console.print(Columns(tables))
 
-    def _random_test(self, team: Team):
+    def _random_test(self, team: Team) -> bool:
         probability = team.experience.value[0]
         random_value = random.random()
         return random_value < probability
 
-    def _exploit_or_patch(self, team: Team):
+    def _exploit_or_patch(self, team: Team) -> Tuple[str, str, str]:
         random_variant = random.choice(["exploiting", "patched"])
         if random_variant == "exploiting":
             random_service = random.choice(list(team.exploiting))
@@ -162,7 +163,9 @@ class Simulation:
 
         return random_variant, random_service, random_flagstore
 
-    def _update_team(self, team_name: str, variant: str, service: str, flagstore: str):
+    def _update_team(
+        self, team_name: str, variant: str, service: str, flagstore: str
+    ) -> str:
         if variant == "exploiting":
             self.setup.teams[team_name].exploiting[service][flagstore] = True
             info_text = "started exploiting"
@@ -171,7 +174,7 @@ class Simulation:
             info_text = "patched"
         return f"[bold red][!] Team {team_name} {info_text} {service}-{flagstore}"
 
-    async def _update_exploiting_and_patched(self):
+    async def _update_exploiting_and_patched(self) -> List[str]:
         info_messages = []
         if self.setup.config.settings.simulation_type == "realistic":
             async with async_lock(self.locks["team"]):
@@ -212,7 +215,7 @@ class Simulation:
 
         return team_flags
 
-    def _system_analytics(self):
+    def _system_analytics(self) -> Tuple[Dict[str, Panel], Dict[str, List[Panel]]]:
         container_panels = self.orchestrator.container_stats(
             self.setup.ips.public_ip_addresses
         )
@@ -222,7 +225,7 @@ class Simulation:
 
         return container_panels, system_panels
 
-    def _submit_all_flags(self, team_flags: List):
+    def _submit_all_flags(self, team_flags: List) -> None:
         with ThreadPoolExecutor(
             max_workers=self.setup.config.settings.teams
         ) as executor:
@@ -230,7 +233,7 @@ class Simulation:
                 if flags:
                     executor.submit(self.orchestrator.submit_flags, team_address, flags)
 
-    def _print_system_analytics(self, container_panels, system_panels):
+    def _print_system_analytics(self, container_panels, system_panels) -> None:
         if self.verbose:
             for name, container_stat_panel in container_panels.items():
                 self.console.print(f"[bold red]Docker stats for {name}:")

@@ -1,3 +1,5 @@
+from typing import Dict, List, Tuple
+
 from types_ import Config, Experience, Secrets, SetupVariant, Team
 
 from .azure import AzureSetupHelper
@@ -112,7 +114,7 @@ TEAM_NAMES = [
 #### Helpers ####
 
 
-def _generate_ctf_team(id: int):
+def _generate_ctf_team(id: int) -> Dict:
     name = TEAM_NAMES[id - 1] if id <= len(TEAM_NAMES) else f"Team {id}"
     new_team = {
         "id": id,
@@ -123,7 +125,7 @@ def _generate_ctf_team(id: int):
     return new_team
 
 
-def _generate_setup_team(id: int, experience: Experience):
+def _generate_setup_team(id: int, experience: Experience) -> Dict[str, Team]:
     name = TEAM_NAMES[id - 1] if id <= len(TEAM_NAMES) else f"Team {id}"
     new_team = {
         TEAM_NAMES[id - 1]: Team(
@@ -155,17 +157,17 @@ class SetupHelper:
         }
         self.team_gen = TeamGenerator(config)
 
-    def generate_teams(self):
+    def generate_teams(self) -> Tuple[List, Dict]:
         return self.team_gen.generate()
 
-    async def convert_templates(self):
+    async def convert_templates(self) -> None:
         helper = self.helpers[SetupVariant.from_str(self.config.setup.location)]
         await helper.convert_buildscript()
         await helper.convert_deploy_script()
         await helper.convert_tf_files()
         await helper.convert_vm_scripts()
 
-    async def get_ip_addresses(self):
+    async def get_ip_addresses(self) -> Tuple[Dict, Dict]:
         helper = self.helpers[SetupVariant.from_str(self.config.setup.location)]
         return await helper.get_ip_addresses()
 
@@ -192,7 +194,7 @@ class TeamGenerator:
             while sum(self.team_distribution.values()) > self.config.settings.teams:
                 self.team_distribution[Experience.BEGINNER] -= 1
 
-    def generate(self):
+    def generate(self) -> Tuple[List, Dict]:
         ctf_json_teams = []
         setup_teams = dict()
         team_id_total = 0
