@@ -203,6 +203,9 @@ class Setup:
                 for public_ip in self.ips.public_ip_addresses.values():
                     _execute_command(f"ssh-keygen -R {public_ip}")
                 _execute_command(
+                    f"chmod 600 {self.secrets.vm_secrets.ssh_private_key_path}"
+                )
+                _execute_command(
                     f"{'sh' if sys.platform == 'win32' else 'bash'} {self.setup_path}/deploy.sh"
                 )
 
