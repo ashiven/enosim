@@ -80,10 +80,8 @@ export default function TeamCard(props: TeamCardProps) {
                            Exploiting
                         </h4>
                         {exploitStrings.map((item, index) => (
-                           <React.Fragment>
-                              <div className="text-sm" key={index}>
-                                 {item}
-                              </div>
+                           <React.Fragment key={index}>
+                              <div className="text-sm">{item}</div>
                               <Separator className="my-2" />
                            </React.Fragment>
                         ))}
@@ -93,10 +91,8 @@ export default function TeamCard(props: TeamCardProps) {
                            Patched
                         </h3>
                         {patchedStrings.map((item, index) => (
-                           <React.Fragment>
-                              <div className="text-sm" key={index}>
-                                 {item}
-                              </div>
+                           <React.Fragment key={index}>
+                              <div className="text-sm">{item}</div>
                               <Separator className="my-2" />
                            </React.Fragment>
                         ))}

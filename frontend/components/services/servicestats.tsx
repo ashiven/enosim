@@ -18,7 +18,7 @@ export default async function ServiceStats() {
       <div className="container mx-auto mt-12 mb-8">
          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {Object.keys(data).map((service: string) => (
-               <ServiceCard data={data[service]} />
+               <ServiceCard key={service} data={data[service]} />
             ))}
          </div>
       </div>

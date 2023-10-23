@@ -51,7 +51,7 @@ export default async function VMStats() {
       <div className="container mx-auto mt-12 mb-8">
          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {vmList.map((vmName: string) => (
-               <VMCard data={vmData[vmName]} />
+               <VMCard key={vmName} data={vmData[vmName]} />
             ))}
          </div>
       </div>

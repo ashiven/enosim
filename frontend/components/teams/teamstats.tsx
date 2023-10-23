@@ -18,7 +18,7 @@ export default async function TeamStats() {
       <div className="container mx-auto mt-12 mb-8">
          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {Object.keys(data).map((team: string) => (
-               <TeamCard data={data[team]} />
+               <TeamCard key={team} data={data[team]} />
             ))}
          </div>
       </div>
