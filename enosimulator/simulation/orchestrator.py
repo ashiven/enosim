@@ -11,8 +11,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from setup.types import SetupType, Team
 from tenacity import retry, stop_after_attempt
+from types_ import SetupType, Team
 from webdriver_manager.chrome import ChromeDriverManager
 
 from .flagsubmitter import FlagSubmitter

@@ -2,7 +2,7 @@ from typing import List
 
 import paramiko
 from rich.console import Console
-from setup.types import Config, IpAddresses, Secrets, SetupVariant
+from types_ import Config, IpAddresses, Secrets, SetupVariant
 
 
 class FlagSubmitter:

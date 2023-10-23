@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 import os
+import sys
 from threading import Lock, Thread
 
 from backend.app import FlaskApp
@@ -11,6 +12,8 @@ from simulation.simulation import Simulation
 
 async def main():
     load_dotenv()
+    sys.path.append("..")
+    sys.path.append("../..")
     dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
 
     parser = argparse.ArgumentParser(

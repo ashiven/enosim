@@ -1,6 +1,7 @@
 import os
 
-from ..types import Config, Secrets
+from types_ import Config, Secrets
+
 from .abstract import Helper
 
 

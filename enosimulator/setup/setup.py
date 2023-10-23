@@ -5,9 +5,9 @@ from subprocess import PIPE, STDOUT, CalledProcessError, Popen, run
 import aiofiles
 from rich.console import Console
 from rich.table import Table
+from types_ import Config, IpAddresses, Secrets, Service
 
 from .setup_helper.setup_helper import SetupHelper
-from .types import Config, IpAddresses, Secrets, Service
 
 ####  Helpers ####
 

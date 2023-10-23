@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 
 import jsons
 from enochecker_core import CheckerMethod, CheckerTaskMessage
-from setup.types import IpAddresses
+from types_ import IpAddresses
 
 CHAIN_ID_PREFIX = secrets.token_hex(20)
 REQUEST_TIMEOUT = 10

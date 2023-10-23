@@ -1,4 +1,5 @@
-from ..types import Config, Experience, Secrets, SetupVariant, Team
+from types_ import Config, Experience, Secrets, SetupVariant, Team
+
 from .azure import AzureSetupHelper
 from .hetzner import HetznerSetupHelper
 from .local import LocalSetupHelper

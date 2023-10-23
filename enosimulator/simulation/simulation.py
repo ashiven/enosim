@@ -9,7 +9,7 @@ from typing import Dict, List
 from rich.columns import Columns
 from rich.console import Console
 from rich.table import Table
-from setup.types import OrchestratorType, SetupType, Team
+from types_ import OrchestratorType, SetupType, Team
 
 from .orchestrator import Orchestrator
 from .util import async_lock
