@@ -303,10 +303,10 @@ class Setup:
             "id": id,
             "name": service,
             "flagsPerRoundMultiplier": 30
-            if self.config.settings.simulation_type == "basic-stress-test"
+            if simulation_type == "basic-stress-test"
             else 1,
             "noisesPerRoundMultiplier": 30
-            if self.config.settings.simulation_type == "basic-stress-test"
+            if simulation_type == "basic-stress-test"
             else 1,
             "havocsPerRoundMultiplier": 1,
             "weightFactor": 1,
