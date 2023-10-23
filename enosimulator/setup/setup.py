@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from subprocess import PIPE, STDOUT, CalledProcessError, Popen, run
 from typing import Dict
 
@@ -157,7 +158,9 @@ class Setup:
     async def build_infra(self) -> None:
         if not self.skip_infra:
             with self.console.status("[bold green]Building infrastructure ..."):
-                _execute_command(f"sh {self.setup_path}/build.sh")
+                _execute_command(
+                    f"{'sh' if sys.platform == 'win32' else 'bash'} {self.setup_path}/build.sh"
+                )
 
         # Get ip addresses from terraform output
         public_ips, private_ips = await self.setup_helper.get_ip_addresses()
@@ -199,12 +202,16 @@ class Setup:
                 self.console.print("\n[green][+] Configuring known hosts ...")
                 for public_ip in self.ips.public_ip_addresses.values():
                     _execute_command(f"ssh-keygen -R {public_ip}")
-                _execute_command(f"sh {self.setup_path}/deploy.sh")
+                _execute_command(
+                    f"{'sh' if sys.platform == 'win32' else 'bash'} {self.setup_path}/deploy.sh"
+                )
 
     def destroy(self) -> None:
         try:
             with self.console.status("[bold red]Destroying infrastructure ..."):
-                _execute_command(f"sh {self.setup_path}/build.sh -d")
+                _execute_command(
+                    f"{'sh' if sys.platform == 'win32' else 'bash'} {self.setup_path}/build.sh -d"
+                )
 
             # Delete all files created for this setup
             _delete_files(f"{self.setup_path}")
