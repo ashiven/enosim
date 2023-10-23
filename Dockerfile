@@ -11,7 +11,9 @@ RUN apt-get update && \
     https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
     tee /etc/apt/sources.list.d/hashicorp.list && \
     apt-get update && \
-    apt-get install -y terraform 
+    apt-get install -y terraform && \
+    wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    apt-get install -y ./google-chrome-stable_current_amd64.deb
 
 WORKDIR /app
 COPY requirements.txt requirements.txt
