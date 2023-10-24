@@ -170,6 +170,8 @@ The deployment process can be sped up considerably by using virtual machine imag
 
 ### Browser UI
 
+There is a browser UI available at `http://localhost:3000` that can be used to monitor the simulation.
+
 ### CLI
 
 ### EnoScoreboard
