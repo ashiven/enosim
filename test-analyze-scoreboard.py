@@ -5,14 +5,6 @@ import requests
 from bs4 import BeautifulSoup
 
 url = "https://ctftime.org/event/2040"
-
-POINTS_PER_FLAG = 1  #
-PARTICIPATING_TEAMS = 100
-TOTAL_FLAGSTORES = 10  # in enowars7 there were 6 services with a total of 10 flagstores
-TOTAL_ROUNDS = 8 * 60  # 8 hours with one round per minute
-POINTS_PER_ROUND_PER_FLAGSTORE = (PARTICIPATING_TEAMS - 1) * POINTS_PER_FLAG
-
-
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36"
 }
@@ -20,12 +12,20 @@ scoreboard = requests.get(url, headers=headers)
 soup = BeautifulSoup(scoreboard.content, "html.parser")
 points_html = soup.find_all("td", class_="points")
 
+
 # TODO:
 # - this currently only takes into account the total number of points reached by exploiting and defending and sla combined
 # - instead, i should do these calculations only with the points gained through attacking
 points = [float(p.text) for p in points_html]
 plt.plot(points)
 plt.show()
+
+
+POINTS_PER_FLAG = 1
+PARTICIPATING_TEAMS = len(points)
+TOTAL_FLAGSTORES = 10  # in enowars7 there were 6 services with a total of 10 flagstores
+TOTAL_ROUNDS = 8 * 60  # 8 hours with one round per minute
+POINTS_PER_ROUND_PER_FLAGSTORE = (PARTICIPATING_TEAMS - 1) * POINTS_PER_FLAG
 
 
 def round_to_nearest_thousand(number):
