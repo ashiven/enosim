@@ -1,76 +1,16 @@
 import json
 import os
 import sys
-from subprocess import PIPE, STDOUT, CalledProcessError, Popen, run
+from subprocess import CalledProcessError, run
 from typing import Dict
 
 import aiofiles
 from rich.console import Console
 from rich.table import Table
 from types_ import Config, IpAddresses, Secrets, Service
+from util import *
 
 from .setup_helper.setup_helper import SetupHelper
-
-####  Helpers ####
-
-
-def _kebab_to_camel(s: str) -> str:
-    words = s.split("-")
-    return words[0] + "".join(w.title() for w in words[1:])
-
-
-async def _parse_json(path: str) -> Dict:
-    async with aiofiles.open(path, "r") as json_file:
-        content = await json_file.read()
-        return json.loads(content)
-
-
-async def _create_file(path: str) -> None:
-    if os.path.exists(path):
-        os.remove(path)
-    async with aiofiles.open(path, "w") as file:
-        await file.write("")
-
-
-def _delete_files(path: str) -> None:
-    for file in os.listdir(path):
-        if file == ".gitkeep":
-            continue
-        file_path = os.path.join(path, file)
-        if os.path.isfile(file_path):
-            os.remove(file_path)
-
-
-def _execute_command(cmd: str) -> None:
-    console = Console()
-    try:
-        p = Popen(
-            cmd,
-            stdout=PIPE,
-            stderr=STDOUT,
-            shell=True,
-            encoding="utf-8",
-            errors="replace",
-        )
-
-        while True:
-            line = p.stdout.readline()
-            if not line and p.poll() is not None:
-                break
-            if line:
-                print(line.strip(), flush=True)
-
-        p.wait()
-        if p.returncode != 0:
-            console.print(
-                f"\n[bold red][!] Process exited with return code: {p.returncode}\n"
-            )
-
-    except CalledProcessError as e:
-        console.print(e)
-
-
-#### End Helpers ####
 
 
 class Setup:
@@ -97,9 +37,9 @@ class Setup:
         config_path: str,
         secrets_path: str,
     ):
-        config_json = await _parse_json(config_path)
+        config_json = await parse_json(config_path)
         config = Config.from_(config_json)
-        secrets_json = await _parse_json(secrets_path)
+        secrets_json = await parse_json(secrets_path)
         secrets = Secrets.from_(secrets_json)
         dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
@@ -114,7 +54,7 @@ class Setup:
 
     async def configure(self) -> None:
         # Create services.txt
-        await _create_file(f"{self.setup_path}/config/services.txt")
+        await create_file(f"{self.setup_path}/config/services.txt")
         async with aiofiles.open(
             f"{self.setup_path}/config/services.txt", "r+"
         ) as service_file:
@@ -124,7 +64,7 @@ class Setup:
         # Configure ctf.json from config.json
         ctf_json = self._generate_ctf_json()
         for setting, value in vars(self.config.ctf_json).items():
-            ctf_json[_kebab_to_camel(setting)] = value
+            ctf_json[kebab_to_camel(setting)] = value
 
         # Add teams to ctf.json
         ctf_json["teams"].clear()
@@ -146,7 +86,7 @@ class Setup:
             self.services[service] = Service.from_(new_service)
 
         # Create ctf.json
-        await _create_file(f"{self.setup_path}/config/ctf.json")
+        await create_file(f"{self.setup_path}/config/ctf.json")
         async with aiofiles.open(
             f"{self.setup_path}/config/ctf.json", "r+"
         ) as ctf_file:
@@ -158,7 +98,7 @@ class Setup:
     async def build_infra(self) -> None:
         if not self.skip_infra:
             with self.console.status("[bold green]Building infrastructure ..."):
-                _execute_command(
+                execute_command(
                     f"{'sh' if sys.platform == 'win32' else 'bash'} {self.setup_path}/build.sh"
                 )
 
@@ -168,7 +108,7 @@ class Setup:
         self.ips.private_ip_addresses = private_ips
 
         # Add ip addresses for checkers to ctf.json
-        ctf_json = await _parse_json(f"{self.setup_path}/config/ctf.json")
+        ctf_json = await parse_json(f"{self.setup_path}/config/ctf.json")
         for service in ctf_json["services"]:
             checker_port = service["checkers"].pop()
             for name, ip_address in self.ips.public_ip_addresses.items():
@@ -188,7 +128,7 @@ class Setup:
             self.teams[team["name"]].team_subnet = team["teamSubnet"]
 
         # Update ctf.json
-        await _create_file(f"{self.setup_path}/config/ctf.json")
+        await create_file(f"{self.setup_path}/config/ctf.json")
         async with aiofiles.open(
             f"{self.setup_path}/config/ctf.json", "r+"
         ) as ctf_file:
@@ -201,33 +141,33 @@ class Setup:
             with self.console.status("[bold green]Configuring infrastructure ..."):
                 self.console.print("\n[green][+] Configuring known hosts ...")
                 for public_ip in self.ips.public_ip_addresses.values():
-                    _execute_command(f"ssh-keygen -R {public_ip}")
-                _execute_command(
+                    execute_command(f"ssh-keygen -R {public_ip}")
+                execute_command(
                     f"chmod 600 {self.secrets.vm_secrets.ssh_private_key_path}"
                 )
-                _execute_command(
+                execute_command(
                     f"{'sh' if sys.platform == 'win32' else 'bash'} {self.setup_path}/deploy.sh"
                 )
 
     def destroy(self) -> None:
         try:
             with self.console.status("[bold red]Destroying infrastructure ..."):
-                _execute_command(
+                execute_command(
                     f"{'sh' if sys.platform == 'win32' else 'bash'} {self.setup_path}/build.sh -d"
                 )
 
             # Delete all files created for this setup
-            _delete_files(f"{self.setup_path}")
-            _delete_files(f"{self.setup_path}/config")
-            _delete_files(f"{self.setup_path}/data")
-            _delete_files(f"{self.setup_path}/logs")
+            delete_files(f"{self.setup_path}")
+            delete_files(f"{self.setup_path}/config")
+            delete_files(f"{self.setup_path}/data")
+            delete_files(f"{self.setup_path}/logs")
 
         except:
             # Delete all files created for this setup
-            _delete_files(f"{self.setup_path}")
-            _delete_files(f"{self.setup_path}/config")
-            _delete_files(f"{self.setup_path}/data")
-            _delete_files(f"{self.setup_path}/logs")
+            delete_files(f"{self.setup_path}")
+            delete_files(f"{self.setup_path}/config")
+            delete_files(f"{self.setup_path}/data")
+            delete_files(f"{self.setup_path}/logs")
 
     def info(self) -> None:
         table = Table(title="Teams")
