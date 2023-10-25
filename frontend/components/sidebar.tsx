@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { BarChart3, Boxes, Container, Users } from "lucide-react"
+import { BarChart3, Container, Users } from "lucide-react"
 import Link from "next/link"
 
 import { usePathname } from "next/navigation"
@@ -39,7 +39,7 @@ export default function Sidebar() {
                            pathname === "/services" ? "default" : "secondary"
                         }
                      >
-                        <Boxes className="w-6 h-6" size={24} />
+                        <Container className="w-6 h-6" size={24} />
                         <Link
                            href="/services"
                            className="flex items-center p-2 space-x-3 rounded-md"
@@ -61,22 +61,6 @@ export default function Sidebar() {
                            className="flex items-center p-2 space-x-3 rounded-md"
                         >
                            <span className="w-24">Teams</span>
-                        </Link>
-                     </Button>
-                  </li>
-                  {/* Settings Tab */}
-                  <li className="rounded-sm p-1">
-                     <Button
-                        variant={
-                           pathname === "/containers" ? "default" : "secondary"
-                        }
-                     >
-                        <Container className="w-6 h-6" size={24} />
-                        <Link
-                           href="/containers"
-                           className="flex items-center p-2 space-x-3 rounded-md"
-                        >
-                           <span className="w-24">Containers</span>
                         </Link>
                      </Button>
                   </li>

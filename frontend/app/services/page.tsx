@@ -1,3 +1,4 @@
+import ContainerCharts from "@/components/containers/containercharts"
 import ServiceStats from "@/components/services/servicestats"
 
 import Navbar from "@components/navbar"
@@ -9,8 +10,9 @@ export default function Home() {
          <Navbar />
          <div className="flex">
             <Sidebar />
-            <div className="container">
+            <div className="container space-y-16">
                <ServiceStats />
+               <ContainerCharts />
             </div>
          </div>
       </main>
