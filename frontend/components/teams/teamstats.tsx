@@ -1,8 +1,10 @@
 import TeamCard from "@/components/teams/teamcard"
 
+const URL = process.env.API_URL || "http://127.0.0.1:5000"
+
 async function getData() {
    try {
-      const res = await fetch("http://127.0.0.1:5000/teams", {
+      const res = await fetch(`${URL}/teams`, {
          next: { revalidate: 0 },
       })
       return res.json()

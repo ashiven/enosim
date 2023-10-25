@@ -1,0 +1,26 @@
+version: 3
+
+services:
+  enosimulator:
+    container_name: enosimulator
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: enosimulator
+    hostname: enosimulator
+    ports:
+      - "5000:5000"
+
+  enosimulator_frontend:
+    container_name: enosimulator_frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: enosimulator_frontend
+    hostname: enosimulator_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      API_URL: http://enosimulator:5000
+    depends_on:
+      - enosimulator

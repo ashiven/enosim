@@ -1,8 +1,10 @@
 import ServiceCard from "@/components/services/servicecard"
 
+const URL = process.env.API_URL || "http://127.0.0.1:5000"
+
 async function getData() {
    try {
-      const res = await fetch("http://127.0.0.1:5000/services", {
+      const res = await fetch(`${URL}/services`, {
          next: { revalidate: 0 },
       })
       return res.json()

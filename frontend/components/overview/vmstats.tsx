@@ -1,8 +1,10 @@
 import VMCard from "@components/overview/vmcard"
 
+const URL = process.env.API_URL || "http://127.0.0.1:5000"
+
 async function getVmList() {
    try {
-      const res = await fetch(`http://127.0.0.1:5000/vmlist`, {
+      const res = await fetch(`${URL}/vmlist`, {
          next: { revalidate: 0 },
       })
       const vmList = eval(await res.text())
@@ -14,7 +16,7 @@ async function getVmList() {
 
 async function getData(vmName: string) {
    try {
-      const res = await fetch(`http://127.0.0.1:5000/vminfo?name=${vmName}`, {
+      const res = await fetch(`${URL}/vminfo?name=${vmName}`, {
          next: { revalidate: 0 },
       })
       const dataList = eval(await res.text())

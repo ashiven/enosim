@@ -1,0 +1,27 @@
+__pycache__
+.vscode
+.env
+
+## Terraform files ##
+.terraform
+terraform.tfstate
+terraform.tfstate.backup
+.terraform.tfstate.lock.info
+.terraform.lock.hcl
+
+## Setup files ##
+test-setup/*/logs/*
+test-setup/*/config/*
+test-setup/*/main.tf
+test-setup/*/variables.tf
+test-setup/*/outputs.tf
+test-setup/*/versions.tf
+test-setup/*/build.sh
+test-setup/*/deploy.sh
+test-setup/*/data/*
+!test-setup/*/config/.gitkeep
+!test-setup/*/data/.gitkeep
+!test-setup/*/logs/.gitkeep
+
+## Flask files ##
+database.db
