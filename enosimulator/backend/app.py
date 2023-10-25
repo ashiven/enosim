@@ -197,7 +197,7 @@ class FlaskApp:
     def run(self) -> None:
         log = logging.getLogger("werkzeug")
         log.setLevel(logging.ERROR)
-        self.app.run(debug=False)
+        self.app.run(host="0.0.0.0", debug=False)
 
     def init_db(self) -> None:
         connection = sqlite3.connect("database.db")
