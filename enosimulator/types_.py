@@ -285,7 +285,6 @@ class SetupType:
     secrets: Secrets
     setup_path: str
     setup_helper: SetupHelperType
-    skip_infra: bool
     console: Console
 
 

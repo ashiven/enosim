@@ -5,6 +5,8 @@ from subprocess import CalledProcessError, run
 from typing import Dict
 
 import aiofiles
+import jsons
+from requests import get
 from rich.console import Console
 from rich.table import Table
 from types_ import Config, IpAddresses, Secrets, Service
@@ -28,7 +30,6 @@ class Setup:
         self.secrets = secrets
         self.setup_path = setup_path
         self.setup_helper = setup_helper
-        self.skip_infra = self._existing_infra()
         self.console = Console()
 
     @classmethod
@@ -96,7 +97,7 @@ class Setup:
         await self.setup_helper.convert_templates()
 
     async def build_infra(self) -> None:
-        if not self.skip_infra:
+        if not self._existing_infra():
             with self.console.status("[bold green]Building infrastructure ..."):
                 execute_command(
                     f"{'sh' if sys.platform == 'win32' else 'bash'} {self.setup_path}/build.sh"
@@ -137,14 +138,32 @@ class Setup:
         self.info()
 
     def deploy(self) -> None:
-        if not self.skip_infra:
+        if not self._existing_config():
             with self.console.status("[bold green]Configuring infrastructure ..."):
-                self.console.print("\n[green][+] Configuring known hosts ...")
+                self.console.print(
+                    "\n[green][+] Configuring known hosts and private key permissions..."
+                )
                 for public_ip in self.ips.public_ip_addresses.values():
                     execute_command(f"ssh-keygen -R {public_ip}")
-                execute_command(
-                    f"chmod 600 {self.secrets.vm_secrets.ssh_private_key_path}"
-                )
+
+                if sys.platform == "win32":
+                    execute_command(
+                        f"icacls {self.secrets.vm_secrets.ssh_private_key_path} /reset"
+                    )
+                    execute_command(
+                        f"icacls {self.secrets.vm_secrets.ssh_private_key_path} /grant %username%:rw"
+                    )
+                    execute_command(
+                        f"icacls {self.secrets.vm_secrets.ssh_private_key_path} /inheritance:d"
+                    )
+                    execute_command(
+                        f"icacls {self.secrets.vm_secrets.ssh_private_key_path} /remove *S-1-5-11 *S-1-5-18 *S-1-5-32-544 *S-1-5-32-545"
+                    )
+                else:
+                    execute_command(
+                        f"chmod 600 {self.secrets.vm_secrets.ssh_private_key_path}"
+                    )
+
                 execute_command(
                     f"{'sh' if sys.platform == 'win32' else 'bash'} {self.setup_path}/deploy.sh"
                 )
@@ -216,6 +235,10 @@ class Setup:
 
     def _existing_infra(self) -> bool:
         try:
+            ip_logs_available = os.path.exists(
+                f"{self.setup_path}/logs/ip_addresses.log"
+            )
+
             stdout = run(
                 ["terraform", "show"],
                 check=True,
@@ -227,9 +250,26 @@ class Setup:
             if "No state." in stdout:
                 return False
             else:
-                return True
+                return True and ip_logs_available
 
         except CalledProcessError:
+            return False
+
+    def _existing_config(self) -> bool:
+        try:
+            r = get(
+                f"http://{self.ips.public_ip_addresses['engine']}:5001/scoreboard/attack.json"
+            )
+            if r.status_code != 200:
+                raise Exception("Infrastructure is not configured!")
+
+            attack_info = jsons.loads(r.content)
+            if not attack_info["services"]:
+                raise Exception("Infrastructure is not configured!")
+
+            return True
+
+        except:
             return False
 
     def _generate_ctf_json(self) -> Dict:
