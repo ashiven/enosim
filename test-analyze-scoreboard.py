@@ -24,32 +24,44 @@ points_html = soup.find_all("td", class_="points")
 # - this currently only takes into account the total number of points reached by exploiting and defending and sla combined
 # - instead, i should do these calculations only with the points gained through attacking
 points = [float(p.text) for p in points_html]
-highest_score = max(points)
+plt.plot(points)
+plt.show()
 
 
-# TODO:
+def round_to_nearest_thousand(number):
+    return round(number, -3)
+
+
+point_distribution = Counter([round_to_nearest_thousand(p) for p in points])
+plt.plot(
+    list(reversed(point_distribution.keys())),
+    list(reversed(point_distribution.values())),
+)
+plt.show()
+
+
 # - these values have to be adjusted in such a way that the second graph models a bell curve
 # these percentages were adjusted to model a normal distribution
 # they represent the percentage of achieved points compared to the highest score in the competition
+HIGHEST_SCORE = max(points)
+
 NOOB = 0
 BEGINNER = 0.22
-INTERMEDIATE = 0.35
-ADVANCED = 0.52
-PROFESSIONAL = 0.73
+INTERMEDIATE = 0.37
+ADVANCED = 0.47
+PROFESSIONAL = 0.52
 
-# these are the average points for each experience level
-# they were calculated by taking the average of the lowest and highest score for each experience level
-NOOB_AVERAGE_POINTS = (NOOB * highest_score + BEGINNER * highest_score) / 2
-BEGINNER_AVERAGE_POINTS = (BEGINNER * highest_score + INTERMEDIATE * highest_score) / 2
+NOOB_AVERAGE_POINTS = (NOOB * HIGHEST_SCORE + BEGINNER * HIGHEST_SCORE) / 2
+BEGINNER_AVERAGE_POINTS = (BEGINNER * HIGHEST_SCORE + INTERMEDIATE * HIGHEST_SCORE) / 2
 INTERMEDIATE_AVERAGE_POINTS = (
-    INTERMEDIATE * highest_score + ADVANCED * highest_score
+    INTERMEDIATE * HIGHEST_SCORE + ADVANCED * HIGHEST_SCORE
 ) / 2
-ADVANCED_AVERAGE_POINTS = (ADVANCED * highest_score + PROFESSIONAL * highest_score) / 2
-PROFESSIONAL_AVERAGE_POINTS = (PROFESSIONAL * highest_score + highest_score) / 2
+ADVANCED_AVERAGE_POINTS = (ADVANCED * HIGHEST_SCORE + PROFESSIONAL * HIGHEST_SCORE) / 2
+PROFESSIONAL_AVERAGE_POINTS = (PROFESSIONAL * HIGHEST_SCORE + HIGHEST_SCORE) / 2
 
 
 def points_to_exp(score):
-    percent_of_max = score / highest_score
+    percent_of_max = score / HIGHEST_SCORE
     exp = "NOOB"
     if percent_of_max > BEGINNER:
         exp = "BEGINNER"
@@ -62,14 +74,14 @@ def points_to_exp(score):
     return exp
 
 
-distribution = Counter([points_to_exp(p) for p in points])
+team_distribution = Counter([points_to_exp(p) for p in points])
 
-plt.plot(points)
-plt.show()
-
-
-plt.plot(list(reversed(distribution.keys())), list(reversed(distribution.values())))
-plt.show()
+total_teams = len(points)
+noob_teams = team_distribution["NOOB"]
+beginner_teams = team_distribution["BEGINNER"]
+intermediate_teams = team_distribution["INTERMEDIATE"]
+advanced_teams = team_distribution["ADVANCED"]
+professional_teams = team_distribution["PROFESSIONAL"]
 
 
 def exploit_probability(points_from_exploiting):
@@ -80,13 +92,6 @@ def exploit_probability(points_from_exploiting):
     exploit_probability = rounds_to_reach_points_from_exploiting / TOTAL_ROUNDS
     return exploit_probability * 100
 
-
-total_teams = len(points)
-noob_teams = distribution["NOOB"]
-beginner_teams = distribution["BEGINNER"]
-intermediate_teams = distribution["INTERMEDIATE"]
-advanced_teams = distribution["ADVANCED"]
-professional_teams = distribution["PROFESSIONAL"]
 
 print(
     f"{'EXPERIENCE':<15}{'NUMBER OF TEAMS':<25}{'PERCENTAGE':<20}{'EXPLOIT PROBABILITY':<22}{'AVERAGE POINTS':<20}\n"
