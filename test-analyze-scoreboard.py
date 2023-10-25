@@ -40,9 +40,7 @@ plt.plot(
 plt.show()
 
 
-# - these values have to be adjusted in such a way that the second graph models a bell curve
-# these percentages were adjusted to model a normal distribution
-# they represent the percentage of achieved points compared to the highest score in the competition
+# these values represent the percentage of achieved points compared to the highest score in the competition
 HIGHEST_SCORE = max(points)
 
 NOOB = 0
