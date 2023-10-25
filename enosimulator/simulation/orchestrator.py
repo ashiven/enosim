@@ -120,8 +120,8 @@ class Orchestrator:
         with self.console.status("[bold green]Collecting analytics ..."):
             await self.stat_checker.system_analytics()
 
+    @retry(stop=stop_after_attempt(10))
     async def _get_service_info(self, service: Service) -> CheckerInfoMessage:
-        # Get service info from checker
         checker_address = service.checkers[0]
         response = await self.client.get(f"{checker_address}/service")
         if response.status_code != 200:
@@ -150,7 +150,7 @@ class Orchestrator:
             prev_round, current_round = 1, 1
         return int(prev_round), int(current_round)
 
-    @retry(stop=stop_after_attempt(3))
+    @retry(stop=stop_after_attempt(10))
     def _get_team_scores(self) -> Dict[str, Tuple[float, float]]:
         team_scores = dict()
         scoreboard_url = (

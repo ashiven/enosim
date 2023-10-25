@@ -215,7 +215,7 @@ class FlaskApp:
         return connection
 
     @staticmethod
-    @retry(stop=stop_after_attempt(3))
+    @retry(stop=stop_after_attempt(10))
     def db_insert_values(table_name, data) -> None:
         value_names = ",".join(data.keys())
         value_placeholders = ",".join(["?" for _ in data.keys()])
