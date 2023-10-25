@@ -8,9 +8,9 @@ import aiofiles
 from rich.console import Console
 from rich.table import Table
 from types_ import Config, IpAddresses, Secrets, Service
-from util import *
 
 from .setup_helper.setup_helper import SetupHelper
+from .util import *
 
 
 class Setup:
