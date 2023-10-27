@@ -141,6 +141,18 @@ class ConfigSetup:
 
     @staticmethod
     def from_(setup):
+        if not type(setup["ssh-config-path"]) is str:
+            raise ValueError("Invalid ssh config path in config file.")
+
+        if setup["location"] not in ["azure", "hetzner", "local"]:
+            raise ValueError("Invalid location in config file.")
+
+        if not type(setup["vm-sizes"]) is dict:
+            raise ValueError("Invalid vm sizes in config file.")
+
+        if not type(setup["vm-image-references"]) is dict:
+            raise ValueError("Invalid vm image references in config file.")
+
         new_setup = ConfigSetup(
             ssh_config_path=setup["ssh-config-path"],
             location=setup["location"],
@@ -160,6 +172,29 @@ class ConfigSettings:
 
     @staticmethod
     def from_(settings):
+        if settings["simulation-type"] not in [
+            "stress-test",
+            "basic-stress-test",
+            "realistic",
+        ]:
+            raise ValueError("Invalid simulation type in config file.")
+
+        if not type(settings["duration-in-minutes"]) is int:
+            raise ValueError("Invalid duration in config file.")
+
+        if (
+            not type(settings["teams"]) is int
+            or settings["teams"] < 1
+            or settings["teams"] > 100
+        ):
+            raise ValueError("Invalid teams in config file.")
+
+        if not type(settings["services"]) is list:
+            raise ValueError("Invalid services in config file.")
+
+        if not type(settings["checker-ports"]) is list:
+            raise ValueError("Invalid checker ports in config file.")
+
         new_settings = ConfigSettings(
             duration_in_minutes=settings["duration-in-minutes"],
             teams=settings["teams"],
@@ -179,6 +214,18 @@ class ConfigCtfJson:
 
     @staticmethod
     def from_(ctf_json):
+        if not type(ctf_json["title"]) is str:
+            raise ValueError("Invalid title in config file.")
+
+        if not type(ctf_json["flag-validity-in-rounds"]) is int:
+            raise ValueError("Invalid flag validity in rounds in config file.")
+
+        if not type(ctf_json["checked-rounds-per-round"]) is int:
+            raise ValueError("Invalid checked rounds per round in config file.")
+
+        if not type(ctf_json["round-length-in-seconds"]) is int:
+            raise ValueError("Invalid round length in seconds in config file.")
+
         new_ctf_json = ConfigCtfJson(
             title=ctf_json["title"],
             flag_validity_in_rounds=ctf_json["flag-validity-in-rounds"],
@@ -203,7 +250,8 @@ class Config:
                 ctf_json=ConfigCtfJson.from_(config["ctf-json"]),
             )
             return new_config
-        except:
+        except Exception as e:
+            print(e)
             raise ValueError("Invalid config file.")
 
 
@@ -215,6 +263,15 @@ class VmSecrets:
 
     @staticmethod
     def from_(vm_secrets):
+        if not type(vm_secrets["github-personal-access-token"]) is str:
+            raise ValueError("Invalid github personal access token in secrets file.")
+
+        if not type(vm_secrets["ssh-public-key-path"]) is str:
+            raise ValueError("Invalid ssh public key path in secrets file.")
+
+        if not type(vm_secrets["ssh-private-key-path"]) is str:
+            raise ValueError("Invalid ssh private key path in secrets file.")
+
         new_vm_secrets = VmSecrets(
             github_personal_access_token=vm_secrets["github-personal-access-token"],
             ssh_public_key_path=vm_secrets["ssh-public-key-path"],
@@ -230,6 +287,12 @@ class CloudSecrets:
 
     @staticmethod
     def from_(cloud_secrets):
+        if not type(cloud_secrets["azure-service-principal"]) is dict:
+            raise ValueError("Invalid azure service principal in secrets file.")
+
+        if not type(cloud_secrets["hetzner-api-token"]) is str:
+            raise ValueError("Invalid hetzner api token in secrets file.")
+
         new_cloud_secrets = CloudSecrets(
             azure_service_principal=cloud_secrets["azure-service-principal"],
             hetzner_api_token=cloud_secrets["hetzner-api-token"],
@@ -250,7 +313,8 @@ class Secrets:
                 cloud_secrets=CloudSecrets.from_(secrets["cloud-secrets"]),
             )
             return new_secrets
-        except:
+        except Exception as e:
+            print(e)
             raise ValueError("Invalid secrets file.")
 
 
