@@ -188,6 +188,10 @@ The deployment process can be sped up considerably by using virtual machine imag
 
 There is a browser UI available at `http://localhost:3000` that can be used to monitor the simulation.
 
+![frontend1](./docs/img/Frontend1.PNG)
+
+![frontend2](./docs/img/Frontend2.PNG)
+
 ### CLI
 
 To receive detailed information about the current state of the simulation in the CLI, start the program with the `-v` flag. The following command should be used:
@@ -195,6 +199,12 @@ To receive detailed information about the current state of the simulation in the
 ```bash
 python enosimulator -c /path/to/config.json -s /path/to/secrets.json -v
 ```
+
+![cli1](./docs/img/CLI1.PNG)
+
+![cli2](./docs/img/CLI2.PNG)
+
+![cli3](./docs/img/CLI3.PNG)
 
 ### Scoreboard
 
