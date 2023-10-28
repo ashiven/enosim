@@ -32,7 +32,7 @@ This software can be used to simulate an attack/defense cybersecurity competitio
 
 3. Specify simulation details in **config.json** and **secrets.json**.
 
-4. Start the program:
+4. Start the program (paths to the configuration files can also be defined in the environment variables `ENOSIMULATOR_CONFIG` and `ENOSIMULATOR_SECRETS`):
 
    ```bash
    python enosimulator -c /path/to/config.json -s /path/to/secrets.json
@@ -184,9 +184,23 @@ There is a browser UI available at `http://localhost:3000` that can be used to m
 
 ### CLI
 
-### EnoScoreboard
+To receive detailed information about the current state of the simulation in the CLI, start the program with the `-v` flag. The following command should be used:
+
+```bash
+python enosimulator -c /path/to/config.json -s /path/to/secrets.json -v
+```
+
+### Scoreboard
+
+The current state of the scoreboard can be monitored via the public IP address of the engine VM. It is available at `http://<engine-ip>:5001/scoreboard`.
 
 ### Direct connections via SSH
+
+To connect to a specific VM via SSH, use the following command:
+
+```bash
+ssh -F /path/to/ssh-config <vm-name>
+```
 
 ---
 
