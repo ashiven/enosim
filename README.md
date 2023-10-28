@@ -38,6 +38,14 @@ This software can be used to simulate an attack/defense cybersecurity competitio
    python enosimulator -c /path/to/config.json -s /path/to/secrets.json
    ```
 
+5. Navigate to the frontend directory and start the frontend:
+
+   ```bash
+   cd ./frontend && npm install && npm run start
+   ```
+
+6. A graphical user interface is available at `http://localhost:3000` to monitor the simulation. (It may take up to 20 minutes for the simulation to start.)
+
 #### Docker
 
 1. Clone the repository to your local machine as follows:
@@ -76,6 +84,8 @@ This software can be used to simulate an attack/defense cybersecurity competitio
    ```bash
    docker compose up -d
    ```
+
+5. A graphical user interface is available at `http://localhost:3000` to monitor the simulation. (It may take up to 20 minutes for the simulation to start.)
 
 ### Configuration
 

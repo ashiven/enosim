@@ -34,11 +34,15 @@ pat="<insert-your-pat-here>"
 services=(
   "enowars7-service-CVExchange"
   "enowars7-service-bollwerk"
-  "enowars7-service-expenses"
+  "enowars7-service-yvm"
+  "enowars7-service-asocialnetwork"
+  "enowars7-service-oldschool"
+  "enowars7-service-granulizer"
+  "enowars7-service-phreaking"
 )
 
 for service in "${services[@]}"; do
-  sudo git clone "https//${pat}@github.com/enowars/${service}.git"
+  sudo git clone "https://${pat}@github.com/enowars/${service}.git"
   sudo find "${service}" \( -name "requirements*" -o -name "Dockerfile*" \) -exec sed -i "s|enochecker3[^ ]*|git+https://github.com/ashiven/enochecker3|g" "{}" \;
 
   cd "${service}/service"

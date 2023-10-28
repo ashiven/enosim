@@ -8,8 +8,8 @@
          "engine": "cx11"
       },
       "vm-image-references": {
-         "vulnbox": "vulnbox-checker-CVExchange-bollwerk-expenses",
-         "checker": "vulnbox-checker-CVExchange-bollwerk-expenses",
+         "vulnbox": "vulnbox-checker",
+         "checker": "vulnbox-checker",
          "engine": "engine"
       }
    },
