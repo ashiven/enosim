@@ -57,6 +57,7 @@ class Container(containers.DeclarativeContainer):
         ip_addresses=setup.ip_addresses,
         config=config.config,
         secrets=config.secrets,
+        console=console,
         verbose=config.args.verbose,
         debug=config.args.debug,
     )

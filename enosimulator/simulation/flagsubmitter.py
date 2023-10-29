@@ -11,6 +11,7 @@ class FlagSubmitter:
         ip_addresses: IpAddresses,
         config: Config,
         secrets: Secrets,
+        console: Console,
         verbose: bool = False,
         debug: bool = False,
     ):
@@ -19,12 +20,12 @@ class FlagSubmitter:
         self.ip_addresses = ip_addresses
         self.verbose = verbose
         self.debug = debug
+        self.console = console
         self.usernames = {
             SetupVariant.AZURE: "groot",
             SetupVariant.HETZNER: "root",
             SetupVariant.LOCAL: "root",
         }
-        self.console = Console()
 
     def submit_flags(self, team_address: str, flags: List[str]) -> None:
         SUBMISSION_ENDPOINT_PORT = 1337
