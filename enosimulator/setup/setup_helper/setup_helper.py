@@ -185,7 +185,7 @@ class TeamGenerator:
 
 
 class SetupHelper:
-    def __init__(self, config: Config, secrets: Secrets, team_generator: TeamGenerator):
+    def __init__(self, config: Config, secrets: Secrets, team_gen: TeamGenerator):
         self.config = config
         self.secrets = secrets
         self.helpers = {
@@ -193,7 +193,7 @@ class SetupHelper:
             SetupVariant.HETZNER: HetznerSetupHelper(config, secrets),
             SetupVariant.LOCAL: LocalSetupHelper(config, secrets),
         }
-        self.team_gen = team_generator
+        self.team_gen = team_gen
 
     def generate_teams(self) -> Tuple[List, Dict]:
         return self.team_gen.generate()

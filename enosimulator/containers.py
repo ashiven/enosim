@@ -14,13 +14,13 @@ class Container(containers.DeclarativeContainer):
     # Setup
     console = providers.Factory(Console)
 
-    team_generator = providers.Factory(TeamGenerator, config=config.config)
+    team_gen = providers.Factory(TeamGenerator, config=config.config)
 
     setup_helper = providers.Factory(
         SetupHelper,
         config=config.config,
         secrets=config.secrets,
-        team_generator=team_generator,
+        team_gen=team_gen,
     )
 
     setup = providers.Factory(
