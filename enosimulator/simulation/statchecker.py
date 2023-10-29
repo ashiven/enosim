@@ -20,16 +20,16 @@ class StatChecker:
         self.config = config
         self.secrets = secrets
         self.verbose = verbose
-        self.usernames = {
-            SetupVariant.AZURE: "groot",
-            SetupVariant.HETZNER: "root",
-            SetupVariant.LOCAL: "root",
-        }
         self.vm_count = config.settings.teams + 2
         self.vm_stats = dict()
         self.container_stats = dict()
         self.client = client
         self.console = console
+        self.usernames = {
+            SetupVariant.AZURE: "groot",
+            SetupVariant.HETZNER: "root",
+            SetupVariant.LOCAL: "root",
+        }
 
     def check_containers(self, ip_addresses: Dict[str, str]) -> Dict[str, Panel]:
         futures = dict()

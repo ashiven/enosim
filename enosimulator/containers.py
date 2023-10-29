@@ -42,7 +42,7 @@ class Container(containers.DeclarativeContainer):
         team_gen=team_gen,
     )
 
-    setup = providers.Factory(
+    setup = providers.Singleton(
         Setup,
         config=config.config,
         secrets=config.secrets,
@@ -52,9 +52,23 @@ class Container(containers.DeclarativeContainer):
 
     # Simulation
 
-    flag_submitter = providers.Factory(FlagSubmitter, client=client)
+    flag_submitter = providers.Factory(
+        FlagSubmitter,
+        ip_addresses=setup.ip_addresses,
+        config=config.config,
+        secrets=config.secrets,
+        verbose=config.args.verbose,
+        debug=config.args.debug,
+    )
 
-    stat_checker = providers.Factory(StatChecker, client=client)
+    stat_checker = providers.Factory(
+        StatChecker,
+        config=config.config,
+        secrets=config.secrets,
+        client=client,
+        console=console,
+        verbose=config.args.verbose,
+    )
 
     orchestrator = providers.Factory(
         Orchestrator,
@@ -68,7 +82,7 @@ class Container(containers.DeclarativeContainer):
         debug=config.args.debug,
     )
 
-    simulation = providers.Factory(
+    simulation = providers.Singleton(
         Simulation.new,
         setup=setup,
         locks=locks,
