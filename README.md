@@ -47,7 +47,7 @@ This software can be used to simulate an attack/defense cybersecurity competitio
 5. Navigate to the frontend directory and start the frontend:
 
    ```bash
-   cd ./frontend && npm install && npm run start
+   cd ./frontend && npm install && npm run build && npm run start
    ```
 
 6. A graphical user interface is available at `http://localhost:3000` to monitor the simulation. (It may take up to 20 minutes for the simulation to start.)
