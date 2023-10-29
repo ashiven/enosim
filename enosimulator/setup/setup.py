@@ -18,35 +18,21 @@ from .util import *
 class Setup:
     def __init__(
         self,
-        config: Config,
-        secrets: Secrets,
-        setup_path: str,
+        config: Dict,
+        secrets: Dict,
         setup_helper: SetupHelper,
+        console: Console,
     ):
         self.ips = IpAddresses(dict(), dict())
         self.teams = dict()
         self.services = dict()
-        self.config = config
-        self.secrets = secrets
-        self.setup_path = setup_path
-        self.setup_helper = setup_helper
-        self.console = Console()
-
-    @classmethod
-    async def new(
-        cls,
-        config_path: str,
-        secrets_path: str,
-    ):
-        config_json = await parse_json(config_path)
-        config = Config.from_(config_json)
-        secrets_json = await parse_json(secrets_path)
-        secrets = Secrets.from_(secrets_json)
+        self.config = Config.from_(config)
+        self.secrets = Secrets.from_(secrets)
         dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
-        setup_path = f"{dir_path}/../../test-setup/{config.setup.location}"
-        setup_helper = SetupHelper(config, secrets)
-        return cls(config, secrets, setup_path, setup_helper)
+        self.setup_path = f"{dir_path}/../../test-setup/{config.setup.location}"
+        self.setup_helper = setup_helper
+        self.console = console
 
     async def build(self) -> None:
         await self.configure()

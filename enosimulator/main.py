@@ -73,15 +73,11 @@ def get_args() -> argparse.Namespace:
 
 @inject
 async def main(
+    args: argparse.Namespace,
     setup: Setup = Provide[Container.setup],
     simulation: Simulation = Provide[Container.simulation],
     app: FlaskApp = Provide[Container.flask_app],
 ) -> None:
-    load_dotenv()
-    sys.path.append("..")
-    sys.path.append("../..")
-    args = get_args()
-
     if args.destroy:
         setup.destroy()
         return
@@ -102,4 +98,13 @@ async def main(
 
 
 if __name__ == "__main__":
+    load_dotenv()
+    sys.path.append("..")
+    sys.path.append("../..")
+    args = get_args()
+    container = Container()
+    container.config.config.from_json(args.config)
+    container.config.secrets.from_json(args.secrets)
+    container.wire(modules=[__name__])
+
     asyncio.run(main())

@@ -146,32 +146,6 @@ def _generate_setup_team(id: int, experience: Experience) -> Dict[str, Team]:
 #### End Helpers ####
 
 
-class SetupHelper:
-    def __init__(self, config: Config, secrets: Secrets):
-        self.config = config
-        self.secrets = secrets
-        self.helpers = {
-            SetupVariant.AZURE: AzureSetupHelper(config, secrets),
-            SetupVariant.HETZNER: HetznerSetupHelper(config, secrets),
-            SetupVariant.LOCAL: LocalSetupHelper(config, secrets),
-        }
-        self.team_gen = TeamGenerator(config)
-
-    def generate_teams(self) -> Tuple[List, Dict]:
-        return self.team_gen.generate()
-
-    async def convert_templates(self) -> None:
-        helper = self.helpers[SetupVariant.from_str(self.config.setup.location)]
-        await helper.convert_buildscript()
-        await helper.convert_deploy_script()
-        await helper.convert_tf_files()
-        await helper.convert_vm_scripts()
-
-    async def get_ip_addresses(self) -> Tuple[Dict, Dict]:
-        helper = self.helpers[SetupVariant.from_str(self.config.setup.location)]
-        return await helper.get_ip_addresses()
-
-
 class TeamGenerator:
     def __init__(self, config: Config):
         self.config = config
@@ -208,3 +182,29 @@ class TeamGenerator:
             team_id_total += teams
 
         return ctf_json_teams, setup_teams
+
+
+class SetupHelper:
+    def __init__(self, config: Config, secrets: Secrets, team_generator: TeamGenerator):
+        self.config = config
+        self.secrets = secrets
+        self.helpers = {
+            SetupVariant.AZURE: AzureSetupHelper(config, secrets),
+            SetupVariant.HETZNER: HetznerSetupHelper(config, secrets),
+            SetupVariant.LOCAL: LocalSetupHelper(config, secrets),
+        }
+        self.team_gen = team_generator
+
+    def generate_teams(self) -> Tuple[List, Dict]:
+        return self.team_gen.generate()
+
+    async def convert_templates(self) -> None:
+        helper = self.helpers[SetupVariant.from_str(self.config.setup.location)]
+        await helper.convert_buildscript()
+        await helper.convert_deploy_script()
+        await helper.convert_tf_files()
+        await helper.convert_vm_scripts()
+
+    async def get_ip_addresses(self) -> Tuple[Dict, Dict]:
+        helper = self.helpers[SetupVariant.from_str(self.config.setup.location)]
+        return await helper.get_ip_addresses()
