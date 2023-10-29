@@ -153,15 +153,23 @@ class Simulation:
         return random_value < probability
 
     def _exploit_or_patch(self, team: Team) -> Tuple[str, str, str]:
-        random_variant = random.choice(["exploiting", "patched"])
-        if random_variant == "exploiting":
-            random_service = random.choice(list(team.exploiting))
-            random_flagstore = random.choice(list(team.exploiting[random_service]))
-        else:
-            random_service = random.choice(list(team.patched))
-            random_flagstore = random.choice(list(team.patched[random_service]))
+        try:
+            random_variant = random.choice(["exploiting", "patched"])
+            if random_variant == "exploiting":
+                random_service = random.choice(list(team.exploiting))
+                exploit_dict = team.exploiting[random_service]
+                currently_not_exploiting = {flagstore: exploiting for flagstore, exploiting in exploit_dict.items() if not exploiting}
+                random_flagstore = random.choice(list(currently_not_exploiting))
+            else:
+                random_service = random.choice(list(team.patched))
+                patched_dict = team.patched[random_service]
+                currently_not_patched = {flagstore: patched for flagstore, patched in patched_dict.items() if not patched}
+                random_flagstore = random.choice(list(currently_not_patched))
 
-        return random_variant, random_service, random_flagstore
+            return random_variant, random_service, random_flagstore
+
+        except IndexError:
+            return None, None, None
 
     def _update_team(
         self, team_name: str, variant: str, service: str, flagstore: str
@@ -172,6 +180,9 @@ class Simulation:
         elif variant == "patched":
             self.setup.teams[team_name].patched[service][flagstore] = True
             info_text = "patched"
+        else:
+            return ""
+
         return f"[bold red][!] Team {team_name} {info_text} {service}-{flagstore}"
 
     async def _update_exploiting_and_patched(self) -> List[str]:
