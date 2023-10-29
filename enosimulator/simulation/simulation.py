@@ -33,11 +33,11 @@ class Simulation:
         self.console = console
         self.round_id = 0
         self.round_start = 0
+        self.round_length = setup.config.ctf_json.round_length_in_seconds
         self.total_rounds = setup.config.settings.duration_in_minutes * (
             60 // setup.config.ctf_json.round_length_in_seconds
         )
         self.remaining_rounds = self.total_rounds
-        self.round_length = setup.config.ctf_json.round_length_in_seconds
 
     async def run(self) -> None:
         await self.orchestrator.update_team_info()
