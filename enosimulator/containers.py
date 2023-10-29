@@ -88,6 +88,7 @@ class Container(containers.DeclarativeContainer):
         setup=setup,
         orchestrator=orchestrator,
         locks=locks,
+        console=console,
         verbose=config.args.verbose,
         debug=config.args.debug,
     )

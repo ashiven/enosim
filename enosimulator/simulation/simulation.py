@@ -21,6 +21,7 @@ class Simulation:
         setup: SetupType,
         orchestrator: OrchestratorType,
         locks: Dict,
+        console: Console,
         verbose: bool,
         debug: bool,
     ):
@@ -29,7 +30,7 @@ class Simulation:
         self.orchestrator = orchestrator
         self.verbose = verbose
         self.debug = debug
-        self.console = Console()
+        self.console = console
         self.round_id = 0
         self.round_start = 0
         self.total_rounds = setup.config.settings.duration_in_minutes * (
