@@ -39,9 +39,25 @@ class Container(containers.DeclarativeContainer):
 
     round_info_lock = providers.Factory(Lock)
 
+    locks = providers.Factory(
+        dict,
+        service_lock=service_lock,
+        team_lock=team_lock,
+        round_info_lock=round_info_lock,
+    )
+
     # Simulation
 
-    simulation = providers.Factory(Simulation, setup=setup)
+    orchestrator = providers.Factory()
+
+    simulation = providers.Factory(
+        Simulation.new,
+        setup=setup,
+        locks=locks,
+        orchestrator=orchestrator,
+        verbose=config.args.verbose,
+        debug=config.args.debug,
+    )
 
     # Flask
 
