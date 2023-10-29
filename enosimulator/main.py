@@ -5,12 +5,11 @@ import sys
 from threading import Thread
 
 from backend.app import FlaskApp
+from containers import Container
 from dependency_injector.wiring import Provide, inject
 from dotenv import load_dotenv
 from setup.setup import Setup
 from simulation.simulation import Simulation
-
-from .containers import Container
 
 
 def get_args() -> argparse.Namespace:

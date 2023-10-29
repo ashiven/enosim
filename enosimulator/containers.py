@@ -5,7 +5,7 @@ from dependency_injector import containers, providers
 from httpx import AsyncClient
 from rich.console import Console
 from setup.setup import Setup
-from setup.setup_helper import SetupHelper, TeamGenerator
+from setup.setup_helper.setup_helper import SetupHelper, TeamGenerator
 from simulation.flagsubmitter import FlagSubmitter
 from simulation.orchestrator import Orchestrator
 from simulation.simulation import Simulation
