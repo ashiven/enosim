@@ -102,6 +102,7 @@ if __name__ == "__main__":
     sys.path.append("..")
     sys.path.append("../..")
     args = get_args()
+
     container = Container()
     container.config.config.from_json(args.config)
     container.config.secrets.from_json(args.secrets)

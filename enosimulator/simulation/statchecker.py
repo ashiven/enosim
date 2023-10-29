@@ -9,7 +9,14 @@ from types_ import Config, Secrets, SetupVariant
 
 
 class StatChecker:
-    def __init__(self, config: Config, secrets: Secrets, verbose: bool = False):
+    def __init__(
+        self,
+        config: Config,
+        secrets: Secrets,
+        client: AsyncClient,
+        console: Console,
+        verbose: bool = False,
+    ):
         self.config = config
         self.secrets = secrets
         self.verbose = verbose
@@ -21,8 +28,8 @@ class StatChecker:
         self.vm_count = config.settings.teams + 2
         self.vm_stats = dict()
         self.container_stats = dict()
-        self.client = AsyncClient()
-        self.console = Console()
+        self.client = client
+        self.console = console
 
     def check_containers(self, ip_addresses: Dict[str, str]) -> Dict[str, Panel]:
         futures = dict()

@@ -38,7 +38,15 @@ FLAG_HASH = "ignore_flag_hash"
 
 class Orchestrator:
     def __init__(
-        self, setup: SetupType, locks: Dict, verbose: bool = False, debug: bool = False
+        self,
+        setup: SetupType,
+        locks: Dict,
+        client: httpx.AsyncClient,
+        flag_submitter: FlagSubmitter,
+        stat_checker: StatChecker,
+        console: Console,
+        verbose: bool = False,
+        debug: bool = False,
     ):
         self.setup = setup
         self.verbose = verbose
@@ -47,12 +55,10 @@ class Orchestrator:
         self.service_info = dict()
         self.private_to_public_ip = private_to_public_ip(self.setup.ips)
         self.attack_info = None
-        self.client = httpx.AsyncClient()
-        self.flag_submitter = FlagSubmitter(
-            setup.ips, setup.config, setup.secrets, verbose, debug
-        )
-        self.stat_checker = StatChecker(setup.config, setup.secrets, verbose)
-        self.console = Console()
+        self.client = client
+        self.flag_submitter = flag_submitter
+        self.stat_checker = stat_checker
+        self.console = console
 
     async def update_team_info(self) -> None:
         async with async_lock(self.locks["service"]):

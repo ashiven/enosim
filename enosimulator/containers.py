@@ -1,18 +1,37 @@
 from threading import Lock
 
+import httpx
 from backend.app import FlaskApp
 from dependency_injector import containers, providers
 from rich.console import Console
 from setup.setup import Setup
 from setup.setup_helper import SetupHelper, TeamGenerator
+from simulation.flagsubmitter import FlagSubmitter
+from simulation.orchestrator import Orchestrator
 from simulation.simulation import Simulation
+from simulation.statchecker import StatChecker
 
 
 class Container(containers.DeclarativeContainer):
     config = providers.Configuration()
 
-    # Setup
+    # Util classes (console, client, locks, etc.)
+
     console = providers.Factory(Console)
+
+    client = providers.Factory(httpx.AsyncClient)
+
+    thread_lock = providers.Factory(Lock)
+
+    # this object gets created once and then gets reused on later calls
+    locks = providers.Singleton(
+        dict,
+        service_lock=thread_lock,
+        team_lock=thread_lock,
+        round_info_lock=thread_lock,
+    )
+
+    # Setup
 
     team_gen = providers.Factory(TeamGenerator, config=config.config)
 
@@ -31,24 +50,23 @@ class Container(containers.DeclarativeContainer):
         console=console,
     )
 
-    # Locks
-
-    service_lock = providers.Factory(Lock)
-
-    team_lock = providers.Factory(Lock)
-
-    round_info_lock = providers.Factory(Lock)
-
-    locks = providers.Factory(
-        dict,
-        service_lock=service_lock,
-        team_lock=team_lock,
-        round_info_lock=round_info_lock,
-    )
-
     # Simulation
 
-    orchestrator = providers.Factory()
+    flag_submitter = providers.Factory(FlagSubmitter, client=client)
+
+    stat_checker = providers.Factory(StatChecker, client=client)
+
+    orchestrator = providers.Factory(
+        Orchestrator,
+        setup=setup,
+        locks=locks,
+        client=client,
+        flag_submitter=flag_submitter,
+        stat_checker=stat_checker,
+        console=console,
+        verbose=config.args.verbose,
+        debug=config.args.debug,
+    )
 
     simulation = providers.Factory(
         Simulation.new,
