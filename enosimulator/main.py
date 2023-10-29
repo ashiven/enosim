@@ -2,18 +2,18 @@ import argparse
 import asyncio
 import os
 import sys
-from threading import Lock, Thread
+from threading import Thread
 
 from backend.app import FlaskApp
+from dependency_injector.wiring import Provide, inject
 from dotenv import load_dotenv
 from setup.setup import Setup
 from simulation.simulation import Simulation
 
+from .containers import Container
 
-async def main() -> None:
-    load_dotenv()
-    sys.path.append("..")
-    sys.path.append("../..")
+
+def get_args() -> argparse.Namespace:
     dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
 
     parser = argparse.ArgumentParser(
@@ -54,6 +54,7 @@ async def main() -> None:
         action="store_true",
         help="Display additional information useful for debugging",
     )
+
     args = parser.parse_args()
 
     if not args.config:
@@ -66,27 +67,28 @@ async def main() -> None:
         raise Exception(
             "Please supply the path to a secrets file or set the ENOSIMULATOR_SECRETS environment variable"
         )
+
+    return args
+
+
+@inject
+async def main(
+    setup: Setup = Provide[Container.setup],
+    simulation: Simulation = Provide[Container.simulation],
+    app: FlaskApp = Provide[Container.flask_app],
+) -> None:
+    load_dotenv()
+    sys.path.append("..")
+    sys.path.append("../..")
+    args = get_args()
+
     if args.destroy:
-        setup = await Setup.new(args.config, args.secrets)
         setup.destroy()
         return
 
     try:
-        setup = await Setup.new(args.config, args.secrets)
         await setup.build()
 
-        # Create thread locks for services, teams, and round info
-        service_lock, team_lock, round_info_lock = Lock(), Lock(), Lock()
-        locks = {
-            "service": service_lock,
-            "team": team_lock,
-            "round_info": round_info_lock,
-        }
-
-        simulation = await Simulation.new(setup, locks, args.verbose, args.debug)
-
-        # Run backend Flask app in a separate thread
-        app = FlaskApp(setup, simulation, locks)
         flask_thread = Thread(target=app.run)
         flask_thread.daemon = True
         flask_thread.start()
