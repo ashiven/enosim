@@ -1,8 +1,8 @@
 from threading import Lock
 
-import httpx
 from backend.app import FlaskApp
 from dependency_injector import containers, providers
+from httpx import AsyncClient
 from rich.console import Console
 from setup.setup import Setup
 from setup.setup_helper import SetupHelper, TeamGenerator
@@ -19,11 +19,10 @@ class Container(containers.DeclarativeContainer):
 
     console = providers.Factory(Console)
 
-    client = providers.Factory(httpx.AsyncClient)
+    client = providers.Factory(AsyncClient)
 
     thread_lock = providers.Factory(Lock)
 
-    # this object gets created once and then gets reused on later calls
     locks = providers.Singleton(
         dict,
         service_lock=thread_lock,
