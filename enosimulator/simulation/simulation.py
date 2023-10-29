@@ -12,7 +12,6 @@ from rich.panel import Panel
 from rich.table import Table
 from types_ import OrchestratorType, SetupType, Team
 
-from .orchestrator import Orchestrator
 from .util import async_lock
 
 
@@ -39,15 +38,8 @@ class Simulation:
         self.remaining_rounds = self.total_rounds
         self.round_length = setup.config.ctf_json.round_length_in_seconds
 
-    @classmethod
-    async def new(
-        cls, setup: SetupType, locks: Dict, verbose: bool = False, debug: bool = False
-    ):
-        orchestrator = Orchestrator(setup, locks, verbose, debug)
-        await orchestrator.update_team_info()
-        return cls(setup, orchestrator, locks, verbose, debug)
-
     async def run(self) -> None:
+        await self.orchestrator.update_team_info()
         await self._scoreboard_available()
 
         for round_ in range(self.total_rounds):

@@ -84,10 +84,10 @@ class Container(containers.DeclarativeContainer):
     )
 
     simulation = providers.Singleton(
-        Simulation.new,
+        Simulation,
         setup=setup,
-        locks=locks,
         orchestrator=orchestrator,
+        locks=locks,
         verbose=config.args.verbose,
         debug=config.args.debug,
     )
