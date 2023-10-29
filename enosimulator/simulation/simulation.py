@@ -158,12 +158,20 @@ class Simulation:
             if random_variant == "exploiting":
                 random_service = random.choice(list(team.exploiting))
                 exploit_dict = team.exploiting[random_service]
-                currently_not_exploiting = {flagstore: exploiting for flagstore, exploiting in exploit_dict.items() if not exploiting}
+                currently_not_exploiting = {
+                    flagstore: exploiting
+                    for flagstore, exploiting in exploit_dict.items()
+                    if not exploiting
+                }
                 random_flagstore = random.choice(list(currently_not_exploiting))
             else:
                 random_service = random.choice(list(team.patched))
                 patched_dict = team.patched[random_service]
-                currently_not_patched = {flagstore: patched for flagstore, patched in patched_dict.items() if not patched}
+                currently_not_patched = {
+                    flagstore: patched
+                    for flagstore, patched in patched_dict.items()
+                    if not patched
+                }
                 random_flagstore = random.choice(list(currently_not_patched))
 
             return random_variant, random_service, random_flagstore
