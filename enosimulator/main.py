@@ -73,20 +73,19 @@ async def main() -> None:
     args = get_args()
 
     application = Application()
-    application.config.config.from_json(args.config)
-    application.config.secrets.from_json(args.secrets)
-    application.config.verbose.from_value(args.verbose)
-    application.config.debug.from_value(args.debug)
-
+    application.configuration.config.from_json(args.config)
+    application.configuration.secrets.from_json(args.secrets)
+    application.configuration.verbose.from_value(args.verbose)
+    application.configuration.debug.from_value(args.debug)
 
     try:
         if args.destroy:
             setup.destroy()
             return
-        
+
         setup = application.setup_container.setup()
         await setup.build()
-        
+
         simulation = application.simulation_container.simulation()
         app = application.backend_container.flask_app()
 

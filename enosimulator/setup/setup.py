@@ -18,16 +18,16 @@ from .util import *
 class Setup:
     def __init__(
         self,
-        config: Dict,
-        secrets: Dict,
+        config: Config,
+        secrets: Secrets,
         setup_helper: SetupHelper,
         console: Console,
     ):
         self.ips = IpAddresses(dict(), dict())
         self.teams = dict()
         self.services = dict()
-        self.config = Config.from_(config)
-        self.secrets = Secrets.from_(secrets)
+        self.config = config
+        self.secrets = secrets
         dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
         self.setup_path = f"{dir_path}/../../test-setup/{self.config.setup.location}"
