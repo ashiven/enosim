@@ -78,16 +78,18 @@ async def main() -> None:
     application.config.verbose.from_value(args.verbose)
     application.config.debug.from_value(args.debug)
 
-    setup = application.setup_container.setup()
-    simulation = application.simulation_container.simulation()
-    app = application.backend_container.flask_app()
+
 
     if args.destroy:
         setup.destroy()
         return
 
     try:
+        setup = application.setup_container.setup()
         await setup.build()
+        
+        simulation = application.simulation_container.simulation()
+        app = application.backend_container.flask_app()
 
         flask_thread = Thread(target=app.run)
         flask_thread.daemon = True
