@@ -89,6 +89,6 @@ class Container(containers.DeclarativeContainer):
 
     # Flask
 
-    flask_app = providers.Factory(
+    flask_app = providers.Singleton(
         FlaskApp, setup=setup, simulation=simulation, locks=locks
     )
