@@ -45,7 +45,7 @@ class SimulationContainer(containers.DeclarativeContainer):
 
     flag_submitter = providers.Factory(
         FlagSubmitter,
-        ip_addresses=setup_container.setup.ip_addresses,
+        ip_addresses=setup_container.setup.ips,
         config=config.config,
         secrets=config.secrets,
         console=console,
@@ -100,7 +100,7 @@ class BackendContainer(containers.DeclarativeContainer):
     )
 
 
-class ApplicationContainer(containers.DeclarativeContainer):
+class Application(containers.DeclarativeContainer):
     config = providers.Configuration()
 
     console = providers.Factory(Console)
@@ -113,15 +113,23 @@ class ApplicationContainer(containers.DeclarativeContainer):
         round_info_lock=thread_lock,
     )
 
-    setup = providers.Container(SetupContainer, config=config, console=console)
+    setup_container = providers.Container(
+        SetupContainer, config=config, console=console
+    )
 
-    simulation = providers.Container(
+    simulation_container = providers.Container(
         SimulationContainer,
         config=config,
-        setup=setup,
+        setup_container=setup_container,
         console=console,
         client=client,
         locks=locks,
     )
 
-    backend = providers.Container(BackendContainer, config=config, locks=locks)
+    backend_container = providers.Container(
+        BackendContainer,
+        config=config,
+        setup_container=setup_container,
+        simulation_container=simulation_container,
+        locks=locks,
+    )
