@@ -12,25 +12,10 @@ from simulation.simulation import Simulation
 from simulation.statchecker import StatChecker
 
 
-class Container(containers.DeclarativeContainer):
+class SetupContainer(containers.DeclarativeContainer):
     config = providers.Configuration()
 
-    # Util classes (console, client, locks, etc.)
-
-    console = providers.Factory(Console)
-
-    client = providers.Factory(AsyncClient)
-
-    thread_lock = providers.Factory(Lock)
-
-    locks = providers.Singleton(
-        dict,
-        service_lock=thread_lock,
-        team_lock=thread_lock,
-        round_info_lock=thread_lock,
-    )
-
-    # Setup
+    console = providers.Dependency(instance_of=Console)
 
     team_gen = providers.Factory(TeamGenerator, config=config.config)
 
@@ -49,11 +34,18 @@ class Container(containers.DeclarativeContainer):
         console=console,
     )
 
-    # Simulation
+
+class SimulationContainer(containers.DeclarativeContainer):
+    config = providers.Configuration()
+
+    setup_container = providers.DependenciesContainer()
+    console = providers.Dependency(instance_of=Console)
+    client = providers.Dependency(instance_of=AsyncClient)
+    locks = providers.Dependency(instance_of=dict)
 
     flag_submitter = providers.Factory(
         FlagSubmitter,
-        ip_addresses=setup.ip_addresses,
+        ip_addresses=setup_container.setup.ip_addresses,
         config=config.config,
         secrets=config.secrets,
         console=console,
@@ -72,7 +64,7 @@ class Container(containers.DeclarativeContainer):
 
     orchestrator = providers.Factory(
         Orchestrator,
-        setup=setup,
+        setup=setup_container.setup,
         locks=locks,
         client=client,
         flag_submitter=flag_submitter,
@@ -84,7 +76,7 @@ class Container(containers.DeclarativeContainer):
 
     simulation = providers.Singleton(
         Simulation,
-        setup=setup,
+        setup=setup_container.setup,
         orchestrator=orchestrator,
         locks=locks,
         console=console,
@@ -92,6 +84,44 @@ class Container(containers.DeclarativeContainer):
         debug=config.args.debug,
     )
 
-    # Flask
 
-    flask_app = providers.Factory(FlaskApp, setup=setup, simulation=simulation)
+class BackendContainer(containers.DeclarativeContainer):
+    config = providers.Configuration()
+
+    setup_container = providers.DependenciesContainer()
+    simulation_container = providers.DependenciesContainer()
+    locks = providers.Dependency(instance_of=dict)
+
+    flask_app = providers.Factory(
+        FlaskApp,
+        setup=setup_container.setup,
+        simulation=simulation_container.simulation,
+        locks=locks,
+    )
+
+
+class ApplicationContainer(containers.DeclarativeContainer):
+    config = providers.Configuration()
+
+    console = providers.Factory(Console)
+    client = providers.Factory(AsyncClient)
+    thread_lock = providers.Factory(Lock)
+    locks = providers.Singleton(
+        dict,
+        service_lock=thread_lock,
+        team_lock=thread_lock,
+        round_info_lock=thread_lock,
+    )
+
+    setup = providers.Container(SetupContainer, config=config, console=console)
+
+    simulation = providers.Container(
+        SimulationContainer,
+        config=config,
+        setup=setup,
+        console=console,
+        client=client,
+        locks=locks,
+    )
+
+    backend = providers.Container(BackendContainer, config=config, locks=locks)
