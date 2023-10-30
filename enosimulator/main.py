@@ -4,7 +4,7 @@ import os
 import sys
 from threading import Thread
 
-from container_single import Container
+from containers import Application
 from dotenv import load_dotenv
 
 
@@ -72,17 +72,17 @@ async def main() -> None:
     sys.path.append("../..")
     args = get_args()
 
-    container = Container()
-    container.config.config.from_json(args.config)
-    container.config.secrets.from_json(args.secrets)
-    container.config.verbose.from_value(args.verbose)
-    container.config.debug.from_value(args.debug)
+    application = Application()
+    application.config.config.from_json(args.config)
+    application.config.secrets.from_json(args.secrets)
+    application.config.verbose.from_value(args.verbose)
+    application.config.debug.from_value(args.debug)
 
     # Console().print(container.config())
 
-    setup = container.setup()
-    simulation = container.simulation()
-    app = container.flask_app()
+    setup = application.setup_container.setup()
+    simulation = application.simulation_container.simulation()
+    app = application.backend_container.flask_app()
 
     if args.destroy:
         setup.destroy()
