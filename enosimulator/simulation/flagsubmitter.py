@@ -2,22 +2,20 @@ from typing import List, Tuple
 
 import paramiko
 from rich.console import Console
-from types_ import Config, IpAddresses, Secrets, SetupVariant
+from types_ import SetupType, SetupVariant
 
 
 class FlagSubmitter:
     def __init__(
         self,
-        ip_addresses: IpAddresses,
-        config: Config,
-        secrets: Secrets,
+        setup: SetupType,
         console: Console,
         verbose: bool = False,
         debug: bool = False,
     ):
-        self.config = config
-        self.secrets = secrets
-        self.ip_addresses = ip_addresses
+        self.config = setup.config
+        self.secrets = setup.secrets
+        self.ip_addresses = setup.ips
         self.verbose = verbose
         self.debug = debug
         self.console = console

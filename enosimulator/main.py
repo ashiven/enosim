@@ -72,12 +72,12 @@ def get_args() -> argparse.Namespace:
 
 @inject
 async def main(
-    args: argparse.Namespace,
+    destroy: bool = Provide[Application.config.destroy],
     setup: Setup = Provide[Application.setup_container.setup],
     simulation: Simulation = Provide[Application.simulation_container.simulation],
     app: FlaskApp = Provide[Application.backend_container.flask_app],
 ) -> None:
-    if args.destroy:
+    if destroy:
         setup.destroy()
         return
 
@@ -107,6 +107,7 @@ if __name__ == "__main__":
     container.config.secrets.from_json(args.secrets)
     container.config.verbose = args.verbose
     container.config.debug = args.debug
+    container.config.destroy = args.destroy
     container.wire(modules=[__name__])
 
-    asyncio.run(main(args))
+    asyncio.run(main())

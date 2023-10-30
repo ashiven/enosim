@@ -45,9 +45,7 @@ class SimulationContainer(containers.DeclarativeContainer):
 
     flag_submitter = providers.Factory(
         FlagSubmitter,
-        ip_addresses=setup_container.setup.ips,
-        config=config.config,
-        secrets=config.secrets,
+        setup=setup_container.setup,
         console=console,
         verbose=config.verbose,
         debug=config.debug,
