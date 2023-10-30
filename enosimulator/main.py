@@ -5,7 +5,7 @@ import sys
 from threading import Thread
 
 from backend.app import FlaskApp
-from containers import Application
+from container_single import Container
 from dependency_injector.wiring import Provide, inject
 from dotenv import load_dotenv
 from setup.setup import Setup
@@ -72,10 +72,10 @@ def get_args() -> argparse.Namespace:
 
 @inject
 async def main(
-    destroy: bool = Provide[Application.config.destroy],
-    setup: Setup = Provide[Application.setup_container.setup],
-    simulation: Simulation = Provide[Application.simulation_container.simulation],
-    app: FlaskApp = Provide[Application.backend_container.flask_app],
+    destroy: bool = Provide[Container.config.destroy],
+    setup: Setup = Provide[Container.setup],
+    simulation: Simulation = Provide[Container.simulation],
+    app: FlaskApp = Provide[Container.flask_app],
 ) -> None:
     if destroy:
         setup.destroy()
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     sys.path.append("../..")
     args = get_args()
 
-    container = Application()
+    container = Container()
     container.config.config.from_json(args.config)
     container.config.secrets.from_json(args.secrets)
     container.config.verbose = args.verbose
