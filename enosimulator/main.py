@@ -78,8 +78,6 @@ async def main() -> None:
     application.config.verbose.from_value(args.verbose)
     application.config.debug.from_value(args.debug)
 
-    # Console().print(container.config())
-
     setup = application.setup_container.setup()
     simulation = application.simulation_container.simulation()
     app = application.backend_container.flask_app()
