@@ -109,4 +109,4 @@ if __name__ == "__main__":
     container.config.debug = args.debug
     container.wire(modules=[__name__])
 
-    asyncio.run(main())
+    asyncio.run(main(args))
