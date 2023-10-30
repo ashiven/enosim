@@ -1,6 +1,5 @@
 from typing import Dict, List, Tuple
 
-import httpx
 import jsons
 from bs4 import BeautifulSoup
 from enochecker_core import (
@@ -9,6 +8,7 @@ from enochecker_core import (
     CheckerTaskMessage,
     CheckerTaskResult,
 )
+from httpx import AsyncClient
 from rich.console import Console
 from rich.panel import Panel
 from selenium import webdriver
@@ -41,7 +41,7 @@ class Orchestrator:
         self,
         setup: SetupType,
         locks: Dict,
-        client: httpx.AsyncClient,
+        client: AsyncClient,
         flag_submitter: FlagSubmitter,
         stat_checker: StatChecker,
         console: Console,
