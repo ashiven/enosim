@@ -188,12 +188,12 @@ class SetupHelper:
     def __init__(self, config: Dict, secrets: Dict, team_gen: TeamGenerator):
         self.config = Config.from_(config)
         self.secrets = Secrets.from_(secrets)
+        self.team_gen = team_gen
         self.helpers = {
             SetupVariant.AZURE: AzureSetupHelper(self.config, self.secrets),
             SetupVariant.HETZNER: HetznerSetupHelper(self.config, self.secrets),
             SetupVariant.LOCAL: LocalSetupHelper(self.config, self.secrets),
         }
-        self.team_gen = team_gen
 
     def generate_teams(self) -> Tuple[List, Dict]:
         return self.team_gen.generate()
