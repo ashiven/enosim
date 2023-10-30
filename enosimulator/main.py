@@ -105,7 +105,8 @@ if __name__ == "__main__":
     container = Container()
     container.config.config.from_json(args.config)
     container.config.secrets.from_json(args.secrets)
-    container.config.args = args
+    container.config.verbose = args.verbose
+    container.config.debug = args.debug
     container.wire(modules=[__name__])
 
-    asyncio.run(main())
+    asyncio.run(main(args))
