@@ -147,8 +147,8 @@ def _generate_setup_team(id: int, experience: Experience) -> Dict[str, Team]:
 
 
 class TeamGenerator:
-    def __init__(self, config: Config):
-        self.config = config
+    def __init__(self, config: Dict):
+        self.config = Config.from_(config)
         if self.config.settings.simulation_type == "stress-test":
             self.team_distribution = {Experience.HAXXOR: self.config.settings.teams}
 
@@ -185,13 +185,13 @@ class TeamGenerator:
 
 
 class SetupHelper:
-    def __init__(self, config: Config, secrets: Secrets, team_gen: TeamGenerator):
-        self.config = config
-        self.secrets = secrets
+    def __init__(self, config: Dict, secrets: Dict, team_gen: TeamGenerator):
+        self.config = Config.from_(config)
+        self.secrets = Secrets.from_(secrets)
         self.helpers = {
-            SetupVariant.AZURE: AzureSetupHelper(config, secrets),
-            SetupVariant.HETZNER: HetznerSetupHelper(config, secrets),
-            SetupVariant.LOCAL: LocalSetupHelper(config, secrets),
+            SetupVariant.AZURE: AzureSetupHelper(self.config, self.secrets),
+            SetupVariant.HETZNER: HetznerSetupHelper(self.config, self.secrets),
+            SetupVariant.LOCAL: LocalSetupHelper(self.config, self.secrets),
         }
         self.team_gen = team_gen
 

@@ -4,12 +4,9 @@ import os
 import sys
 from threading import Thread
 
-from backend.app import FlaskApp
 from container_single import Container
-from dependency_injector.wiring import Provide, inject
 from dotenv import load_dotenv
-from setup.setup import Setup
-from simulation.simulation import Simulation
+from rich.console import Console
 
 
 def get_args() -> argparse.Namespace:
@@ -70,14 +67,25 @@ def get_args() -> argparse.Namespace:
     return args
 
 
-@inject
-async def main(
-    destroy: bool = Provide[Container.config.destroy],
-    setup: Setup = Provide[Container.setup],
-    simulation: Simulation = Provide[Container.simulation],
-    app: FlaskApp = Provide[Container.flask_app],
-) -> None:
-    if destroy:
+async def main() -> None:
+    load_dotenv()
+    sys.path.append("..")
+    sys.path.append("../..")
+    args = get_args()
+
+    container = Container()
+    container.config.config.from_json(args.config)
+    container.config.secrets.from_json(args.secrets)
+    container.config.verbose.from_value(args.verbose)
+    container.config.debug.from_value(args.debug)
+
+    Console().print(container.config())
+
+    setup = container.setup()
+    simulation = container.simulation()
+    app = container.flask_app()
+
+    if args.destroy:
         setup.destroy()
         return
 
@@ -97,17 +105,4 @@ async def main(
 
 
 if __name__ == "__main__":
-    load_dotenv()
-    sys.path.append("..")
-    sys.path.append("../..")
-    args = get_args()
-
-    container = Container()
-    container.config.config.from_json(args.config)
-    container.config.secrets.from_json(args.secrets)
-    container.config.verbose = args.verbose
-    container.config.debug = args.debug
-    container.config.destroy = args.destroy
-    container.wire(modules=[__name__])
-
     asyncio.run(main())

@@ -22,9 +22,9 @@ class Container(containers.DeclarativeContainer):
     thread_lock = providers.Factory(Lock)
     locks = providers.Singleton(
         dict,
-        service_lock=thread_lock,
-        team_lock=thread_lock,
-        round_info_lock=thread_lock,
+        service=thread_lock,
+        team=thread_lock,
+        round_info=thread_lock,
     )
 
     # Setup

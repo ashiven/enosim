@@ -11,16 +11,16 @@ from types_ import Config, Secrets, SetupVariant
 class StatChecker:
     def __init__(
         self,
-        config: Config,
-        secrets: Secrets,
+        config: Dict,
+        secrets: Dict,
         client: AsyncClient,
         console: Console,
         verbose: bool = False,
     ):
-        self.config = config
-        self.secrets = secrets
+        self.config = Config.from_(config)
+        self.secrets = Secrets.from_(secrets)
         self.verbose = verbose
-        self.vm_count = config.settings.teams + 2
+        self.vm_count = self.config.settings.teams + 2
         self.vm_stats = dict()
         self.container_stats = dict()
         self.client = client
