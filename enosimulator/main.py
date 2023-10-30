@@ -79,12 +79,11 @@ async def main() -> None:
     application.config.debug.from_value(args.debug)
 
 
-
-    if args.destroy:
-        setup.destroy()
-        return
-
     try:
+        if args.destroy:
+            setup.destroy()
+            return
+        
         setup = application.setup_container.setup()
         await setup.build()
         
