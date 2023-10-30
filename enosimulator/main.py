@@ -79,12 +79,12 @@ async def main() -> None:
     application.configuration.debug.from_value(args.debug)
 
     try:
+        setup = application.setup_container.setup()
+        await setup.build()
+
         if args.destroy:
             setup.destroy()
             return
-
-        setup = application.setup_container.setup()
-        await setup.build()
 
         simulation = application.simulation_container.simulation()
         app = application.backend_container.flask_app()
