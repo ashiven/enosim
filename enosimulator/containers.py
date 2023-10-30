@@ -107,7 +107,8 @@ class Application(containers.DeclarativeContainer):
     client = providers.Factory(AsyncClient)
     config = providers.Singleton(Config.from_, configuration.config)
     secrets = providers.Singleton(Secrets.from_, configuration.secrets)
-    locks = providers.Dict(
+    locks = providers.Singleton(
+        dict,
         service=thread_lock,
         team=thread_lock,
         round_info=thread_lock,
