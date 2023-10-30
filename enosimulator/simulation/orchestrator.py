@@ -53,7 +53,7 @@ class Orchestrator:
         self.debug = debug
         self.locks = locks
         self.service_info = dict()
-        self.private_to_public_ip = private_to_public_ip(self.setup.ips)
+        self.private_to_public_ip = private_to_public_ip(setup.ips)
         self.attack_info = None
         self.client = client
         self.flag_submitter = flag_submitter

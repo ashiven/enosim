@@ -6,7 +6,6 @@ from threading import Thread
 
 from container_single import Container
 from dotenv import load_dotenv
-from rich.console import Console
 
 
 def get_args() -> argparse.Namespace:
@@ -79,7 +78,7 @@ async def main() -> None:
     container.config.verbose.from_value(args.verbose)
     container.config.debug.from_value(args.debug)
 
-    Console().print(container.config())
+    # Console().print(container.config())
 
     setup = container.setup()
     simulation = container.simulation()
