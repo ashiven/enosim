@@ -53,12 +53,13 @@ class Container(containers.DeclarativeContainer):
 
     flag_submitter = providers.Factory(
         FlagSubmitter,
+        # TODO: figure this thing out
         ip_addresses=setup.ip_addresses,
         config=config.config,
         secrets=config.secrets,
         console=console,
-        verbose=config.args.verbose,
-        debug=config.args.debug,
+        verbose=config.verbose,
+        debug=config.debug,
     )
 
     stat_checker = providers.Factory(
@@ -67,7 +68,7 @@ class Container(containers.DeclarativeContainer):
         secrets=config.secrets,
         client=client,
         console=console,
-        verbose=config.args.verbose,
+        verbose=config.verbose,
     )
 
     orchestrator = providers.Factory(
@@ -78,8 +79,8 @@ class Container(containers.DeclarativeContainer):
         flag_submitter=flag_submitter,
         stat_checker=stat_checker,
         console=console,
-        verbose=config.args.verbose,
-        debug=config.args.debug,
+        verbose=config.verbose,
+        debug=config.debug,
     )
 
     simulation = providers.Singleton(
@@ -88,8 +89,8 @@ class Container(containers.DeclarativeContainer):
         orchestrator=orchestrator,
         locks=locks,
         console=console,
-        verbose=config.args.verbose,
-        debug=config.args.debug,
+        verbose=config.verbose,
+        debug=config.debug,
     )
 
     # Flask
