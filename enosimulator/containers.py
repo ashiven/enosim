@@ -102,12 +102,11 @@ class BackendContainer(containers.DeclarativeContainer):
 class Application(containers.DeclarativeContainer):
     configuration = providers.Configuration()
 
+    thread_lock = providers.Factory(Lock)
     console = providers.Factory(Console)
     client = providers.Factory(AsyncClient)
-    thread_lock = providers.Factory(Lock)
     config = providers.Singleton(Config.from_, configuration.config)
     secrets = providers.Singleton(Secrets.from_, configuration.secrets)
-
     locks = providers.Dict(
         service=thread_lock,
         team=thread_lock,
