@@ -210,6 +210,8 @@ python enosimulator -c /path/to/config.json -s /path/to/secrets.json -v
 
 The current state of the scoreboard can be monitored via the public IP address of the engine VM. It is available at `http://<engine-ip>:5001/scoreboard`.
 
+![scoreboard1](./docs/img/Scoreboard1.PNG)
+
 ### Direct connections via SSH
 
 During the process of building the simulation infrastructure, an SSH configuration file will be generated in the location specified inside **config.json**. To connect to a specific VM via SSH, use the following command:
