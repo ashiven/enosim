@@ -14,13 +14,15 @@ from types_ import Config, Secrets
 
 
 class SetupContainer(containers.DeclarativeContainer):
-    console = providers.Dependency(instance_of=Console)
-    config = providers.Dependency(instance_of=Config)
-    secrets = providers.Dependency(instance_of=Secrets)
+    configuration = providers.Configuration()
 
-    team_generator = providers.Factory(TeamGenerator, config=config)
+    console = providers.Singleton(Console)
+    config = providers.Singleton(Config.from_, configuration.config)
+    secrets = providers.Singleton(Secrets.from_, configuration.secrets)
 
-    setup_helper = providers.Factory(
+    team_generator = providers.Singleton(TeamGenerator, config=config)
+
+    setup_helper = providers.Singleton(
         SetupHelper,
         config=config,
         secrets=secrets,
@@ -40,13 +42,14 @@ class SimulationContainer(containers.DeclarativeContainer):
     configuration = providers.Configuration()
 
     setup_container = providers.DependenciesContainer()
-    console = providers.Dependency(instance_of=Console)
-    client = providers.Dependency(instance_of=AsyncClient)
     locks = providers.Dependency(instance_of=dict)
-    config = providers.Dependency(instance_of=Config)
-    secrets = providers.Dependency(instance_of=Secrets)
 
-    flag_submitter = providers.Factory(
+    console = providers.Singleton(Console)
+    client = providers.Singleton(AsyncClient)
+    config = providers.Singleton(Config.from_, configuration.config)
+    secrets = providers.Singleton(Secrets.from_, configuration.secrets)
+
+    flag_submitter = providers.Singleton(
         FlagSubmitter,
         setup=setup_container.setup,
         console=console,
@@ -54,7 +57,7 @@ class SimulationContainer(containers.DeclarativeContainer):
         debug=configuration.debug,
     )
 
-    stat_checker = providers.Factory(
+    stat_checker = providers.Singleton(
         StatChecker,
         config=config,
         secrets=secrets,
@@ -63,7 +66,7 @@ class SimulationContainer(containers.DeclarativeContainer):
         verbose=configuration.verbose,
     )
 
-    orchestrator = providers.Factory(
+    orchestrator = providers.Singleton(
         Orchestrator,
         setup=setup_container.setup,
         locks=locks,
@@ -91,7 +94,7 @@ class BackendContainer(containers.DeclarativeContainer):
     simulation_container = providers.DependenciesContainer()
     locks = providers.Dependency(instance_of=dict)
 
-    flask_app = providers.Factory(
+    flask_app = providers.Singleton(
         FlaskApp,
         setup=setup_container.setup,
         simulation=simulation_container.simulation,
@@ -103,10 +106,6 @@ class Application(containers.DeclarativeContainer):
     configuration = providers.Configuration()
 
     thread_lock = providers.Factory(Lock)
-    console = providers.Factory(Console)
-    client = providers.Factory(AsyncClient)
-    config = providers.Singleton(Config.from_, configuration.config)
-    secrets = providers.Singleton(Secrets.from_, configuration.secrets)
     locks = providers.Singleton(
         dict,
         service=thread_lock,
@@ -116,20 +115,14 @@ class Application(containers.DeclarativeContainer):
 
     setup_container = providers.Container(
         SetupContainer,
-        config=config,
-        secrets=secrets,
-        console=console,
+        configuration=configuration,
     )
 
     simulation_container = providers.Container(
         SimulationContainer,
         configuration=configuration,
         setup_container=setup_container,
-        console=console,
-        client=client,
         locks=locks,
-        config=config,
-        secrets=secrets,
     )
 
     backend_container = providers.Container(
