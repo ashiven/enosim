@@ -95,7 +95,7 @@ class BackendContainer(containers.DeclarativeContainer):
     simulation_container = providers.DependenciesContainer()
     locks = providers.Dependency(instance_of=dict)
 
-    flask_app = providers.Factory(
+    flask_app = providers.Singleton(
         FlaskApp,
         setup=setup_container.setup,
         simulation=simulation_container.simulation,
