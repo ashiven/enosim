@@ -1,4 +1,4 @@
-name: Run Unit Test via Pytest
+name: Run Unit Tests
 
 on: [push]
 
@@ -8,6 +8,9 @@ jobs:
       strategy:
          matrix:
             python-version: ["3.11"]
+
+      env:
+         PYTHONPATH: "..:../..:$(pwd)/enosimulator"
 
       steps:
          - uses: actions/checkout@v3
