@@ -15,9 +15,8 @@ from types_ import Config, Secrets
 
 class SetupContainer(containers.DeclarativeContainer):
     configuration = providers.Configuration()
-    
-    console = providers.Dependency(instance_of=Console)
-    
+
+    console = providers.Singleton(Console)
     config = providers.Singleton(Config.from_, configuration.config)
     secrets = providers.Singleton(Secrets.from_, configuration.secrets)
 
@@ -43,10 +42,10 @@ class SimulationContainer(containers.DeclarativeContainer):
     configuration = providers.Configuration()
 
     setup_container = providers.DependenciesContainer()
-    console = providers.Dependency(instance_of=Console)
-    client = providers.Dependency(instance_of=AsyncClient)
     locks = providers.Dependency(instance_of=dict)
-    
+
+    console = providers.Singleton(Console)
+    client = providers.Singleton(AsyncClient)
     config = providers.Singleton(Config.from_, configuration.config)
     secrets = providers.Singleton(Secrets.from_, configuration.secrets)
 
@@ -106,8 +105,6 @@ class BackendContainer(containers.DeclarativeContainer):
 class Application(containers.DeclarativeContainer):
     configuration = providers.Configuration()
 
-    console = providers.Factory(Console)
-    client = providers.Factory(AsyncClient)
     thread_lock = providers.Factory(Lock)
     locks = providers.Singleton(
         dict,
@@ -118,20 +115,14 @@ class Application(containers.DeclarativeContainer):
 
     setup_container = providers.Container(
         SetupContainer,
-        config=config,
-        secrets=secrets,
-        console=console,
+        configuration=configuration,
     )
 
     simulation_container = providers.Container(
         SimulationContainer,
         configuration=configuration,
         setup_container=setup_container,
-        console=console,
-        client=client,
         locks=locks,
-        config=config,
-        secrets=secrets,
     )
 
     backend_container = providers.Container(
