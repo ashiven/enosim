@@ -14,9 +14,11 @@ from types_ import Config, Secrets
 
 
 class SetupContainer(containers.DeclarativeContainer):
+    configuration = providers.Configuration()
+    
     console = providers.Dependency(instance_of=Console)
-    config = providers.Dependency(instance_of=Config)
-    secrets = providers.Dependency(instance_of=Secrets)
+    config = providers.Singleton(Config.from_, configuration.config)
+    secrets = providers.Singleton(Secrets.from_, configuration.secrets)
 
     team_generator = providers.Factory(TeamGenerator, config=config)
 
@@ -43,8 +45,9 @@ class SimulationContainer(containers.DeclarativeContainer):
     console = providers.Dependency(instance_of=Console)
     client = providers.Dependency(instance_of=AsyncClient)
     locks = providers.Dependency(instance_of=dict)
-    config = providers.Dependency(instance_of=Config)
-    secrets = providers.Dependency(instance_of=Secrets)
+    
+    config = providers.Singleton(Config.from_, configuration.config)
+    secrets = providers.Singleton(Secrets.from_, configuration.secrets)
 
     flag_submitter = providers.Factory(
         FlagSubmitter,
@@ -105,8 +108,6 @@ class Application(containers.DeclarativeContainer):
     thread_lock = providers.Factory(Lock)
     console = providers.Factory(Console)
     client = providers.Factory(AsyncClient)
-    config = providers.Singleton(Config.from_, configuration.config)
-    secrets = providers.Singleton(Secrets.from_, configuration.secrets)
     locks = providers.Singleton(
         dict,
         service=thread_lock,
