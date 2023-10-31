@@ -6,8 +6,9 @@ from typing import Dict
 
 from flask import Flask, request
 from flask_restful import Api, Resource
+from setup.setup import Setup
+from simulation.simulation import Simulation
 from tenacity import retry, stop_after_attempt
-from types_ import SetupType, SimulationType
 
 
 class Teams(Resource):
@@ -169,7 +170,7 @@ class RoundInfo(Resource):
 
 
 class FlaskApp:
-    def __init__(self, setup: SetupType, simulation: SimulationType, locks: Dict):
+    def __init__(self, setup: Setup, simulation: Simulation, locks: Dict):
         self.app = Flask(__name__)
         self.setup = setup
         self.simulation = simulation

@@ -17,8 +17,9 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from setup.setup import Setup
 from tenacity import retry, stop_after_attempt
-from types_ import SetupType, Team
+from types_ import Team
 from webdriver_manager.chrome import ChromeDriverManager
 
 from .flagsubmitter import FlagSubmitter
@@ -39,7 +40,7 @@ FLAG_HASH = "ignore_flag_hash"
 class Orchestrator:
     def __init__(
         self,
-        setup: SetupType,
+        setup: Setup,
         locks: Dict,
         client: AsyncClient,
         flag_submitter: FlagSubmitter,

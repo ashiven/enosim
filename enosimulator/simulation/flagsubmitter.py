@@ -2,13 +2,14 @@ from typing import List, Tuple
 
 import paramiko
 from rich.console import Console
-from types_ import SetupType, SetupVariant
+from setup.setup import Setup
+from types_ import SetupVariant
 
 
 class FlagSubmitter:
     def __init__(
         self,
-        setup: SetupType,
+        setup: Setup,
         console: Console,
         verbose: bool = False,
         debug: bool = False,
