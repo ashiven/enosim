@@ -21,9 +21,9 @@ class SetupContainer(containers.DeclarativeContainer):
     config = providers.Singleton(Config.from_, configuration.config)
     secrets = providers.Singleton(Secrets.from_, configuration.secrets)
 
-    team_generator = providers.Factory(TeamGenerator, config=config)
+    team_generator = providers.Singleton(TeamGenerator, config=config)
 
-    setup_helper = providers.Factory(
+    setup_helper = providers.Singleton(
         SetupHelper,
         config=config,
         secrets=secrets,
@@ -50,7 +50,7 @@ class SimulationContainer(containers.DeclarativeContainer):
     config = providers.Singleton(Config.from_, configuration.config)
     secrets = providers.Singleton(Secrets.from_, configuration.secrets)
 
-    flag_submitter = providers.Factory(
+    flag_submitter = providers.Singleton(
         FlagSubmitter,
         setup=setup_container.setup,
         console=console,
@@ -58,7 +58,7 @@ class SimulationContainer(containers.DeclarativeContainer):
         debug=configuration.debug,
     )
 
-    stat_checker = providers.Factory(
+    stat_checker = providers.Singleton(
         StatChecker,
         config=config,
         secrets=secrets,
@@ -67,7 +67,7 @@ class SimulationContainer(containers.DeclarativeContainer):
         verbose=configuration.verbose,
     )
 
-    orchestrator = providers.Factory(
+    orchestrator = providers.Singleton(
         Orchestrator,
         setup=setup_container.setup,
         locks=locks,
@@ -106,9 +106,9 @@ class BackendContainer(containers.DeclarativeContainer):
 class Application(containers.DeclarativeContainer):
     configuration = providers.Configuration()
 
-    thread_lock = providers.Factory(Lock)
     console = providers.Factory(Console)
     client = providers.Factory(AsyncClient)
+    thread_lock = providers.Factory(Lock)
     locks = providers.Singleton(
         dict,
         service=thread_lock,
