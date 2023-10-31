@@ -1,14 +1,6 @@
-import sys
-from unittest.mock import Mock
-
-from dependency_injector import providers
 from pytest import fixture
 
 from enosimulator.containers import SetupContainer
-from enosimulator.types_ import Config, Secrets
-
-sys.path.append("..")
-sys.path.append("../..")
 
 config = {
     "setup": {
@@ -62,9 +54,7 @@ secrets = {
 
 @fixture
 def setup_container():
-    setup_container = SetupContainer(
-        console=providers.Singleton(Mock()),
-        config=providers.Singleton(Config.from_, config),
-        secrets=providers.Singleton(Secrets.from_, secrets),
-    )
+    setup_container = SetupContainer()
+    setup_container.configuration.config.from_dict(config)
+    setup_container.configuration.secrets.from_dict(secrets)
     return setup_container
