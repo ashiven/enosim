@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Tuple
-
-from httpx import AsyncClient
-from rich.console import Console
+from typing import Dict, List
 
 ############## Enums ##############
 
@@ -316,91 +313,3 @@ class Secrets:
         except Exception as e:
             print(e)
             raise ValueError("Invalid secrets file.")
-
-
-@dataclass
-class HelperType:
-    config: Config
-    secrets: Secrets
-    setup_path: str
-    use_vm_images: bool
-
-
-@dataclass
-class TeamGeneratorType:
-    config: Config
-    team_distribution: Dict[Experience, int]
-
-
-@dataclass
-class SetupHelperType:
-    config: Config
-    secrets: Secrets
-    helpers: Dict[SetupVariant, HelperType]
-    team_gen: TeamGeneratorType
-
-
-@dataclass
-class SetupType:
-    ips: IpAddresses
-    teams: Dict[str, Team]
-    services: Dict[str, Service]
-    config: Config
-    secrets: Secrets
-    setup_path: str
-    setup_helper: SetupHelperType
-    console: Console
-
-
-@dataclass
-class FlagSubmitterType:
-    config: Config
-    secrets: Secrets
-    ip_addresses: IpAddresses
-    verbose: bool
-    debug: bool
-    usernames: Dict[SetupVariant, str]
-    console: Console
-
-
-@dataclass
-class StatCheckerType:
-    config: Config
-    secrets: Secrets
-    verbose: bool
-    usernames: Dict[SetupVariant, str]
-    vm_count: int
-    vm_stats: Dict
-    container_stats: Dict
-    client: AsyncClient
-    console: Console
-
-
-@dataclass
-class OrchestratorType:
-    setup: SetupType
-    verbose: bool
-    debug: bool
-    locks: Dict
-    service_info: Dict[str, Tuple[str, str]]
-    private_to_public_ip: Dict[str, str]
-    attack_info: Dict
-    client: AsyncClient
-    flag_submitter: FlagSubmitterType
-    stat_checker: StatCheckerType
-    console: Console
-
-
-@dataclass
-class SimulationType:
-    setup: SetupType
-    locks: Dict
-    orchestrator: OrchestratorType
-    verbose: bool
-    debug: bool
-    console: Console
-    round_id: int
-    round_start: int
-    total_rounds: int
-    remaining_rounds: int
-    round_length: int
