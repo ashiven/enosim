@@ -17,6 +17,7 @@ class SetupContainer(containers.DeclarativeContainer):
     configuration = providers.Configuration()
     
     console = providers.Dependency(instance_of=Console)
+    
     config = providers.Singleton(Config.from_, configuration.config)
     secrets = providers.Singleton(Secrets.from_, configuration.secrets)
 
