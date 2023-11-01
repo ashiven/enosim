@@ -149,7 +149,10 @@ def _generate_setup_team(id: int, experience: Experience) -> Dict[str, Team]:
 class TeamGenerator:
     def __init__(self, config: Config):
         self.config = config
-        if self.config.settings.simulation_type == "stress-test":
+        if self.config.settings.simulation_type == "basic-stress-test":
+            self.team_distribution = {Experience.HAXXOR: 1}
+
+        elif self.config.settings.simulation_type == "stress-test":
             self.team_distribution = {Experience.HAXXOR: self.config.settings.teams}
 
         else:
@@ -189,6 +192,8 @@ class SetupHelper:
         self.config = config
         self.secrets = secrets
         self.team_generator = team_generator
+        if self.config.settings.simulation_type == "basic-stress-test":
+            self.config.settings.teams = 1
         self.helpers = {
             SetupVariant.AZURE: AzureSetupHelper(self.config, self.secrets),
             SetupVariant.HETZNER: HetznerSetupHelper(self.config, self.secrets),

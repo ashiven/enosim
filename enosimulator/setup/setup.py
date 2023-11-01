@@ -33,6 +33,8 @@ class Setup:
         self.setup_path = f"{dir_path}/../../test-setup/{self.config.setup.location}"
         self.setup_helper = setup_helper
         self.console = console
+        if self.config.settings.simulation_type == "basic-stress-test":
+            self.config.settings.teams = 1
 
     async def build(self) -> None:
         await self.configure()
