@@ -43,12 +43,10 @@ plt.hist(points, bins=100)
 plt.title("Attack points distribution")
 plt.show()
 
-print(
-    f"Normal Distribution Attempt:\nStandard deviation: {STANDARD_DEVIATION}\nMean: {MEAN}\n"
-)
+print(f"Normal Distribution:\nStandard deviation: {STANDARD_DEVIATION}\nMean: {MEAN}\n")
 
 plt.plot(points, norm.pdf(points, MEAN, STANDARD_DEVIATION))
-plt.title("Attempting to fit a normal distribution - Obviously not a good fit")
+plt.title("Attempting to fit a normal distribution")
 plt.show()
 
 POINTS_PER_FLAG = 1
@@ -59,28 +57,28 @@ POINTS_PER_ROUND_PER_FLAGSTORE = (PARTICIPATING_TEAMS - 1) * POINTS_PER_FLAG
 HIGH_SCORE = points[-1]
 
 # these values represent the percentage of achieved points compared to the mean score of all teams
-NOOB_AVERAGE_POINTS_NORM = (
-    MEAN - 3 * STANDARD_DEVIATION + MEAN - 2 * STANDARD_DEVIATION
-) / 2
-BEGINNER_AVERAGE_POINTS_NORM = (
-    MEAN - 2 * STANDARD_DEVIATION + MEAN - 1 * STANDARD_DEVIATION
-) / 2
-INTERMEDIATE_AVERAGE_POINTS_NORM = (
-    MEAN - 1 * STANDARD_DEVIATION + MEAN + 1 * STANDARD_DEVIATION
-) / 2
-ADVANCED_AVERAGE_POINTS_NORM = (
-    MEAN + 1 * STANDARD_DEVIATION + MEAN + 2 * STANDARD_DEVIATION
-) / 2
-PROFESSIONAL_AVERAGE_POINTS_NORM = (
-    MEAN + 3 * STANDARD_DEVIATION + MEAN + 2 * STANDARD_DEVIATION
-) / 2
+NOOB_AVERAGE_POINTS_NORM = max(
+    (MEAN - 3 * STANDARD_DEVIATION + MEAN - 2 * STANDARD_DEVIATION) / 2, 0
+)
+BEGINNER_AVERAGE_POINTS_NORM = max(
+    (MEAN - 2 * STANDARD_DEVIATION + MEAN - 1 * STANDARD_DEVIATION) / 2, 0
+)
+INTERMEDIATE_AVERAGE_POINTS_NORM = max(
+    (MEAN - 1 * STANDARD_DEVIATION + MEAN + 1 * STANDARD_DEVIATION) / 2, 0
+)
+ADVANCED_AVERAGE_POINTS_NORM = max(
+    (MEAN + 1 * STANDARD_DEVIATION + MEAN + 2 * STANDARD_DEVIATION) / 2, 0
+)
+PROFESSIONAL_AVERAGE_POINTS_NORM = max(
+    (MEAN + 3 * STANDARD_DEVIATION + MEAN + 2 * STANDARD_DEVIATION) / 2, 0
+)
 
 
-NOOB_AVERAGE_POINTS = (0 * HIGH_SCORE + 0.2 * HIGH_SCORE) / 2
-BEGINNER_AVERAGE_POINTS = (0.2 * HIGH_SCORE + 0.4 * HIGH_SCORE) / 2
-INTERMEDIATE_AVERAGE_POINTS = (0.4 * HIGH_SCORE + 0.6 * HIGH_SCORE) / 2
-ADVANCED_AVERAGE_POINTS = (0.6 * HIGH_SCORE + 0.8 * HIGH_SCORE) / 2
-PROFESSIONAL_AVERAGE_POINTS = (0.8 * HIGH_SCORE + 1 * HIGH_SCORE) / 2
+NOOB_AVERAGE_POINTS = max((0 * HIGH_SCORE + 0.2 * HIGH_SCORE) / 2, 0)
+BEGINNER_AVERAGE_POINTS = max((0.2 * HIGH_SCORE + 0.4 * HIGH_SCORE) / 2, 0)
+INTERMEDIATE_AVERAGE_POINTS = max((0.4 * HIGH_SCORE + 0.6 * HIGH_SCORE) / 2, 0)
+ADVANCED_AVERAGE_POINTS = max((0.6 * HIGH_SCORE + 0.8 * HIGH_SCORE) / 2, 0)
+PROFESSIONAL_AVERAGE_POINTS = max((0.8 * HIGH_SCORE + 1 * HIGH_SCORE) / 2, 0)
 
 
 def points_to_exp_normal_dist(score):
@@ -136,7 +134,7 @@ def exploit_probability(points_from_exploiting):
     return exploit_probability * 100
 
 
-print("Normal distribution (Attempt):")
+print("Normal distribution:")
 print(
     f"{'EXPERIENCE':<15}{'NUMBER OF TEAMS':<25}{'PERCENTAGE':<20}{'EXPLOIT PROBABILITY':<22}{'AVERAGE POINTS':<20}\n"
     + f"Noob              {noob_teams_normal:<20}{100 * (noob_teams_normal/total_teams):>10.2f}%           {exploit_probability(NOOB_AVERAGE_POINTS_NORM):>10.2f}%           {NOOB_AVERAGE_POINTS_NORM:>10.2f}\n"
