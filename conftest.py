@@ -2,6 +2,8 @@ from pytest import fixture
 
 from enosimulator.containers import SetupContainer
 
+collect_ignore = ["setup.py"]
+
 config = {
     "setup": {
         "ssh-config-path": "C:/Users/janni/.ssh/simconfig",
