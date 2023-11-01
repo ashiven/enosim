@@ -21,7 +21,7 @@ jobs:
            run: |
               Path=$(pwd)/enosimulator
               export PYTHONPATH=$PYTHONPATH:..:../..:$Path
-              python -m coverage run -m pytest -v -s
+              coverage run -m pytest -v
          - name: Generate Coverage Report
            run: |
-              python -m coverage report -m
+              coverage report -m
