@@ -23,7 +23,21 @@ This software can be used to simulate an attack/defense cybersecurity competitio
 
 ### Setup
 
-####
+#### Pip
+
+1. Install the package via pip:
+
+   ```bash
+   pip install --user enosimulator
+   ```
+
+2. Start the simulation with the following command:
+
+   ```bash
+   enosimulator -c /path/to/config.json -s /path/to/secrets.json -v
+   ```
+
+#### Manual
 
 1. Clone the repository to your local machine as follows:
 
@@ -37,21 +51,19 @@ This software can be used to simulate an attack/defense cybersecurity competitio
    pip install --user -r requirements.txt
    ```
 
-3. Specify simulation details in **config.json** and **secrets.json**.
-
-4. Start the program (paths to the configuration files can also be defined in the environment variables `ENOSIMULATOR_CONFIG` and `ENOSIMULATOR_SECRETS`):
+3. Start the program (paths to the configuration files can also be defined in the environment variables `ENOSIMULATOR_CONFIG` and `ENOSIMULATOR_SECRETS`):
 
    ```bash
    python enosimulator -c /path/to/config.json -s /path/to/secrets.json
    ```
 
-5. Navigate to the frontend directory and start the frontend:
+4. Navigate to the frontend directory and start the frontend:
 
    ```bash
    cd ./frontend && npm install && npm run build && npm run start
    ```
 
-6. A graphical user interface is available at `http://localhost:3000` to monitor the simulation. (It may take up to 20 minutes for the simulation to start.)
+5. A graphical user interface is available at `http://localhost:3000` to monitor the simulation. (It may take up to 20 minutes for the simulation to start.)
 
 #### Docker
 
