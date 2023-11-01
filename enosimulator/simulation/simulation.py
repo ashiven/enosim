@@ -10,7 +10,7 @@ from rich.columns import Columns
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from setup.setup import Setup
+from setup import Setup
 from types_ import Team
 
 from .orchestrator import Orchestrator

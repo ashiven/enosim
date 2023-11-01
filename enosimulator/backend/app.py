@@ -6,8 +6,8 @@ from typing import Dict
 
 from flask import Flask, request
 from flask_restful import Api, Resource
-from setup.setup import Setup
-from simulation.simulation import Simulation
+from setup import Setup
+from simulation import Simulation
 from tenacity import retry, stop_after_attempt
 
 

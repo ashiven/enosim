@@ -1,15 +1,12 @@
 from threading import Lock
 
-from backend.app import FlaskApp
+from backend import FlaskApp
 from dependency_injector import containers, providers
 from httpx import AsyncClient
 from rich.console import Console
-from setup.setup import Setup
-from setup.setup_helper.setup_helper import SetupHelper, TeamGenerator
-from simulation.flagsubmitter import FlagSubmitter
-from simulation.orchestrator import Orchestrator
-from simulation.simulation import Simulation
-from simulation.statchecker import StatChecker
+from setup import Setup
+from setup.setup_helper import SetupHelper, TeamGenerator
+from simulation import FlagSubmitter, Orchestrator, Simulation, StatChecker
 from types_ import Config, Secrets
 
 

@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 import paramiko
 from rich.console import Console
-from setup.setup import Setup
+from setup import Setup
 from types_ import SetupVariant
 
 
