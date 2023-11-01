@@ -252,27 +252,30 @@ class Orchestrator:
                 )
                 self.console.log(exploit_request)
 
-            r = await self.client.post(
-                exploit_checker_address,
-                data=req_to_json(exploit_request),
-                headers={"Content-Type": "application/json"},
-                timeout=REQUEST_TIMEOUT,
-            )
+            try:
+                r = await self.client.post(
+                    exploit_checker_address,
+                    data=req_to_json(exploit_request),
+                    headers={"Content-Type": "application/json"},
+                    timeout=REQUEST_TIMEOUT,
+                )
 
-            exploit_result = jsons.loads(
-                r.content,
-                CheckerResultMessage,
-                key_transformer=jsons.KEY_TRANSFORMER_SNAKECASE,
-            )
+                exploit_result = jsons.loads(
+                    r.content,
+                    CheckerResultMessage,
+                    key_transformer=jsons.KEY_TRANSFORMER_SNAKECASE,
+                )
 
-            if CheckerTaskResult(exploit_result.result) is not CheckerTaskResult.OK:
-                if self.debug:
-                    self.console.print(exploit_result.message)
-            else:
-                if self.debug:
-                    self.console.log(
-                        f"[bold green]:triangular_flag:: {exploit_result.flag}\n"
-                    )
-                flags.append(exploit_result.flag)
+                if CheckerTaskResult(exploit_result.result) is not CheckerTaskResult.OK:
+                    if self.debug:
+                        self.console.print(exploit_result.message)
+                else:
+                    if self.debug:
+                        self.console.log(
+                            f"[bold green]:triangular_flag:: {exploit_result.flag}\n"
+                        )
+                    flags.append(exploit_result.flag)
+            except:
+                pass
 
         return flags
