@@ -2,5 +2,10 @@ import asyncio
 
 from main import main
 
-if __name__ == "__main__":
+
+def entry_point():
     asyncio.run(main())
+
+
+if __name__ == "__main__":
+    entry_point()
