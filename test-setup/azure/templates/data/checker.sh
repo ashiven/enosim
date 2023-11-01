@@ -62,3 +62,10 @@ while read -r service_name; do
 done <"services.txt"
 
 wait -n
+
+# Prune docker system if disk usage is above 90%
+THRESHOLD=90
+DISK_USAGE=$(df -h / | awk 'NR==2 {print $5}' | cut -d'%' -f1)
+if [ "$DISK_USAGE" -gt "$THRESHOLD" ]; then
+  docker system prune -a -f
+fi

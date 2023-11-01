@@ -83,4 +83,10 @@ retry nohup sudo dotnet run -c Release --project EnoEngine &>/dev/null &
 sleep 10
 cd ../EnoCTFPortal
 retry sudo docker compose up -d
-exit 0
+
+# Prune docker system if disk usage is above 90%
+THRESHOLD=90
+DISK_USAGE=$(df -h / | awk 'NR==2 {print $5}' | cut -d'%' -f1)
+if [ "$DISK_USAGE" -gt "$THRESHOLD" ]; then
+  docker system prune -a -f
+fi
