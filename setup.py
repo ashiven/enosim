@@ -24,4 +24,9 @@ setup(
         "Programming Language :: Python :: 3.12",
     ],
     python_requires=">=3.11",
+    entry_points={
+        "console_scripts": [
+            "enosimulator = enosimulator.__main__:main",
+        ],
+    },
 )
