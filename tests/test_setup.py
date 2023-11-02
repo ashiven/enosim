@@ -114,7 +114,7 @@ async def test_setup_helper_hetzner(mock_fs, setup_container, test_setup_dir):
 
 # TODO: - implement
 @pytest.mark.asyncio
-async def test_setup_helper_azure(mock_fs, setup_container, test_setup_dir):
+async def test_setup_helper_local(mock_fs, setup_container, test_setup_dir):
     pass
 
 
