@@ -76,6 +76,8 @@ async def test_setup_helper_azure(mock_fs, setup_container, test_setup_dir):
     assert os.path.exists(test_setup_dir + "/azure/variables.tf")
     assert os.path.exists(test_setup_dir + "/azure/versions.tf")
 
+    # TODO: - test ip address parsing
+
 
 @pytest.mark.asyncio
 async def test_setup_helper_hetzner(mock_fs, setup_container, test_setup_dir):
@@ -107,7 +109,20 @@ async def test_setup_helper_hetzner(mock_fs, setup_container, test_setup_dir):
     assert os.path.exists(test_setup_dir + "/hetzner/variables.tf")
     assert os.path.exists(test_setup_dir + "/hetzner/versions.tf")
 
+    # TODO: - test ip address parsing
 
+
+# TODO: - implement
 @pytest.mark.asyncio
 async def test_setup_helper_azure(mock_fs, setup_container, test_setup_dir):
+    pass
+
+
+@pytest.mark.asyncio
+async def test_setup_configure(mock_fs, setup_container, test_setup_dir):
+    # TODO:
+    # - patch execute_command() with a mock
+    # - check if correct commands are executed
+    # - check if correct files are created
+    # - check if correct files are deleted
     pass
