@@ -336,7 +336,7 @@ async def test_setup_build(mock_fs, setup_container, test_setup_dir):
 
 
 @pytest.mark.asyncio
-async def test_setup_deploy(mock_fs, setup_container, test_setup_dir):
+async def test_setup_destroy(mock_fs, setup_container, test_setup_dir):
     mock_fs.add_real_directory(test_setup_dir, read_only=False)
     setup_container.reset_singletons()
     setup_container.configuration.config.from_dict(
