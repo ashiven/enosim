@@ -1,6 +1,9 @@
 import os
+from unittest.mock import AsyncMock, Mock
 
 import pytest
+
+from enosimulator.types_ import Experience, Team
 
 
 def test_team_generator_basic_stress_test(setup_container):
@@ -167,9 +170,56 @@ async def test_setup_helper_local(mock_fs, setup_container, test_setup_dir):
 
 @pytest.mark.asyncio
 async def test_setup_configure(mock_fs, setup_container, test_setup_dir):
-    # TODO:
-    # - patch execute_command() with a mock
-    # - check if correct commands are executed
-    # - check if correct files are created
-    # - check if correct files are deleted
-    pass
+    mock_fs.add_real_directory(test_setup_dir, read_only=False)
+    setup_container.reset_singletons()
+    setup_container.configuration.config.from_dict(
+        {
+            "setup": {
+                "location": "hetzner",
+            },
+            "settings": {
+                "teams": 1,
+                "simulation-type": "realistic",
+            },
+        }
+    )
+    setup = setup_container.setup()
+    setup.setup_path = test_setup_dir + "/hetzner"
+    setup.setup_helper.generate_teams = Mock()
+    ctf_teams = [
+        {
+            "id": 1,
+            "name": "TestTeam",
+            "teamSubnet": "::ffff:<placeholder>",
+            "address": "<placeholder>",
+        }
+    ]
+
+    setup_teams = {
+        "TestTeam": Team(
+            id=1,
+            name="TestTeam",
+            team_subnet="::ffff:<placeholder>",
+            address="<placeholder>",
+            experience=Experience.NOOB,
+            exploiting=dict(),
+            patched=dict(),
+            points=0.0,
+            gain=0.0,
+        )
+    }
+    setup.setup_helper.generate_teams.return_value = (ctf_teams, setup_teams)
+    setup.setup_helper.convert_templates = AsyncMock()
+    await setup.configure()
+
+    assert os.path.exists(test_setup_dir + "/hetzner/config/services.txt")
+    assert os.path.exists(test_setup_dir + "/hetzner/config/ctf.json")
+
+    assert (
+        "enowars7-service-CVExchange"
+        in open(test_setup_dir + "/hetzner/config/services.txt").read()
+    )
+    assert (
+        "enowars7-service-bollwerk"
+        in open(test_setup_dir + "/hetzner/config/services.txt").read()
+    )
