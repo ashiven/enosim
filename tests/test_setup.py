@@ -75,3 +75,39 @@ async def test_setup_helper_azure(mock_fs, setup_container, test_setup_dir):
     assert os.path.exists(test_setup_dir + "/azure/outputs.tf")
     assert os.path.exists(test_setup_dir + "/azure/variables.tf")
     assert os.path.exists(test_setup_dir + "/azure/versions.tf")
+
+
+@pytest.mark.asyncio
+async def test_setup_helper_hetzner(mock_fs, setup_container, test_setup_dir):
+    mock_fs.add_real_directory(test_setup_dir, read_only=False)
+    setup_container.reset_singletons()
+    setup_container.configuration.config.from_dict(
+        {
+            "setup": {
+                "location": "hetzner",
+            },
+            "settings": {
+                "teams": 90,
+                "simulation-type": "stress-test",
+            },
+        }
+    )
+    setup_helper = setup_container.setup_helper()
+    list(setup_helper.helpers.values())[1].setup_path = test_setup_dir + "/hetzner"
+    await setup_helper.convert_templates()
+
+    assert os.path.exists(test_setup_dir + "/hetzner/data/checker.sh")
+    assert os.path.exists(test_setup_dir + "/hetzner/data/docker-compose.yml")
+    assert os.path.exists(test_setup_dir + "/hetzner/data/engine.sh")
+    assert os.path.exists(test_setup_dir + "/hetzner/data/vulnbox.sh")
+    assert os.path.exists(test_setup_dir + "/hetzner/build.sh")
+    assert os.path.exists(test_setup_dir + "/hetzner/deploy.sh")
+    assert os.path.exists(test_setup_dir + "/hetzner/main.tf")
+    assert os.path.exists(test_setup_dir + "/hetzner/outputs.tf")
+    assert os.path.exists(test_setup_dir + "/hetzner/variables.tf")
+    assert os.path.exists(test_setup_dir + "/hetzner/versions.tf")
+
+
+@pytest.mark.asyncio
+async def test_setup_helper_azure(mock_fs, setup_container, test_setup_dir):
+    pass
