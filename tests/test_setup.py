@@ -1,3 +1,8 @@
+import os
+
+import pytest
+
+
 def test_team_generator_basic_stress_test(setup_container):
     setup_container.reset_singletons()
     setup_container.configuration.config.from_dict(
@@ -24,7 +29,7 @@ def test_team_generator_stress_test(setup_container):
     assert len(ctf_json_teams) == len(setup_teams)
 
 
-def test_team_generator_realistic(setup_container):
+def test_team_generator_realistic(setup_container, test_setup_dir):
     setup_container.reset_singletons()
     setup_container.configuration.config.from_dict(
         {"settings": {"teams": 15, "simulation-type": "realistic"}}
@@ -41,5 +46,32 @@ def test_team_generator_realistic(setup_container):
     assert len(ctf_json_teams) == len(setup_teams)
 
 
-def test_setup():
-    pass
+@pytest.mark.asyncio
+async def test_setup_helper_azure(mock_fs, setup_container, test_setup_dir):
+    mock_fs.add_real_directory(test_setup_dir, read_only=False)
+    setup_container.reset_singletons()
+    setup_container.configuration.config.from_dict(
+        {
+            "setup": {
+                "location": "azure",
+            },
+            "settings": {
+                "teams": 3,
+                "simulation-type": "realistic",
+            },
+        }
+    )
+    setup_helper = setup_container.setup_helper()
+    list(setup_helper.helpers.values())[0].setup_path = test_setup_dir + "/azure"
+    await setup_helper.convert_templates()
+
+    assert os.path.exists(test_setup_dir + "/azure/data/checker.sh")
+    assert os.path.exists(test_setup_dir + "/azure/data/docker-compose.yml")
+    assert os.path.exists(test_setup_dir + "/azure/data/engine.sh")
+    assert os.path.exists(test_setup_dir + "/azure/data/vulnbox.sh")
+    assert os.path.exists(test_setup_dir + "/azure/build.sh")
+    assert os.path.exists(test_setup_dir + "/azure/deploy.sh")
+    assert os.path.exists(test_setup_dir + "/azure/main.tf")
+    assert os.path.exists(test_setup_dir + "/azure/outputs.tf")
+    assert os.path.exists(test_setup_dir + "/azure/variables.tf")
+    assert os.path.exists(test_setup_dir + "/azure/versions.tf")

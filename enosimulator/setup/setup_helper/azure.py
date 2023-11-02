@@ -44,7 +44,7 @@ class AzureSetupHelper(Helper):
         await replace_line(
             f"{self.setup_path}/build.sh",
             SSH_PRIVATE_KEY_PATH_LINE,
-            f'ssh_private_key_path="{self.secrets.vm_secrets.ssh_private_key_pat}"\n',
+            f'ssh_private_key_path="{self.secrets.vm_secrets.ssh_private_key_path}"\n',
         )
 
         # Configure ip address parsing

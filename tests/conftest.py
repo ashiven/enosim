@@ -1,6 +1,11 @@
+import os
+
+from pyfakefs.fake_filesystem_unittest import Patcher
 from pytest import fixture
 
 from enosimulator.containers import SetupContainer
+
+pytest_plugins = ("pytest_asyncio", "aiofiles")
 
 config = {
     "setup": {
@@ -52,6 +57,20 @@ secrets = {
 }
 verbose = False
 debug = False
+
+
+@fixture
+def mock_fs():
+    with Patcher() as patcher:
+        yield patcher.fs
+
+
+@fixture
+def test_setup_dir():
+    test_setup_dir = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../test-setup")
+    ).replace("\\", "/")
+    return test_setup_dir
 
 
 @fixture
