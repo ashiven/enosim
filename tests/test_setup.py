@@ -351,7 +351,9 @@ async def test_setup_destroy(mock_fs, setup_container, test_setup_dir):
         }
     )
     setup = setup_container.setup()
-    setup.setup_path = test_setup_dir + "/hetzner"
+    list(setup.setup_helper.helpers.values())[1].setup_path = (
+        test_setup_dir + "/hetzner"
+    )
 
     await setup.setup_helper.convert_templates()
     assert os.path.exists(test_setup_dir + "/hetzner/data/checker.sh")
