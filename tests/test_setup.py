@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from enosimulator.types_ import Experience, Team
+from enosimulator.types_ import Experience, Service, Team
 
 
 def test_team_generator_basic_stress_test(setup_container):
@@ -223,3 +223,111 @@ async def test_setup_configure(mock_fs, setup_container, test_setup_dir):
         "enowars7-service-bollwerk"
         in open(test_setup_dir + "/hetzner/config/services.txt").read()
     )
+
+
+@pytest.mark.asyncio
+async def test_setup_build(mock_fs, setup_container, test_setup_dir):
+    mock_fs.add_real_directory(test_setup_dir, read_only=False)
+    ctf_json_contents = """{
+    "title": "ctf-sim",
+    "flagValidityInRounds": 2,
+    "checkedRoundsPerRound": 3,
+    "roundLengthInSeconds": 60,
+    "dnsSuffix": "eno.host",
+    "teamSubnetBytesLength": 15,
+    "flagSigningKey": "ir7PRm0SzqzA0lmFyBfUv68E6Yb7cjbJDp6dummqwr0Od70Sar7P27HVY6oc8PuW",
+    "teams": [
+        {
+            "id": 1,
+            "name": "TestTeam",
+            "teamSubnet": "::ffff:<placeholder>",
+            "address": "<placeholder>"
+        }
+    ],
+    "services": [
+        {
+            "id": 1,
+            "name": "enowars7-service-CVExchange",
+            "flagsPerRoundMultiplier": 1,
+            "noisesPerRoundMultiplier": 1,
+            "havocsPerRoundMultiplier": 1,
+            "weightFactor": 1,
+            "checkers": [
+                "7331"
+            ]
+        }
+    ],
+    "flag_validity_in_rounds": 2,
+    "checked_rounds_per_round": 3,
+    "round_length_in_seconds": 60
+}"""
+    mock_fs.create_file(
+        test_setup_dir + "/hetzner/config/ctf.json",
+        contents=ctf_json_contents,
+    )
+
+    setup_container.reset_singletons()
+    setup_container.configuration.config.from_dict(
+        {
+            "setup": {
+                "location": "hetzner",
+            },
+            "settings": {
+                "teams": 1,
+                "simulation-type": "realistic",
+            },
+        }
+    )
+    setup = setup_container.setup()
+    setup.setup_path = test_setup_dir + "/hetzner"
+    setup._existing_infra = Mock()
+    setup._existing_infra.return_value = True
+
+    teams = {
+        "TestTeam": Team(
+            id=1,
+            name="TestTeam",
+            team_subnet="::ffff:<placeholder>",
+            address="<placeholder>",
+            experience=Experience.NOOB,
+            exploiting=dict(),
+            patched=dict(),
+            points=0.0,
+            gain=0.0,
+        )
+    }
+    services = {
+        "enowars7-service-CVExchange": Service(
+            id=1,
+            name="enowa7-service-CVExchange",
+            flags_per_round_multiplier=1,
+            noises_per_round_multiplier=1,
+            havocs_per_round_multiplier=1,
+            weight_factor=1,
+            checkers=["7331"],
+        )
+    }
+    setup.teams = teams
+    setup.services = services
+
+    setup.setup_helper.get_ip_addresses = AsyncMock()
+    public_ips = {
+        "vulnbox1": "234.123.12.32",
+        "checker": "123.32.32.21",
+        "engine": "123.32.23.21",
+    }
+    private_ips = {
+        "vulnbox1": "10.1.1.1",
+        "checker": "10.1.4.1",
+        "engine": "10.1.5.1",
+    }
+    setup.setup_helper.get_ip_addresses.return_value = (public_ips, private_ips)
+    setup.info = Mock()
+    setup.info.return_value = None
+    await setup.build_infra()
+
+    assert setup.teams["TestTeam"].address == "10.1.1.1"
+    assert setup.services["enowars7-service-CVExchange"].checkers == [
+        "http://123.32.32.21:7331"
+    ]
+    assert open(test_setup_dir + "/hetzner/config/ctf.json").read() != ctf_json_contents
