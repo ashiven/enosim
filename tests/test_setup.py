@@ -1,7 +1,8 @@
 import os
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
+from rich.console import Console
 
 from enosimulator.types_ import Experience, Service, Team
 
@@ -322,9 +323,9 @@ async def test_setup_build(mock_fs, setup_container, test_setup_dir):
         "engine": "10.1.5.1",
     }
     setup.setup_helper.get_ip_addresses.return_value = (public_ips, private_ips)
-    setup.info = Mock()
-    setup.info.return_value = None
-    await setup.build_infra()
+
+    with patch.object(Console, "print"):
+        await setup.build_infra()
 
     assert setup.teams["TestTeam"].team_subnet == "::ffff:10.1.1.0"
     assert setup.teams["TestTeam"].address == "10.1.1.1"
@@ -332,3 +333,47 @@ async def test_setup_build(mock_fs, setup_container, test_setup_dir):
         "http://123.32.32.21:7331"
     ]
     assert open(test_setup_dir + "/hetzner/config/ctf.json").read() != ctf_json_contents
+
+
+@pytest.mark.asyncio
+async def test_setup_deploy(mock_fs, setup_container, test_setup_dir):
+    mock_fs.add_real_directory(test_setup_dir, read_only=False)
+    setup_container.reset_singletons()
+    setup_container.configuration.config.from_dict(
+        {
+            "setup": {
+                "location": "hetzner",
+            },
+            "settings": {
+                "teams": 1,
+                "simulation-type": "realistic",
+            },
+        }
+    )
+    setup = setup_container.setup()
+    setup.setup_path = test_setup_dir + "/hetzner"
+
+    await setup.setup_helper.convert_templates()
+    assert os.path.exists(test_setup_dir + "/hetzner/data/checker.sh")
+    assert os.path.exists(test_setup_dir + "/hetzner/data/docker-compose.yml")
+    assert os.path.exists(test_setup_dir + "/hetzner/data/engine.sh")
+    assert os.path.exists(test_setup_dir + "/hetzner/data/vulnbox.sh")
+    assert os.path.exists(test_setup_dir + "/hetzner/build.sh")
+    assert os.path.exists(test_setup_dir + "/hetzner/deploy.sh")
+    assert os.path.exists(test_setup_dir + "/hetzner/main.tf")
+    assert os.path.exists(test_setup_dir + "/hetzner/outputs.tf")
+    assert os.path.exists(test_setup_dir + "/hetzner/variables.tf")
+    assert os.path.exists(test_setup_dir + "/hetzner/versions.tf")
+
+    setup.destroy()
+
+    assert not os.path.exists(test_setup_dir + "/hetzner/data/checker.sh")
+    assert not os.path.exists(test_setup_dir + "/hetzner/data/docker-compose.yml")
+    assert not os.path.exists(test_setup_dir + "/hetzner/data/engine.sh")
+    assert not os.path.exists(test_setup_dir + "/hetzner/data/vulnbox.sh")
+    assert not os.path.exists(test_setup_dir + "/hetzner/build.sh")
+    assert not os.path.exists(test_setup_dir + "/hetzner/deploy.sh")
+    assert not os.path.exists(test_setup_dir + "/hetzner/main.tf")
+    assert not os.path.exists(test_setup_dir + "/hetzner/outputs.tf")
+    assert not os.path.exists(test_setup_dir + "/hetzner/variables.tf")
+    assert not os.path.exists(test_setup_dir + "/hetzner/versions.tf")
