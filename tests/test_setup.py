@@ -76,7 +76,29 @@ async def test_setup_helper_azure(mock_fs, setup_container, test_setup_dir):
     assert os.path.exists(test_setup_dir + "/azure/variables.tf")
     assert os.path.exists(test_setup_dir + "/azure/versions.tf")
 
-    # TODO: - test ip address parsing
+    mock_fs.create_file(
+        test_setup_dir + "/azure/logs/ip_addresses.log",
+        contents="private_ip_addresses = {\n"
+        + '  "vulnbox1" = "10.1.0.1"\n'
+        + '  "checker" = "10.1.0.2"\n'
+        + '  "engine" = "10.1.0.3"\n}\n'
+        + 'vulnbox1 = "123.23.23.12"\n'
+        + 'checker = "123.32.32.21"\n'
+        + 'engine = "254.32.32.21"\n',
+    )
+    public_ips, private_ips = await setup_helper.get_ip_addresses()
+
+    assert public_ips == {
+        "vulnbox1": "123.23.23.12",
+        "checker": "123.32.32.21",
+        "engine": "254.32.32.21",
+    }
+
+    assert private_ips == {
+        "vulnbox1": "10.1.0.1",
+        "checker": "10.1.0.2",
+        "engine": "10.1.0.3",
+    }
 
 
 @pytest.mark.asyncio
@@ -89,7 +111,7 @@ async def test_setup_helper_hetzner(mock_fs, setup_container, test_setup_dir):
                 "location": "hetzner",
             },
             "settings": {
-                "teams": 90,
+                "teams": 3,
                 "simulation-type": "stress-test",
             },
         }
@@ -109,7 +131,32 @@ async def test_setup_helper_hetzner(mock_fs, setup_container, test_setup_dir):
     assert os.path.exists(test_setup_dir + "/hetzner/variables.tf")
     assert os.path.exists(test_setup_dir + "/hetzner/versions.tf")
 
-    # TODO: - test ip address parsing
+    mock_fs.create_file(
+        test_setup_dir + "/hetzner/logs/ip_addresses.log",
+        contents="vulnbox_public_ips = {\n"
+        + '  "vulnbox1" = "234.123.12.32"\n'
+        + '  "vulnbox2" = "234.231.12.32"\n'
+        + '  "vulnbox3" = "234.123.32.12"\n}\n'
+        + 'checker = "123.32.32.21"\n'
+        + 'engine = "123.32.23.21"\n',
+    )
+    public_ips, private_ips = await setup_helper.get_ip_addresses()
+
+    assert public_ips == {
+        "vulnbox1": "234.123.12.32",
+        "vulnbox2": "234.231.12.32",
+        "vulnbox3": "234.123.32.12",
+        "checker": "123.32.32.21",
+        "engine": "123.32.23.21",
+    }
+
+    assert private_ips == {
+        "vulnbox1": "10.1.1.1",
+        "vulnbox2": "10.1.2.1",
+        "vulnbox3": "10.1.3.1",
+        "checker": "10.1.4.1",
+        "engine": "10.1.5.1",
+    }
 
 
 # TODO: - implement
