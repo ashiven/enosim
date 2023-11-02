@@ -326,6 +326,7 @@ async def test_setup_build(mock_fs, setup_container, test_setup_dir):
     setup.info.return_value = None
     await setup.build_infra()
 
+    assert setup.teams["TestTeam"].team_subnet == "::ffff:10.1.1.0"
     assert setup.teams["TestTeam"].address == "10.1.1.1"
     assert setup.services["enowars7-service-CVExchange"].checkers == [
         "http://123.32.32.21:7331"
