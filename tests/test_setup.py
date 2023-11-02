@@ -1,4 +1,5 @@
 import os
+import sys
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
@@ -336,6 +337,61 @@ async def test_setup_build(mock_fs, setup_container, test_setup_dir):
 
 
 @pytest.mark.asyncio
+async def test_setup_deploy(setup_container, test_setup_dir):
+    setup_container.reset_singletons()
+    setup_container.configuration.config.from_dict(
+        {
+            "setup": {
+                "location": "hetzner",
+            },
+            "settings": {
+                "teams": 1,
+                "simulation-type": "realistic",
+            },
+        }
+    )
+    setup = setup_container.setup()
+    setup.setup_path = test_setup_dir + "/hetzner"
+    public_ips = {
+        "vulnbox1": "123.32.32.21",
+        "checker": "231.32.32.21",
+        "engine": "123.32.123.21",
+    }
+    setup.ips.public_ip_addresses = public_ips
+
+    with patch("setup.setup.execute_command") as mock_execute:
+        with patch.object(Console, "status"):
+            with patch.object(Console, "print"):
+                setup.deploy()
+
+    mock_execute.assert_any_call("ssh-keygen -R 123.32.32.21")
+    mock_execute.assert_any_call("ssh-keygen -R 231.32.32.21")
+    mock_execute.assert_any_call("ssh-keygen -R 123.32.123.21")
+
+    if sys.platform == "win32":
+        assert mock_execute.call_count == 8
+        mock_execute.assert_any_call(
+            f"icacls {setup.secrets.vm_secrets.ssh_private_key_path} /reset",
+        )
+        mock_execute.assert_any_call(
+            f"icacls {setup.secrets.vm_secrets.ssh_private_key_path} /grant %username%:rw"
+        )
+        mock_execute.assert_any_call(
+            f"icacls {setup.secrets.vm_secrets.ssh_private_key_path} /inheritance:d"
+        )
+        mock_execute.assert_any_call(
+            f"icacls {setup.secrets.vm_secrets.ssh_private_key_path} /remove *S-1-5-11 *S-1-5-18 *S-1-5-32-544 *S-1-5-32-545"
+        )
+        mock_execute.assert_any_call(f"sh {test_setup_dir}/hetzner/deploy.sh")
+    else:
+        assert mock_execute.call_count == 5
+        mock_execute.assert_any_call(
+            f"chmod 600 {setup.secrets.vm_secrets.ssh_private_key_path}"
+        )
+        mock_execute.assert_any_call(f"bash {test_setup_dir}/hetzner/deploy.sh")
+
+
+@pytest.mark.asyncio
 async def test_setup_destroy(mock_fs, setup_container, test_setup_dir):
     mock_fs.add_real_directory(test_setup_dir, read_only=False)
     setup_container.reset_singletons()
@@ -351,6 +407,7 @@ async def test_setup_destroy(mock_fs, setup_container, test_setup_dir):
         }
     )
     setup = setup_container.setup()
+    setup.setup_path = test_setup_dir + "/hetzner"
     list(setup.setup_helper.helpers.values())[1].setup_path = (
         test_setup_dir + "/hetzner"
     )
@@ -367,7 +424,19 @@ async def test_setup_destroy(mock_fs, setup_container, test_setup_dir):
     assert os.path.exists(test_setup_dir + "/hetzner/variables.tf")
     assert os.path.exists(test_setup_dir + "/hetzner/versions.tf")
 
-    setup.destroy()
+    with patch("setup.setup.execute_command") as mock_execute:
+        with patch.object(Console, "status"):
+            setup.destroy()
+
+    assert mock_execute.call_count == 1
+    if sys.platform == "win32":
+        mock_execute.assert_called_with(
+            f"sh {test_setup_dir}/hetzner/build.sh -d",
+        )
+    else:
+        mock_execute.assert_called_with(
+            f"bash {test_setup_dir}/hetzner/build.sh -d",
+        )
 
     assert not os.path.exists(test_setup_dir + "/hetzner/data/checker.sh")
     assert not os.path.exists(test_setup_dir + "/hetzner/data/docker-compose.yml")
