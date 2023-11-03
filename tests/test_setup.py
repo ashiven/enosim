@@ -7,6 +7,9 @@ from rich.console import Console
 
 from enosimulator.types_ import Experience, Service, Team
 
+# uncomment to skip all tests for debugging
+# pytestmark = pytest.mark.skip("Already works")
+
 
 def test_team_generator_basic_stress_test(setup_container):
     setup_container.reset_singletons()

@@ -1,4 +1,5 @@
 import os
+from threading import Lock
 from unittest.mock import Mock
 
 from dependency_injector import providers
@@ -6,6 +7,7 @@ from pyfakefs.fake_filesystem_unittest import Patcher
 from pytest import fixture
 
 from enosimulator.containers import SetupContainer, SimulationContainer
+from enosimulator.types_ import IpAddresses
 
 pytest_plugins = ("pytest_asyncio", "aiofiles")
 
@@ -85,12 +87,26 @@ def setup_container():
 
 @fixture
 def simulation_container():
+    public_ips = {
+        "vulnbox1": "234.123.12.32",
+        "checker": "123.32.32.21",
+        "engine": "123.32.23.21",
+    }
+    private_ips = {
+        "vulnbox1": "10.1.1.1",
+        "checker": "10.1.4.1",
+        "engine": "10.1.5.1",
+    }
+    ip_addresses = IpAddresses(public_ips, private_ips)
+
     setup_container = SetupContainer()
-    setup_container.override_providers(setup=Mock())
+    setup_container.override_providers(
+        setup=providers.Factory(Mock, config=config, secrets=secrets, ips=ip_addresses)
+    )
     setup_container.configuration.config.from_dict(config)
     setup_container.configuration.secrets.from_dict(secrets)
 
-    thread_lock = providers.Factory(Mock)
+    thread_lock = providers.Factory(Mock(Lock))
     locks = providers.Singleton(
         dict, service=thread_lock, team=thread_lock, round_info=thread_lock
     )
