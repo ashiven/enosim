@@ -179,3 +179,6 @@ async def test_stat_checker_system_analytics(simulation_container):
         "http://localhost:5000/containerinfo",
         json=container_stats["vulnbox1"]["test_container"],
     )
+
+
+# TODO: - add tests for orchestrator and simulation
