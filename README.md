@@ -173,7 +173,7 @@ The deployment process can be sped up considerably by using virtual machine imag
 1. Navigate to the **packer** directory for your chosen cloud provider. For example, for Hetzner Cloud:
 
    ```bash
-   cd test-setup/hetzner/util/packer
+   cd infra/hetzner/util/packer
    ```
 
 2. Install the Hetzner plugin for Packer:

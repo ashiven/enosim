@@ -12,18 +12,18 @@ terraform.tfstate.backup
 .terraform.lock.hcl
 
 ## Setup files ##
-test-setup/*/logs/*
-test-setup/*/config/*
-test-setup/*/main.tf
-test-setup/*/variables.tf
-test-setup/*/outputs.tf
-test-setup/*/versions.tf
-test-setup/*/build.sh
-test-setup/*/deploy.sh
-test-setup/*/data/*
-!test-setup/*/config/.gitkeep
-!test-setup/*/data/.gitkeep
-!test-setup/*/logs/.gitkeep
+infra/*/logs/*
+infra/*/config/*
+infra/*/main.tf
+infra/*/variables.tf
+infra/*/outputs.tf
+infra/*/versions.tf
+infra/*/build.sh
+infra/*/deploy.sh
+infra/*/data/*
+!infra/*/config/.gitkeep
+!infra/*/data/.gitkeep
+!infra/*/logs/.gitkeep
 
 ## Flask files ##
 database.db

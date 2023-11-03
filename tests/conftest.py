@@ -1,9 +1,11 @@
 import os
+from unittest.mock import Mock
 
+from dependency_injector import providers
 from pyfakefs.fake_filesystem_unittest import Patcher
 from pytest import fixture
 
-from enosimulator.containers import SetupContainer
+from enosimulator.containers import SetupContainer, SimulationContainer
 
 pytest_plugins = ("pytest_asyncio", "aiofiles")
 
@@ -68,7 +70,7 @@ def mock_fs():
 @fixture
 def test_setup_dir():
     test_setup_dir = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "../test-setup")
+        os.path.join(os.path.dirname(__file__), "../infra")
     ).replace("\\", "/")
     return test_setup_dir
 
@@ -79,3 +81,26 @@ def setup_container():
     setup_container.configuration.config.from_dict(config)
     setup_container.configuration.secrets.from_dict(secrets)
     return setup_container
+
+
+@fixture
+def simulation_container():
+    setup_container = SetupContainer()
+    setup_container.override_providers(setup=Mock())
+    setup_container.configuration.config.from_dict(config)
+    setup_container.configuration.secrets.from_dict(secrets)
+
+    thread_lock = providers.Factory(Mock)
+    locks = providers.Singleton(
+        dict, service=thread_lock, team=thread_lock, round_info=thread_lock
+    )
+
+    simulation_container = SimulationContainer(
+        locks=locks,
+        setup_container=setup_container,
+    )
+    simulation_container.configuration.config.from_dict(config)
+    simulation_container.configuration.secrets.from_dict(secrets)
+    simulation_container.configuration.verbose.from_value(verbose)
+    simulation_container.configuration.debug.from_value(debug)
+    return simulation_container
