@@ -7,7 +7,7 @@ from pyfakefs.fake_filesystem_unittest import Patcher
 from pytest import fixture
 
 from enosimulator.containers import SetupContainer, SimulationContainer
-from enosimulator.types_ import IpAddresses
+from enosimulator.types_ import Config, IpAddresses, Secrets
 
 pytest_plugins = ("pytest_asyncio", "aiofiles")
 
@@ -101,7 +101,12 @@ def simulation_container():
 
     setup_container = SetupContainer()
     setup_container.override_providers(
-        setup=providers.Factory(Mock, config=config, secrets=secrets, ips=ip_addresses)
+        setup=providers.Factory(
+            Mock,
+            config=Config.from_(config),
+            secrets=Secrets.from_(secrets),
+            ips=ip_addresses,
+        )
     )
     setup_container.configuration.config.from_dict(config)
     setup_container.configuration.secrets.from_dict(secrets)
