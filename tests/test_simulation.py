@@ -3,13 +3,11 @@ from unittest.mock import Mock, patch
 
 import jsons
 import pytest
-from enochecker_core import CheckerInfoMessage
+from enochecker_core import CheckerInfoMessage, CheckerMethod, CheckerTaskMessage
 from httpx import AsyncClient
 from paramiko import RSAKey, SSHClient
 from rich.console import Console
 from rich.panel import Panel
-
-from enosimulator.types_ import Experience, Team
 
 
 def test_flag_submitter(simulation_container):
@@ -210,10 +208,10 @@ async def test_orchestrator_update_teams(simulation_container):
         "enowars7-service-CVExchange",
     )
 
-    assert orchestrator.setup.teams["TestTeam"].exploiting == {
+    assert orchestrator.setup.teams["TestTeam1"].exploiting == {
         "CVExchange": {"Flagstore0": True, "Flagstore1": True, "Flagstore2": True},
     }
-    assert orchestrator.setup.teams["TestTeam"].patched == {
+    assert orchestrator.setup.teams["TestTeam1"].patched == {
         "CVExchange": {
             "Flagstore0": False,
             "Flagstore1": False,
@@ -232,14 +230,14 @@ async def test_orchestrator_update_teams(simulation_container):
         )
         await orchestrator.update_team_info()
 
-    assert orchestrator.setup.teams["TestTeam"].exploiting == {
+    assert orchestrator.setup.teams["TestTeam1"].exploiting == {
         "CVExchange": {
             "Flagstore0": False,
             "Flagstore1": False,
             "Flagstore2": False,
         },
     }
-    assert orchestrator.setup.teams["TestTeam"].patched == {
+    assert orchestrator.setup.teams["TestTeam1"].patched == {
         "CVExchange": {
             "Flagstore0": False,
             "Flagstore1": False,
@@ -255,43 +253,6 @@ def test_orchestrator_parse_scoreboard(simulation_container):
     mock_client = Mock(AsyncClient)
     orchestrator.client = mock_client
     mock_client.get.return_value = Mock(status_code=200)
-
-    teams = {
-        "TestTeam1": Team(
-            id=1,
-            name="TestTeam1",
-            team_subnet="::ffff:10.1.1.0",
-            address="10.1.1.1",
-            experience=Experience.NOOB,
-            exploiting=dict(),
-            patched=dict(),
-            points=0.0,
-            gain=0.0,
-        ),
-        "TestTeam2": Team(
-            id=1,
-            name="TestTeam2",
-            team_subnet="::ffff:10.1.1.0",
-            address="10.1.2.1",
-            experience=Experience.BEGINNER,
-            exploiting=dict(),
-            patched=dict(),
-            points=0.0,
-            gain=0.0,
-        ),
-        "TestTeam3": Team(
-            id=1,
-            name="TestTeam3",
-            team_subnet="::ffff:10.1.1.0",
-            address="10.1.3.1",
-            experience=Experience.PRO,
-            exploiting=dict(),
-            patched=dict(),
-            points=0.0,
-            gain=0.0,
-        ),
-    }
-    orchestrator.setup.teams = teams
 
     # TODO: - maybe fix test
     # with patch.object(webdriver, "Chrome") as mock_chrome:
@@ -325,3 +286,83 @@ def test_orchestrator_parse_scoreboard(simulation_container):
     assert orchestrator.setup.teams["TestTeam1"].gain == 99.3
     assert orchestrator.setup.teams["TestTeam2"].gain == 23.9
     assert orchestrator.setup.teams["TestTeam3"].gain == 20.3
+
+
+@pytest.mark.asyncio
+async def test_orchestrator_create_exploit_requests(simulation_container):
+    simulation_container.reset_singletons()
+    orchestrator = simulation_container.orchestrator()
+
+    mock_client = Mock(AsyncClient)
+    orchestrator.client = mock_client
+    mock_client.get.return_value = Mock(status_code=200)
+
+    teams = [team for team in orchestrator.setup.teams.values()]
+
+    attack_info = {
+        "availableTeams": ["10.1.1.1", "10.1.2.1", "10.1.3.1"],
+        "services": {
+            "enowars7-service-CVExchange": {
+                "10.1.1.1": {"10": {"0": ["12"], "1": ["13"], "2": ["11"]}},
+                "10.1.2.1": {"10": {"0": ["12"], "1": ["13"], "2": ["11"]}},
+                "10.1.3.1": {"10": {"0": ["12"], "1": ["13"], "2": ["11"]}},
+            }
+        },
+    }
+    orchestrator.attack_info = attack_info
+
+    service_info = {"CVExchange": ("7331", "enowars7-service-CVExchange")}
+    orchestrator.service_info = service_info
+
+    exploit_requests = orchestrator._create_exploit_requests(
+        round_id=10, team=teams[0], all_teams=teams
+    )
+
+    assert len(exploit_requests) == 4
+
+    for request in exploit_requests.values():
+        request.task_chain_id = None
+
+    test_request = CheckerTaskMessage(
+        task_id=10,
+        method=CheckerMethod.EXPLOIT,
+        address="10.1.2.1",
+        team_id=2,
+        team_name="TestTeam2",
+        current_round_id=10,
+        related_round_id=10,
+        flag=None,
+        variant_id=0,
+        timeout=10000,
+        round_length=60000,
+        task_chain_id=None,
+        flag_regex=r"ENO[A-Za-z0-9+\/=]{48}",
+        flag_hash="ignore_flag_hash",
+        attack_info="12",
+    )
+    assert test_request in exploit_requests.values()
+
+    test_request_wrong = CheckerTaskMessage(
+        task_id=10,
+        method=CheckerMethod.EXPLOIT,
+        address="10.1.3.1",
+        team_id=3,
+        team_name="TestTeam3",
+        current_round_id=10,
+        related_round_id=10,
+        flag=None,
+        variant_id=2,
+        timeout=10000,
+        round_length=60000,
+        task_chain_id=None,
+        flag_regex=r"ENO[A-Za-z0-9+\/=]{48}",
+        flag_hash="ignore_flag_hash",
+        attack_info="11",
+    )
+
+    assert test_request_wrong not in exploit_requests.values()
+
+
+@pytest.mark.asyncio
+async def test_orchestrator_send_exploit_requests(simulation_container):
+    pass

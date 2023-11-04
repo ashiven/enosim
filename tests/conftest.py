@@ -100,18 +100,77 @@ def simulation_container():
     ip_addresses = IpAddresses(public_ips, private_ips)
 
     teams = {
-        "TestTeam": Team(
+        "TestTeam1": Team(
             id=1,
-            name="TestTeam",
+            name="TestTeam1",
             team_subnet="::ffff:10.1.1.0",
             address="10.1.1.1",
             experience=Experience.NOOB,
-            exploiting=dict(),
-            patched=dict(),
+            exploiting={
+                "CVExchange": {
+                    "Flagstore0": True,
+                    "Flagstore1": True,
+                    "Flagstore2": False,
+                }
+            },
+            patched={
+                "CVExchange": {
+                    "Flagstore0": False,
+                    "Flagstore1": False,
+                    "Flagstore2": False,
+                }
+            },
             points=0.0,
             gain=0.0,
-        )
+        ),
+        "TestTeam2": Team(
+            id=2,
+            name="TestTeam2",
+            team_subnet="::ffff:10.1.2.0",
+            address="10.1.2.1",
+            experience=Experience.BEGINNER,
+            exploiting={
+                "CVExchange": {
+                    "Flagstore0": False,
+                    "Flagstore1": False,
+                    "Flagstore2": False,
+                }
+            },
+            patched={
+                "CVExchange": {
+                    "Flagstore0": False,
+                    "Flagstore1": False,
+                    "Flagstore2": False,
+                }
+            },
+            points=0.0,
+            gain=0.0,
+        ),
+        "TestTeam3": Team(
+            id=3,
+            name="TestTeam3",
+            team_subnet="::ffff:10.1.3.0",
+            address="10.1.3.1",
+            experience=Experience.PRO,
+            exploiting={
+                "CVExchange": {
+                    "Flagstore0": False,
+                    "Flagstore1": False,
+                    "Flagstore2": False,
+                }
+            },
+            patched={
+                "CVExchange": {
+                    "Flagstore0": False,
+                    "Flagstore1": False,
+                    "Flagstore2": False,
+                }
+            },
+            points=0.0,
+            gain=0.0,
+        ),
     }
+
     services = {
         "enowars7-service-CVExchange": Service(
             id=1,
