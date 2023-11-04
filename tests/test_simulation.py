@@ -1,5 +1,5 @@
 from io import BytesIO
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import jsons
 import pytest
@@ -428,3 +428,117 @@ async def test_orchestrator_send_exploit_requests(simulation_container):
     )
 
     assert flags == ["ENO123123123123", "ENO123123123123"]
+
+
+@pytest.mark.asyncio
+async def test_simulation_run(simulation_container):
+    simulation_container.reset_singletons()
+    simulation = simulation_container.simulation()
+
+    simulation.orchestrator.update_team_info = AsyncMock()
+    simulation.orchestrator.parse_scoreboard = Mock()
+    simulation.orchestrator.get_round_info = AsyncMock()
+    simulation.orchestrator.collect_system_analytics = AsyncMock()
+
+    simulation._scoreboard_available = AsyncMock()
+    simulation._update_exploiting_and_patched = AsyncMock()
+    simulation.info = Mock()
+    simulation._exploit_all_teams = AsyncMock()
+    simulation._system_analytics = Mock()
+    simulation._submit_all_flags = Mock()
+    simulation._print_system_analytics = Mock()
+
+    simulation._system_analytics.return_value = [Panel("test"), [Panel("test2")]]
+    simulation.round_length = 0
+    await simulation.run()
+
+    assert simulation.orchestrator.update_team_info.call_count == 1
+    assert simulation.orchestrator.parse_scoreboard.call_count == 2
+    assert simulation.orchestrator.get_round_info.call_count == 2
+    assert simulation.orchestrator.collect_system_analytics.call_count == 2
+
+    assert simulation._scoreboard_available.call_count == 1
+    assert simulation._update_exploiting_and_patched.call_count == 2
+    assert simulation.info.call_count == 2
+    assert simulation._exploit_all_teams.call_count == 2
+    assert simulation._system_analytics.call_count == 2
+    assert simulation._submit_all_flags.call_count == 2
+    assert simulation._print_system_analytics.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_simulation_update_exploiting_and_patched(simulation_container):
+    simulation_container.reset_singletons()
+    simulation = simulation_container.simulation()
+    simulation.setup.config.settings.simulation_type = "realistic"
+
+    simulation._random_test = Mock()
+    simulation._random_test.return_value = True
+
+    await simulation._update_exploiting_and_patched()
+
+    assert (
+        len(
+            [
+                flagstore
+                for flagstore, do_exploit in simulation.setup.teams["TestTeam1"]
+                .exploiting["CVExchange"]
+                .items()
+                if do_exploit
+            ]
+        )
+        + len(
+            [
+                flagstore
+                for flagstore, do_patch in simulation.setup.teams["TestTeam1"]
+                .patched["CVExchange"]
+                .items()
+                if do_patch
+            ]
+        )
+        == 3
+    )
+
+    assert (
+        len(
+            [
+                flagstore
+                for flagstore, do_exploit in simulation.setup.teams["TestTeam2"]
+                .exploiting["CVExchange"]
+                .items()
+                if do_exploit
+            ]
+        )
+        + len(
+            [
+                flagstore
+                for flagstore, do_patch in simulation.setup.teams["TestTeam2"]
+                .patched["CVExchange"]
+                .items()
+                if do_patch
+            ]
+        )
+        == 1
+    )
+
+    assert (
+        len(
+            [
+                flagstore
+                for flagstore, do_exploit in simulation.setup.teams["TestTeam3"]
+                .exploiting["CVExchange"]
+                .items()
+                if do_exploit
+            ]
+        )
+        + len(
+            [
+                flagstore
+                for flagstore, do_patch in simulation.setup.teams["TestTeam3"]
+                .patched["CVExchange"]
+                .items()
+                if do_patch
+            ]
+        )
+        == 1
+    )

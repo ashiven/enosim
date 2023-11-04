@@ -27,7 +27,7 @@ config = {
         },
     },
     "settings": {
-        "duration-in-minutes": 300,
+        "duration-in-minutes": 2,
         "teams": 3,
         "services": [
             "enowars7-service-CVExchange",
