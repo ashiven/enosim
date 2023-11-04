@@ -9,6 +9,8 @@ from paramiko import RSAKey, SSHClient
 from rich.console import Console
 from rich.panel import Panel
 
+from enosimulator.simulation.util import req_to_json
+
 
 def test_flag_submitter(simulation_container):
     flag_submitter = simulation_container.flag_submitter()
@@ -288,14 +290,9 @@ def test_orchestrator_parse_scoreboard(simulation_container):
     assert orchestrator.setup.teams["TestTeam3"].gain == 20.3
 
 
-@pytest.mark.asyncio
-async def test_orchestrator_create_exploit_requests(simulation_container):
+def test_orchestrator_create_exploit_requests(simulation_container):
     simulation_container.reset_singletons()
     orchestrator = simulation_container.orchestrator()
-
-    mock_client = Mock(AsyncClient)
-    orchestrator.client = mock_client
-    mock_client.get.return_value = Mock(status_code=200)
 
     teams = [team for team in orchestrator.setup.teams.values()]
 
@@ -359,10 +356,75 @@ async def test_orchestrator_create_exploit_requests(simulation_container):
         flag_hash="ignore_flag_hash",
         attack_info="11",
     )
-
     assert test_request_wrong not in exploit_requests.values()
 
 
 @pytest.mark.asyncio
 async def test_orchestrator_send_exploit_requests(simulation_container):
-    pass
+    simulation_container.reset_singletons()
+    orchestrator = simulation_container.orchestrator()
+
+    mock_client = Mock(AsyncClient)
+    orchestrator.client = mock_client
+
+    service_info = {"CVExchange": ("7331", "enowars7-service-CVExchange")}
+    orchestrator.service_info = service_info
+
+    exploit_requests = {
+        ("TestTeam2", "CVExchange", "Flagstore0"): CheckerTaskMessage(
+            task_id=10,
+            method=CheckerMethod.EXPLOIT,
+            address="10.1.2.1",
+            team_id=2,
+            team_name="TestTeam2",
+            current_round_id=10,
+            related_round_id=10,
+            flag=None,
+            variant_id=0,
+            timeout=10000,
+            round_length=60000,
+            task_chain_id=None,
+            flag_regex=r"ENO[A-Za-z0-9+\/=]{48}",
+            flag_hash="ignore_flag_hash",
+            attack_info="12",
+        ),
+        ("TestTeam2", "CVExchange", "Flagstore1"): CheckerTaskMessage(
+            task_id=10,
+            method=CheckerMethod.EXPLOIT,
+            address="10.1.2.1",
+            team_id=2,
+            team_name="TestTeam2",
+            current_round_id=10,
+            related_round_id=10,
+            flag=None,
+            variant_id=1,
+            timeout=10000,
+            round_length=60000,
+            task_chain_id=None,
+            flag_regex=r"ENO[A-Za-z0-9+\/=]{48}",
+            flag_hash="ignore_flag_hash",
+            attack_info="13",
+        ),
+    }
+
+    mock_client.post.return_value.content = '{"result": "OK", "message": "", "attack_info": "12", "flag": "ENO123123123123"}'
+
+    flags = await orchestrator._send_exploit_requests(
+        orchestrator.setup.teams["TestTeam1"], exploit_requests
+    )
+
+    assert mock_client.post.call_count == 2
+    mock_client.post.assert_any_call(
+        "http://234.123.12.32:7331",
+        data=req_to_json(exploit_requests[("TestTeam2", "CVExchange", "Flagstore0")]),
+        headers={"Content-Type": "application/json"},
+        timeout=10,
+    )
+    mock_client.post.assert_any_call(
+        "http://234.123.12.32:7331",
+        data=req_to_json(exploit_requests[("TestTeam2", "CVExchange", "Flagstore1")]),
+        headers={"Content-Type": "application/json"},
+        timeout=10,
+    )
+
+    assert flags == ["ENO123123123123", "ENO123123123123"]
