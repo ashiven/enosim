@@ -6,7 +6,11 @@ from dependency_injector import providers
 from pyfakefs.fake_filesystem_unittest import Patcher
 from pytest import fixture
 
-from enosimulator.containers import SetupContainer, SimulationContainer
+from enosimulator.containers import (
+    BackendContainer,
+    SetupContainer,
+    SimulationContainer,
+)
 from enosimulator.types_ import Config, Experience, IpAddresses, Secrets, Service, Team
 
 pytest_plugins = ("pytest_asyncio", "aiofiles")
@@ -75,6 +79,14 @@ def test_setup_dir():
         os.path.join(os.path.dirname(__file__), "../infra")
     ).replace("\\", "/")
     return test_setup_dir
+
+
+@fixture
+def backend_path():
+    backend_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../enosimulator/backend")
+    ).replace("\\", "/")
+    return backend_path
 
 
 @fixture
@@ -211,3 +223,19 @@ def simulation_container():
     simulation_container.configuration.verbose.from_value(verbose)
     simulation_container.configuration.debug.from_value(debug)
     return simulation_container
+
+
+@fixture
+def backend_container(setup_container, simulation_container):
+    thread_lock = providers.Factory(Lock)
+    locks = providers.Singleton(
+        dict, service=thread_lock, team=thread_lock, round_info=thread_lock
+    )
+
+    backend_container = BackendContainer(
+        locks=locks,
+        setup_container=setup_container,
+        simulation_container=simulation_container,
+    )
+
+    return backend_container

@@ -2,7 +2,7 @@ import logging
 import os
 import sqlite3
 from time import time
-from typing import Dict
+from typing import Dict, Tuple
 
 from flask import Flask, request
 from flask_restful import Api, Resource
@@ -217,20 +217,21 @@ class FlaskApp:
 
     @staticmethod
     @retry(stop=stop_after_attempt(10))
-    def db_insert_values(table_name, data) -> None:
+    def db_insert_values(table_name, data) -> Tuple[str, Tuple]:
         value_names = ",".join(data.keys())
         value_placeholders = ",".join(["?" for _ in data.keys()])
+
+        query = f"INSERT INTO {table_name}({value_names}) VALUES ({value_placeholders})"
+
+        params = tuple([value for value in data.values()])
+
         with FlaskApp.get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute(
-                f"INSERT INTO {table_name}({value_names}) VALUES ({value_placeholders})",
-                (tuple([value for value in data.values()])),
-            )
+            cursor.execute(query, params)
             conn.commit()
+
+        return query, params
 
     def delete_db(self) -> None:
         if os.path.exists("database.db"):
             os.remove("database.db")
-
-    def __del__(self):
-        self.delete_db()

@@ -11,6 +11,9 @@ from rich.panel import Panel
 
 from enosimulator.simulation.util import req_to_json
 
+# uncomment to skip all tests for debugging
+# pytestmark = pytest.mark.skip("Already works")
+
 
 def test_flag_submitter(simulation_container):
     flag_submitter = simulation_container.flag_submitter()
