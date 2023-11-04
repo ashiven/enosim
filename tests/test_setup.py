@@ -374,23 +374,19 @@ async def test_setup_deploy(setup_container, test_setup_dir):
     if sys.platform == "win32":
         assert mock_execute.call_count == 8
         mock_execute.assert_any_call(
-            f"icacls {setup.secrets.vm_secrets.ssh_private_key_path} /reset",
+            f"icacls /path/to/your/private_key /reset",
         )
         mock_execute.assert_any_call(
-            f"icacls {setup.secrets.vm_secrets.ssh_private_key_path} /grant %username%:rw"
+            f"icacls /path/to/your/private_key /grant %username%:rw"
         )
+        mock_execute.assert_any_call(f"icacls /path/to/your/private_key /inheritance:d")
         mock_execute.assert_any_call(
-            f"icacls {setup.secrets.vm_secrets.ssh_private_key_path} /inheritance:d"
-        )
-        mock_execute.assert_any_call(
-            f"icacls {setup.secrets.vm_secrets.ssh_private_key_path} /remove *S-1-5-11 *S-1-5-18 *S-1-5-32-544 *S-1-5-32-545"
+            f"icacls /path/to/your/private_key /remove *S-1-5-11 *S-1-5-18 *S-1-5-32-544 *S-1-5-32-545"
         )
         mock_execute.assert_any_call(f"sh {test_setup_dir}/hetzner/deploy.sh")
     else:
         assert mock_execute.call_count == 5
-        mock_execute.assert_any_call(
-            f"chmod 600 {setup.secrets.vm_secrets.ssh_private_key_path}"
-        )
+        mock_execute.assert_any_call(f"chmod 600 /path/to/your/private_key")
         mock_execute.assert_any_call(f"bash {test_setup_dir}/hetzner/deploy.sh")
 
 

@@ -45,10 +45,9 @@ def test_stat_checker_container_stats(simulation_container):
                 mock_exec_command.return_value = (
                     None,
                     BytesIO(
-                        b"""CONTAINER ID        NAME                CPU %               MEM USAGE / LIMIT     MEM %               NET I/O             BLOCK I/O           PIDS
-a1b2c3d4e5f6        my_container1       0.07%               4.883MiB / 1.952GiB   0.24%               648B / 0B           12.3MB / 0B         2
-b2c3d4e5f6a7        my_container2       0.10%               2.211MiB / 1.952GiB   0.11%               648B / 0B           4.987MB / 0B        2
-"""
+                        b"CONTAINER ID        NAME                CPU %               MEM USAGE / LIMIT     MEM %               NET I/O             BLOCK I/O           PIDS\n"
+                        + b"a1b2c3d4e5f6        my_container1       0.07%               4.883MiB / 1.952GiB   0.24%               648B / 0B           12.3MB / 0B         2\n"
+                        + b"b2c3d4e5f6a7        my_container2       0.10%               2.211MiB / 1.952GiB   0.11%               648B / 0B           4.987MB / 0B        2\n"
                     ),
                     None,
                 )
