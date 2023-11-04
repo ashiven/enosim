@@ -304,7 +304,7 @@ async def test_setup_build(mock_fs, setup_container, test_setup_dir):
     services = {
         "enowars7-service-CVExchange": Service(
             id=1,
-            name="enowa7-service-CVExchange",
+            name="enowars7-service-CVExchange",
             flags_per_round_multiplier=1,
             noises_per_round_multiplier=1,
             havocs_per_round_multiplier=1,

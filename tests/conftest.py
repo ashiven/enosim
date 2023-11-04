@@ -7,7 +7,7 @@ from pyfakefs.fake_filesystem_unittest import Patcher
 from pytest import fixture
 
 from enosimulator.containers import SetupContainer, SimulationContainer
-from enosimulator.types_ import Config, IpAddresses, Secrets
+from enosimulator.types_ import Config, Experience, IpAddresses, Secrets, Service, Team
 
 pytest_plugins = ("pytest_asyncio", "aiofiles")
 
@@ -99,6 +99,31 @@ def simulation_container():
     }
     ip_addresses = IpAddresses(public_ips, private_ips)
 
+    teams = {
+        "TestTeam": Team(
+            id=1,
+            name="TestTeam",
+            team_subnet="::ffff:10.1.1.0",
+            address="10.1.1.1",
+            experience=Experience.NOOB,
+            exploiting=dict(),
+            patched=dict(),
+            points=0.0,
+            gain=0.0,
+        )
+    }
+    services = {
+        "enowars7-service-CVExchange": Service(
+            id=1,
+            name="enowars7-service-CVExchange",
+            flags_per_round_multiplier=1,
+            noises_per_round_multiplier=1,
+            havocs_per_round_multiplier=1,
+            weight_factor=1,
+            checkers=["http://234.123.12.32:7331"],
+        )
+    }
+
     setup_container = SetupContainer()
     setup_container.override_providers(
         setup=providers.Factory(
@@ -106,12 +131,14 @@ def simulation_container():
             config=Config.from_(config),
             secrets=Secrets.from_(secrets),
             ips=ip_addresses,
+            teams=teams,
+            services=services,
         )
     )
     setup_container.configuration.config.from_dict(config)
     setup_container.configuration.secrets.from_dict(secrets)
 
-    thread_lock = providers.Factory(Mock(Lock))
+    thread_lock = providers.Factory(Lock)
     locks = providers.Singleton(
         dict, service=thread_lock, team=thread_lock, round_info=thread_lock
     )

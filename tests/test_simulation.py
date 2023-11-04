@@ -1,10 +1,15 @@
 from io import BytesIO
 from unittest.mock import Mock, patch
 
+import jsons
 import pytest
+from enochecker_core import CheckerInfoMessage
 from httpx import AsyncClient
 from paramiko import RSAKey, SSHClient
+from rich.console import Console
 from rich.panel import Panel
+
+from enosimulator.types_ import Experience, Team
 
 
 def test_flag_submitter(simulation_container):
@@ -180,4 +185,143 @@ async def test_stat_checker_system_analytics(simulation_container):
     )
 
 
-# TODO: - add tests for orchestrator and simulation
+@pytest.mark.asyncio
+async def test_orchestrator_update_teams(simulation_container):
+    simulation_container.reset_singletons()
+    orchestrator = simulation_container.orchestrator()
+    mock_client = Mock(AsyncClient)
+    orchestrator.client = mock_client
+    mock_client.get.return_value = Mock(status_code=200)
+
+    with patch.object(jsons, "loads") as mock_loads:
+        mock_loads.return_value = CheckerInfoMessage(
+            service_name="CVExchange",
+            flag_variants=3,
+            noise_variants=3,
+            havoc_variants=1,
+            exploit_variants=3,
+        )
+        await orchestrator.update_team_info()
+
+    mock_client.get.assert_called_once_with("http://234.123.12.32:7331/service")
+    assert mock_loads.call_count == 1
+    assert orchestrator.service_info["CVExchange"] == (
+        "7331",
+        "enowars7-service-CVExchange",
+    )
+
+    assert orchestrator.setup.teams["TestTeam"].exploiting == {
+        "CVExchange": {"Flagstore0": True, "Flagstore1": True, "Flagstore2": True},
+    }
+    assert orchestrator.setup.teams["TestTeam"].patched == {
+        "CVExchange": {
+            "Flagstore0": False,
+            "Flagstore1": False,
+            "Flagstore2": False,
+        },
+    }
+
+    orchestrator.setup.config.settings.simulation_type = "realistic"
+    with patch.object(jsons, "loads") as mock_loads:
+        mock_loads.return_value = CheckerInfoMessage(
+            service_name="CVExchange",
+            flag_variants=3,
+            noise_variants=3,
+            havoc_variants=1,
+            exploit_variants=3,
+        )
+        await orchestrator.update_team_info()
+
+    assert orchestrator.setup.teams["TestTeam"].exploiting == {
+        "CVExchange": {
+            "Flagstore0": False,
+            "Flagstore1": False,
+            "Flagstore2": False,
+        },
+    }
+    assert orchestrator.setup.teams["TestTeam"].patched == {
+        "CVExchange": {
+            "Flagstore0": False,
+            "Flagstore1": False,
+            "Flagstore2": False,
+        },
+    }
+
+
+def test_orchestrator_parse_scoreboard(simulation_container):
+    simulation_container.reset_singletons()
+    orchestrator = simulation_container.orchestrator()
+
+    mock_client = Mock(AsyncClient)
+    orchestrator.client = mock_client
+    mock_client.get.return_value = Mock(status_code=200)
+
+    teams = {
+        "TestTeam1": Team(
+            id=1,
+            name="TestTeam1",
+            team_subnet="::ffff:10.1.1.0",
+            address="10.1.1.1",
+            experience=Experience.NOOB,
+            exploiting=dict(),
+            patched=dict(),
+            points=0.0,
+            gain=0.0,
+        ),
+        "TestTeam2": Team(
+            id=1,
+            name="TestTeam2",
+            team_subnet="::ffff:10.1.1.0",
+            address="10.1.2.1",
+            experience=Experience.BEGINNER,
+            exploiting=dict(),
+            patched=dict(),
+            points=0.0,
+            gain=0.0,
+        ),
+        "TestTeam3": Team(
+            id=1,
+            name="TestTeam3",
+            team_subnet="::ffff:10.1.1.0",
+            address="10.1.3.1",
+            experience=Experience.PRO,
+            exploiting=dict(),
+            patched=dict(),
+            points=0.0,
+            gain=0.0,
+        ),
+    }
+    orchestrator.setup.teams = teams
+
+    # TODO: - maybe fix test
+    # with patch.object(webdriver, "Chrome") as mock_chrome:
+    #     with patch.object(ChromeDriverManager, "install") as mock_install:
+    #         with patch.object(
+    #             webdriver.support.ui.WebDriverWait, "until"
+    #         ) as mock_until:
+    #             with patch("simulation.orchestrator.BeautifulSoup") as mock_soup:
+    #                 mock_install.return_value = "/path/to/chromedriver"
+    #                 mock_soup.return_value.find_all.return_value = [
+    #                     "<tr class='otherrow'><td class='team-score'>234.43</td><div class='team-name'><a>TestTeam1</a></div></tr>",
+    #                     "<tr class='otherrow'><td class='team-score'>432.43</td><div class='team-name'><a>TestTeam2</a></div></tr>",
+    #                     "<tr class='otherrow'><td class='team-score'>500002</td><div class='team-name'><a>TestTeam3</a></div></tr>",
+    #                 ]
+
+    with patch.object(Console, "status"):
+        with patch(
+            "simulation.orchestrator.Orchestrator._get_team_scores"
+        ) as mock_get_scores:
+            mock_get_scores.return_value = {
+                "TestTeam1": (234.43, 99.3),
+                "TestTeam2": (432.43, 23.9),
+                "TestTeam3": (500002, 20.3),
+            }
+            orchestrator.parse_scoreboard()
+
+    assert orchestrator.setup.teams["TestTeam1"].points == 234.43
+    assert orchestrator.setup.teams["TestTeam2"].points == 432.43
+    assert orchestrator.setup.teams["TestTeam3"].points == 500002
+
+    assert orchestrator.setup.teams["TestTeam1"].gain == 99.3
+    assert orchestrator.setup.teams["TestTeam2"].gain == 23.9
+    assert orchestrator.setup.teams["TestTeam3"].gain == 20.3
