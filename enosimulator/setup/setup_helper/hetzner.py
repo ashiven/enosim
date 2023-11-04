@@ -58,7 +58,7 @@ class HetznerSetupHelper(Helper):
         lines = []
         for vulnbox_id in range(1, self.config.settings.teams + 1):
             lines.append(
-                f"vulnbox{vulnbox_id}_ip=$(grep -oP '\"vulnbox{vulnbox_id}\"\s*=\s*\K[^\s]+' ./logs/ip_addresses.log | sed 's/\"//g')\n"
+                f"vulnbox{vulnbox_id}_ip=$(grep -oP '\"vulnbox{vulnbox_id}\"\\s*=\\s*\\K[^\\s]+' ./logs/ip_addresses.log | sed 's/\"//g')\n"
             )
         await insert_after(f"{self.setup_path}/build.sh", "engine_ip=", lines)
 
