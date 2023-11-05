@@ -24,16 +24,18 @@ class SetupVariant(Enum):
 
 
 class Experience(Enum):
-    """
-    An enum representing the experience level of a team.
+    """An enum representing the experience level of a team.
 
-    The first value stands for the probability of the team exploiting / patching a vulnerability in any round.
-    The second value stands for their prevalence in real ctf competitions.
+    The first value stands for the probability of the team exploiting /
+    patching a vulnerability in any given round. The second value stands
+    for the prevalence of an experience level in real ctf competitions
+    and will be used to distribute teams in the simulation.
 
     The variants prefixed with TEST_ are used for testing purposes only.
 
-    The production values for variants prefixed with TEST_ will be added via the extend_enum function in the TeamGenerator class.
-    Their values are determined by analysing a given scoreboard.json file.
+    The production values for variants prefixed with TEST_ will be added
+    via the extend_enum function in the TeamGenerator class. Their
+    values are determined by analysing a given scoreboard.json file.
 
     The values for the HAXXOR variant are not subject to change.
     """
