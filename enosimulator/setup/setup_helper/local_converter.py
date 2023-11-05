@@ -3,12 +3,12 @@ from typing import Dict, Tuple
 
 from types_ import Config, Secrets
 
-from .abstract import Helper
+from .base_converter import TemplateConverter
 
 
 # TODO:
 # - implement
-class LocalSetupHelper(Helper):
+class LocalConverter(TemplateConverter):
     def __init__(self, config: Config, secrets: Secrets):
         self.config = config
         self.secrets = secrets

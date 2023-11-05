@@ -70,7 +70,9 @@ async def test_setup_helper_azure(mock_fs, setup_container, test_setup_dir):
         }
     )
     setup_helper = setup_container.setup_helper()
-    list(setup_helper.helpers.values())[0].setup_path = test_setup_dir + "/azure"
+    list(setup_helper.template_converters.values())[0].setup_path = (
+        test_setup_dir + "/azure"
+    )
     await setup_helper.convert_templates()
 
     assert os.path.exists(test_setup_dir + "/azure/data/checker.sh")
@@ -125,7 +127,9 @@ async def test_setup_helper_hetzner(mock_fs, setup_container, test_setup_dir):
         }
     )
     setup_helper = setup_container.setup_helper()
-    list(setup_helper.helpers.values())[1].setup_path = test_setup_dir + "/hetzner"
+    list(setup_helper.template_converters.values())[1].setup_path = (
+        test_setup_dir + "/hetzner"
+    )
     await setup_helper.convert_templates()
 
     assert os.path.exists(test_setup_dir + "/hetzner/data/checker.sh")
@@ -407,7 +411,7 @@ async def test_setup_destroy(mock_fs, setup_container, test_setup_dir):
     )
     setup = setup_container.setup()
     setup.setup_path = test_setup_dir + "/hetzner"
-    list(setup.setup_helper.helpers.values())[1].setup_path = (
+    list(setup.setup_helper.template_converters.values())[1].setup_path = (
         test_setup_dir + "/hetzner"
     )
 

@@ -1,8 +1,9 @@
 from typing import Dict, List, Tuple
+
+from aenum import extend_enum
 from types_ import Config, Experience, Team
 
 from .util import analyze_scoreboard_file
-
 
 TEAM_NAMES = [
     "Edible Frog",
@@ -158,7 +159,7 @@ class TeamGenerator:
             team_id_total += teams
 
         return ctf_json_teams, setup_teams
-        
+
     def _generate_ctf_team(self, id: int) -> Dict:
         name = TEAM_NAMES[id - 1] if id <= len(TEAM_NAMES) else f"Team {id}"
         new_team = {

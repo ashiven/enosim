@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, Tuple
 
 
-class Helper(ABC):
+class TemplateConverter(ABC):
     @abstractmethod
     async def convert_buildscript(self) -> None:
         pass

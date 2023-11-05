@@ -1,14 +1,15 @@
 import os
+import re
 from typing import Dict, Tuple
 
 import aiofiles
 from types_ import Config, Secrets
 
-from .abstract import Helper
+from .base_converter import TemplateConverter
 from .util import append_lines, copy_file, delete_lines, insert_after, replace_line
 
 
-class HetznerSetupHelper(Helper):
+class AzureConverter(TemplateConverter):
     def __init__(self, config: Config, secrets: Secrets):
         self.config = config
         self.secrets = secrets
@@ -46,19 +47,11 @@ class HetznerSetupHelper(Helper):
             f'ssh_private_key_path="{self.secrets.vm_secrets.ssh_private_key_path}"\n',
         )
 
-        # Insert engine private ip
-        ENGINE_PRIVATE_IP_LINE = 21
-        await replace_line(
-            f"{self.setup_path}/build.sh",
-            ENGINE_PRIVATE_IP_LINE,
-            f'engine_private_ip="10.1.{self.config.settings.teams + 2}.1"\n',
-        )
-
         # Configure ip address parsing
         lines = []
         for vulnbox_id in range(1, self.config.settings.teams + 1):
             lines.append(
-                f"vulnbox{vulnbox_id}_ip=$(grep -oP '\"vulnbox{vulnbox_id}\"\\s*=\\s*\\K[^\\s]+' ./logs/ip_addresses.log | sed 's/\"//g')\n"
+                f'vulnbox{vulnbox_id}_ip=$(grep -oP "vulnbox{vulnbox_id}\\s*=\\s*\\K[^\\s]+" ./logs/ip_addresses.log | sed \'s/"//g\')\n'
             )
         await insert_after(f"{self.setup_path}/build.sh", "engine_ip=", lines)
 
@@ -66,7 +59,7 @@ class HetznerSetupHelper(Helper):
         lines = []
         for vulnbox_id in range(1, self.config.settings.teams + 1):
             lines.append(
-                f'echo -e "Host vulnbox{vulnbox_id}\\nUser root\\nHostName ${{vulnbox{vulnbox_id}_ip}}\\nIdentityFile ${{ssh_private_key_path}}\\nStrictHostKeyChecking no\\nLocalForward 1337 ${{engine_private_ip}}:1337\\n" >>${{ssh_config}}\n'
+                f'echo -e "Host vulnbox{vulnbox_id}\\nUser groot\\nHostName ${{vulnbox{vulnbox_id}_ip}}\\nIdentityFile ${{ssh_private_key_path}}\\nStrictHostKeyChecking no\\nLocalForward 1337 ${{engine_private_ip}}:1337\\n" >>${{ssh_config}}\n'
             )
         await insert_after(f"{self.setup_path}/build.sh", 'echo -e "Host engine', lines)
 
@@ -98,10 +91,10 @@ class HetznerSetupHelper(Helper):
                 f'\necho -e "\\n\\033[32m[+] Configuring vulnbox{vulnbox_id} ...\\033[0m"\n'
             )
             lines.append(
-                f"retry scp -F ${{ssh_config}} ./data/vulnbox.sh vulnbox{vulnbox_id}:/root/vulnbox.sh\n"
+                f"retry scp -F ${{ssh_config}} ./data/vulnbox.sh vulnbox{vulnbox_id}:/home/groot/vulnbox.sh\n"
             )
             lines.append(
-                f"retry scp -F ${{ssh_config}} ./config/services.txt vulnbox{vulnbox_id}:/root/services.txt\n"
+                f"retry scp -F ${{ssh_config}} ./config/services.txt vulnbox{vulnbox_id}:/home/groot/services.txt\n"
             )
             lines.append(
                 f'retry ssh -F ${{ssh_config}} vulnbox{vulnbox_id} "chmod +x vulnbox.sh && ./vulnbox.sh" > ./logs/vulnbox{vulnbox_id}_config.log 2>&1 &\n'
@@ -129,119 +122,113 @@ class HetznerSetupHelper(Helper):
             f"{self.setup_path}/outputs.tf",
         )
 
-        # Add hetzner api token to versions.tf
-        TF_LINE_HETZNER_API_TOKEN = 10
+        # Add service principal credentials to versions.tf
+        TF_SUBSCRIPTION_ID_LINE = 11
+        TF_CLIENT_ID_LINE = 12
+        TF_CLIENT_SECRET_LINE = 13
+        TF_TENANT_ID_LINE = 14
         await replace_line(
             f"{self.setup_path}/versions.tf",
-            TF_LINE_HETZNER_API_TOKEN,
-            f'  token = "{self.secrets.cloud_secrets.hetzner_api_token}"\n',
+            TF_SUBSCRIPTION_ID_LINE,
+            f"  subscription_id = \"{self.secrets.cloud_secrets.azure_service_principal['subscription-id']}\"\n",
+        )
+        await replace_line(
+            f"{self.setup_path}/versions.tf",
+            TF_CLIENT_ID_LINE,
+            f"  client_id       = \"{self.secrets.cloud_secrets.azure_service_principal['client-id']}\"\n",
+        )
+        await replace_line(
+            f"{self.setup_path}/versions.tf",
+            TF_CLIENT_SECRET_LINE,
+            f"  client_secret   = \"{self.secrets.cloud_secrets.azure_service_principal['client-secret']}\"\n",
+        )
+        await replace_line(
+            f"{self.setup_path}/versions.tf",
+            TF_TENANT_ID_LINE,
+            f"  tenant_id       = \"{self.secrets.cloud_secrets.azure_service_principal['tenant-id']}\"\n",
         )
 
         # Configure ssh key path in main.tf
-        TF_LINE_SSH_KEY_PATH = 2
+        TF_LINE_SSH_KEY_PATH = 60
         await replace_line(
             f"{self.setup_path}/main.tf",
             TF_LINE_SSH_KEY_PATH,
-            f'  public_key = file("{self.secrets.vm_secrets.ssh_public_key_path}")\n',
+            f'    public_key = file("{self.secrets.vm_secrets.ssh_public_key_path}")\n',
         )
 
-        # Add subnet resources to main.tf
-        lines = []
-        lines.append(
-            f'resource "hcloud_network_subnet" "snet" {{\n'
-            f"  count = {self.config.settings.teams + 2}\n"
-            '  type = "cloud"\n'
-            + "  network_id = hcloud_network.vnet.id\n"
-            + '  network_zone = "eu-central"\n'
-            + f'  ip_range = "10.1.${{count.index + 1}}.0/24"\n'
-            + "}\n"
-        )
-        await insert_after(
-            f"{self.setup_path}/main.tf", "############# Subnets #############", lines
-        )
-
-        # Add vm resources to main.tf
-        lines = []
-        lines.append(
-            'resource "hcloud_server" "checker_vm" {\n'
-            '  name = "checker"\n'
-            + f'  server_type = "{self.config.setup.vm_sizes["checker"]}"\n'
-            + '  image = "ubuntu-20.04"\n'
-            + '  location = "nbg1"\n'
-            + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
-            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config.settings.teams + 1}.1"\n  }}\n'
-            + "  public_net {\n    ipv4_enabled = true\n    ipv6_enabled = false\n  }\n"
-            + f"  depends_on = [\n    hcloud_network_subnet.snet\n  ]\n"
-            + "}\n"
-        )
-        lines.append(
-            'resource "hcloud_server" "engine_vm" {\n'
-            '  name = "engine"\n'
-            + f'  server_type = "{self.config.setup.vm_sizes["engine"]}"\n'
-            + '  image = "ubuntu-20.04"\n'
-            + '  location = "nbg1"\n'
-            + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
-            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.{self.config.settings.teams + 2}.1"\n  }}\n'
-            + "  public_net {\n    ipv4_enabled = true\n    ipv6_enabled = false\n  }\n"
-            + f"  depends_on = [\n    hcloud_network_subnet.snet\n  ]\n"
-            + "}\n"
-        )
-        lines.append(
-            'resource "hcloud_server" "vulnbox_vm" {\n'
-            f"  count = {self.config.settings.teams}\n"
-            f'  name = "vulnbox${{count.index + 1}}"\n'
-            + f'  server_type = "{self.config.setup.vm_sizes["vulnbox"]}"\n'
-            + '  image = "ubuntu-20.04"\n'
-            + '  location = "nbg1"\n'
-            + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
-            + f'  network {{\n    network_id = hcloud_network.vnet.id\n    ip = "10.1.${{count.index + 1}}.1"\n  }}\n'
-            + "  public_net {\n    ipv4_enabled = true\n    ipv6_enabled = false\n  }\n"
-            + f"  depends_on = [\n    hcloud_network_subnet.snet\n  ]\n"
-            + "}\n"
-        )
-        await insert_after(
-            f"{self.setup_path}/main.tf", "############# VMs #############", lines
-        )
-
-        # Include vm image references in variables.tf
+        # Configure vm image references in main.tf
+        TF_LINE_SOURCE_IMAGE = 68
         if self.use_vm_images:
-            lines = []
-            lines.append(
-                'data "hcloud_image" "engine" {\n'
-                + f'  with_selector = "name={self.config.setup.vm_image_references["engine"]}"\n'
-                + "}\n"
+            await replace_line(
+                f"{self.setup_path}/main.tf",
+                TF_LINE_SOURCE_IMAGE,
+                "  source_image_id = each.value.source_image_id\n",
             )
-            lines.append(
-                'data "hcloud_image" "checker" {\n'
-                + f'  with_selector = "name={self.config.setup.vm_image_references["checker"]}"\n'
-                + "}\n"
+            await delete_lines(
+                f"{self.setup_path}/main.tf",
+                [
+                    line
+                    for line in range(
+                        TF_LINE_SOURCE_IMAGE + 1, TF_LINE_SOURCE_IMAGE + 6
+                    )
+                ],
             )
-            lines.append(
-                'data "hcloud_image" "vulnbox" {\n'
-                + f'  with_selector = "name={self.config.setup.vm_image_references["vulnbox"]}"\n'
-                + "}\n"
-            )
-            await append_lines(f"{self.setup_path}/variables.tf", lines)
 
-            # Configure vm image references in main.tf
-            TF_LINE_CHECKER_IMAGE = 23
-            TF_LINE_ENGINE_IMAGE = 43
-            TF_LINE_VULNBOX_IMAGE = 64
-            await replace_line(
-                f"{self.setup_path}/main.tf",
-                TF_LINE_CHECKER_IMAGE,
-                "  image = data.hcloud_image.checker.id\n",
+        # Configure vulnbox count in variables.tf
+        TF_LINE_COUNT = 2
+        await replace_line(
+            f"{self.setup_path}/variables.tf",
+            TF_LINE_COUNT,
+            f"  default = {self.config.settings.teams}\n",
+        )
+
+        # Configure vm image references in variables.tf
+        sub_id = self.secrets.cloud_secrets.azure_service_principal["subscription-id"]
+        basepath = f"/subscriptions/{sub_id}/resourceGroups/vm-images/providers/Microsoft.Compute/images"
+        await insert_after(
+            f"{self.setup_path}/variables.tf",
+            "    name = string",
+            "    subnet_id = number\n"
+            + "    size = string\n"
+            + "    source_image_id = string\n"
+            if self.use_vm_images
+            else "",
+        )
+        await insert_after(
+            f"{self.setup_path}/variables.tf",
+            '      name = "engine"',
+            f"      subnet_id = {self.config.settings.teams + 2}\n"
+            + f'      size = "{self.config.setup.vm_sizes["engine"]}"\n'
+            + f'      source_image_id = "{basepath}/{self.config.setup.vm_image_references["engine"]}"\n'
+            if self.use_vm_images
+            else "",
+        )
+        await insert_after(
+            f"{self.setup_path}/variables.tf",
+            '      name = "checker"',
+            f"      subnet_id = {self.config.settings.teams + 1}\n"
+            + f'      size = "{self.config.setup.vm_sizes["checker"]}"\n'
+            + f'      source_image_id = "{basepath}/{self.config.setup.vm_image_references["checker"]}"\n'
+            if self.use_vm_images
+            else "",
+        )
+        await insert_after(
+            f"{self.setup_path}/variables.tf",
+            '        name = "vulnbox${vulnbox_id}"',
+            f"        subnet_id = vulnbox_id\n"
+            + f'        size = "{self.config.setup.vm_sizes["vulnbox"]}"\n'
+            + f'        source_image_id = "{basepath}/{self.config.setup.vm_image_references["vulnbox"]}"\n'
+            if self.use_vm_images
+            else "",
+        )
+
+        # Add terraform outputs for private and public ip addresses
+        lines = []
+        for vulnbox_id in range(1, self.config.settings.teams + 1):
+            lines.append(
+                f'output "vulnbox{vulnbox_id}" {{\n  value = azurerm_public_ip.vm_pip["vulnbox{vulnbox_id}"].ip_address\n}}\n'
             )
-            await replace_line(
-                f"{self.setup_path}/main.tf",
-                TF_LINE_ENGINE_IMAGE,
-                "  image = data.hcloud_image.engine.id\n",
-            )
-            await replace_line(
-                f"{self.setup_path}/main.tf",
-                TF_LINE_VULNBOX_IMAGE,
-                "  image = data.hcloud_image.vulnbox.id\n",
-            )
+        await append_lines(f"{self.setup_path}/outputs.tf", lines)
 
     async def convert_vm_scripts(self) -> None:
         # Copy vm script templates for configuration
@@ -318,26 +305,25 @@ class HetznerSetupHelper(Helper):
             )
 
     async def get_ip_addresses(self) -> Tuple[Dict, Dict]:
-        # Parse public ip addresses from ip_addresses.log
+        # Parse ip addresses from ip_addresses.log
         ip_addresses = dict()
         async with aiofiles.open(
             f"{self.setup_path}/logs/ip_addresses.log",
             "r",
         ) as ip_file:
             lines = await ip_file.readlines()
-            for line in lines:
-                if line.startswith("vulnbox") or line.startswith("}"):
-                    continue
-                parts = line.split("=")
-                key = parts[0].strip().replace('"', "")
-                value = parts[1].strip().replace('"', "")
-                ip_addresses[key] = value
-
-        # Set private ip addresses
-        private_ip_addresses = dict()
-        for vulnbox_id in range(1, self.config.settings.teams + 1):
-            private_ip_addresses[f"vulnbox{vulnbox_id}"] = f"10.1.{vulnbox_id}.1"
-        private_ip_addresses["checker"] = f"10.1.{self.config.settings.teams + 1}.1"
-        private_ip_addresses["engine"] = f"10.1.{self.config.settings.teams + 2}.1"
-
+            pattern = r"(\w+)\s*=\s*(.+)"
+            for index, line in enumerate(lines):
+                m = re.match(pattern, line)
+                if m:
+                    key = m.group(1)
+                    value = m.group(2).strip().replace('"', "")
+                    if key == "private_ip_addresses":
+                        while "}" not in value:
+                            line = lines.pop(index + 1)
+                            value += line.strip().replace("=", ":") + ", "
+                        value = value[:-2]
+                        private_ip_addresses = eval(value)
+                    else:
+                        ip_addresses[key] = value
         return ip_addresses, private_ip_addresses
