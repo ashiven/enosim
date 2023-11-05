@@ -1,1 +1,2 @@
-from .setup_helper import SetupHelper, TeamGenerator
+from .setup_helper import SetupHelper
+from .team_generator import TeamGenerator
