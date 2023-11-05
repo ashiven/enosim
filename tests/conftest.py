@@ -118,7 +118,7 @@ def simulation_container():
             name="TestTeam1",
             team_subnet="::ffff:10.1.1.0",
             address="10.1.1.1",
-            experience=Experience.NOOB,
+            experience=Experience.TEST_NOOB,
             exploiting={
                 "CVExchange": {
                     "Flagstore0": True,
@@ -141,7 +141,7 @@ def simulation_container():
             name="TestTeam2",
             team_subnet="::ffff:10.1.2.0",
             address="10.1.2.1",
-            experience=Experience.BEGINNER,
+            experience=Experience.TEST_BEGINNER,
             exploiting={
                 "CVExchange": {
                     "Flagstore0": False,
@@ -164,7 +164,7 @@ def simulation_container():
             name="TestTeam3",
             team_subnet="::ffff:10.1.3.0",
             address="10.1.3.1",
-            experience=Experience.PRO,
+            experience=Experience.TEST_PRO,
             exploiting={
                 "CVExchange": {
                     "Flagstore0": False,

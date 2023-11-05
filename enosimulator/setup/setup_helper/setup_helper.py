@@ -153,8 +153,11 @@ class TeamGenerator:
         experience_distribution = analyze_scoreboard_file(
             config.settings.scoreboard_file
         )
-        for experience, distribution in experience_distribution.items():
-            extend_enum(Experience, experience, distribution)
+        try:
+            for experience, distribution in experience_distribution.items():
+                extend_enum(Experience, experience, distribution)
+        except:
+            pass
 
         self.config = config
         if self.config.settings.simulation_type == "basic-stress-test":

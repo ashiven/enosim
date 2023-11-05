@@ -30,15 +30,19 @@ class Experience(Enum):
     The first value stands for the probability of the team exploiting / patching a vulnerability in any round.
     The second value stands for their prevalence in real ctf competitions.
 
-    The commented values will be added in via the extend_enum function in the TeamGenerator class.
+    The variants prefixed with TEST_ are used for testing purposes only.
+
+    The production values for variants prefixed with TEST_ will be added via the extend_enum function in the TeamGenerator class.
     Their values are determined by analysing a given scoreboard.json file.
+
+    The values for the HAXXOR variant are not subject to change.
     """
 
-    # NOOB = (0.015, 0.08)
-    # BEGINNER = (0.04, 0.54)
-    # INTERMEDIATE = (0.06, 0.29)
-    # ADVANCED = (0.09, 0.07)
-    # PRO = (0.12, 0.02)
+    TEST_NOOB = (0.015, 0.08)
+    TEST_BEGINNER = (0.04, 0.54)
+    TEST_INTERMEDIATE = (0.06, 0.29)
+    TEST_ADVANCED = (0.09, 0.07)
+    TEST_PRO = (0.12, 0.02)
     HAXXOR = (1, 1)
 
     __str__ = lambda self: self.name.lower().capitalize()
