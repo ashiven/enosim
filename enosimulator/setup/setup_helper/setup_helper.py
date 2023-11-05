@@ -113,41 +113,6 @@ TEAM_NAMES = [
 ]
 
 
-#### Helpers ####
-
-
-def _generate_ctf_team(id: int) -> Dict:
-    name = TEAM_NAMES[id - 1] if id <= len(TEAM_NAMES) else f"Team {id}"
-    new_team = {
-        "id": id,
-        "name": name,
-        "teamSubnet": "::ffff:<placeholder>",
-        "address": "<placeholder>",
-    }
-    return new_team
-
-
-def _generate_setup_team(id: int, experience: Experience) -> Dict[str, Team]:
-    name = TEAM_NAMES[id - 1] if id <= len(TEAM_NAMES) else f"Team {id}"
-    new_team = {
-        TEAM_NAMES[id - 1]: Team(
-            id=id,
-            name=name,
-            team_subnet="::ffff:<placeholder>",
-            address="<placeholder>",
-            experience=experience,
-            exploiting=dict(),
-            patched=dict(),
-            points=0.0,
-            gain=0.0,
-        )
-    }
-    return new_team
-
-
-#### End Helpers ####
-
-
 class TeamGenerator:
     def __init__(self, config: Config):
         experience_distribution = analyze_scoreboard_file(
@@ -190,13 +155,40 @@ class TeamGenerator:
 
         for experience, teams in self.team_distribution.items():
             for team_id in range(1, teams + 1):
-                ctf_json_teams.append(_generate_ctf_team(team_id_total + team_id))
+                ctf_json_teams.append(self._generate_ctf_team(team_id_total + team_id))
                 setup_teams.update(
-                    _generate_setup_team(team_id_total + team_id, experience)
+                    self._generate_setup_team(team_id_total + team_id, experience)
                 )
             team_id_total += teams
 
         return ctf_json_teams, setup_teams
+        
+    def _generate_ctf_team(self, id: int) -> Dict:
+        name = TEAM_NAMES[id - 1] if id <= len(TEAM_NAMES) else f"Team {id}"
+        new_team = {
+            "id": id,
+            "name": name,
+            "teamSubnet": "::ffff:<placeholder>",
+            "address": "<placeholder>",
+        }
+        return new_team
+
+    def _generate_setup_team(self, id: int, experience: Experience) -> Dict[str, Team]:
+        name = TEAM_NAMES[id - 1] if id <= len(TEAM_NAMES) else f"Team {id}"
+        new_team = {
+            TEAM_NAMES[id - 1]: Team(
+                id=id,
+                name=name,
+                team_subnet="::ffff:<placeholder>",
+                address="<placeholder>",
+                experience=experience,
+                exploiting=dict(),
+                patched=dict(),
+                points=0.0,
+                gain=0.0,
+            )
+        }
+        return new_team
 
 
 class SetupHelper:
