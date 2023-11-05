@@ -155,7 +155,8 @@ There are two configuration files that need to be supplied before launching the 
       "teams": "<int> <required> <the number of teams that should participate in the simulation>",
       "services": "<List(string)> <required> <the repository names of the services that should be used for the simulation>",
       "checker-ports": "<List(int)> <required> <the port numbers of the service checkers. the order should be the same as in services>",
-      "simulation-type": "<string> <required> <the type of simulation to run. choose between 'realistic' and 'stress-test'>"
+      "simulation-type": "<string> <required> <the type of simulation to run. choose between 'realistic' and 'stress-test'>",
+      "scoreboard-file": "<string> <optional> <the path to a scoreboard file in json format from a past competition that will be used to derive a team experience distribution for the simulation>"
    },
    "ctf-json": {
       "title": "<string> <required> <the title of the ctf>",

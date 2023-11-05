@@ -39,6 +39,7 @@ config = {
         ],
         "checker-ports": [7331, 6008],
         "simulation-type": "stress-test",
+        "scoreboard-file": "",
     },
     "ctf-json": {
         "title": "ctf-sim",

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
-from enum import Enum
 from typing import Dict, List
+
+from aenum import Enum
 
 ############## Enums ##############
 
@@ -28,13 +29,16 @@ class Experience(Enum):
 
     The first value stands for the probability of the team exploiting / patching a vulnerability in any round.
     The second value stands for their prevalence in real ctf competitions.
+
+    The commented values will be added in via the extend_enum function in the TeamGenerator class.
+    Their values are determined by analysing a given scoreboard.json file.
     """
 
-    NOOB = (0.015, 0.08)
-    BEGINNER = (0.04, 0.54)
-    INTERMEDIATE = (0.06, 0.29)
-    ADVANCED = (0.09, 0.07)
-    PRO = (0.12, 0.02)
+    # NOOB = (0.015, 0.08)
+    # BEGINNER = (0.04, 0.54)
+    # INTERMEDIATE = (0.06, 0.29)
+    # ADVANCED = (0.09, 0.07)
+    # PRO = (0.12, 0.02)
     HAXXOR = (1, 1)
 
     __str__ = lambda self: self.name.lower().capitalize()
@@ -166,6 +170,7 @@ class ConfigSettings:
     services: List[str]
     checker_ports: List[int]
     simulation_type: str
+    scoreboard_file: str
 
     @staticmethod
     def from_(settings):
@@ -192,12 +197,16 @@ class ConfigSettings:
         if not type(settings["checker-ports"]) is list:
             raise ValueError("Invalid checker ports in config file.")
 
+        if not type(settings["scoreboard-file"]) is str:
+            raise ValueError("Invalid checker ports in config file.")
+
         new_settings = ConfigSettings(
             duration_in_minutes=settings["duration-in-minutes"],
             teams=settings["teams"],
             services=settings["services"],
             checker_ports=settings["checker-ports"],
             simulation_type=settings["simulation-type"],
+            scoreboard_file=settings["scoreboard-file"],
         )
         return new_settings
 

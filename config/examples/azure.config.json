@@ -18,7 +18,8 @@
       "teams": 5,
       "services": ["enowars7-service-CVExchange"],
       "checker-ports": [7331],
-      "simulation-type": "realistic"
+      "simulation-type": "realistic",
+      "scoreboard-file": ""
    },
    "ctf-json": {
       "title": "ctf-sim",

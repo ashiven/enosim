@@ -1,10 +1,12 @@
 from typing import Dict, List, Tuple
 
+from aenum import extend_enum
 from types_ import Config, Experience, Secrets, SetupVariant, Team
 
 from .azure import AzureSetupHelper
 from .hetzner import HetznerSetupHelper
 from .local import LocalSetupHelper
+from .util import analyze_scoreboard_file
 
 TEAM_NAMES = [
     "Edible Frog",
@@ -148,6 +150,12 @@ def _generate_setup_team(id: int, experience: Experience) -> Dict[str, Team]:
 
 class TeamGenerator:
     def __init__(self, config: Config):
+        experience_distribution = analyze_scoreboard_file(
+            config.settings.scoreboard_file
+        )
+        for experience, distribution in experience_distribution.items():
+            extend_enum(Experience, experience, distribution)
+
         self.config = config
         if self.config.settings.simulation_type == "basic-stress-test":
             self.team_distribution = {Experience.HAXXOR: 1}
@@ -166,10 +174,11 @@ class TeamGenerator:
                     Experience.PRO,
                 ]
             }
+
             while sum(self.team_distribution.values()) < self.config.settings.teams:
-                self.team_distribution[Experience.BEGINNER] += 1
+                self.team_distribution[Experience.NOOB] += 1
             while sum(self.team_distribution.values()) > self.config.settings.teams:
-                self.team_distribution[Experience.BEGINNER] -= 1
+                self.team_distribution[Experience.NOOB] -= 1
 
     def generate(self) -> Tuple[List, Dict]:
         ctf_json_teams = []
