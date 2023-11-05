@@ -1,6 +1,8 @@
+from typing import Dict, List, Tuple
+from types_ import Config, Experience
+
 from .util import analyze_scoreboard_file
 
-from types_ import Config, Experience
 
 TEAM_NAMES = [
     "Edible Frog",
