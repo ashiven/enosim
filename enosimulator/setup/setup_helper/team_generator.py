@@ -1,5 +1,5 @@
 from typing import Dict, List, Tuple
-from types_ import Config, Experience
+from types_ import Config, Experience, Team
 
 from .util import analyze_scoreboard_file
 
