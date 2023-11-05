@@ -147,7 +147,7 @@ class Simulation:
         random_value = random.random()
         return random_value < probability
 
-    def _exploit_or_patch(self, team: Team) -> Tuple[str, str, str]:
+    def _choose_random(self, team: Team) -> Tuple[str, str, str]:
         try:
             random_variant = random.choice(["exploiting", "patched"])
             if random_variant == "exploiting":
@@ -206,7 +206,8 @@ class Simulation:
             async with async_lock(self.locks["team"]):
                 for team_name, team in self.setup.teams.items():
                     if self._random_test(team):
-                        variant, service, flagstore = self._exploit_or_patch(team)
+                        random_choice = self._choose_random(team)
+                        variant, service, flagstore = random_choice
                         info_message = self._update_team(
                             team_name, variant, service, flagstore
                         )
