@@ -255,6 +255,7 @@ class Orchestrator:
                 self.console.log(exploit_request)
 
             try:
+                # TODO: - do the following in an async task group for more performance
                 r = await self.client.post(
                     exploit_checker_address,
                     data=req_to_json(exploit_request),
