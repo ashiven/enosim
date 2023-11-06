@@ -125,7 +125,10 @@ class TeamGenerator:
         if self.config.settings.simulation_type == "basic-stress-test":
             self.team_distribution = {Experience.HAXXOR: 1}
 
-        elif self.config.settings.simulation_type == "stress-test":
+        elif self.config.settings.simulation_type in (
+            "stress-test",
+            "intensive-stress-test",
+        ):
             self.team_distribution = {Experience.HAXXOR: self.config.settings.teams}
 
         else:

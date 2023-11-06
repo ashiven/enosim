@@ -374,7 +374,7 @@ async def test_orchestrator_send_exploit_requests(simulation_container):
     orchestrator.service_info = service_info
 
     exploit_requests = {
-        ("TestTeam2", "CVExchange", "Flagstore0"): CheckerTaskMessage(
+        ("TestTeam2", "CVExchange", "Flagstore0", "12"): CheckerTaskMessage(
             task_id=10,
             method=CheckerMethod.EXPLOIT,
             address="10.1.2.1",
@@ -391,7 +391,7 @@ async def test_orchestrator_send_exploit_requests(simulation_container):
             flag_hash="ignore_flag_hash",
             attack_info="12",
         ),
-        ("TestTeam2", "CVExchange", "Flagstore1"): CheckerTaskMessage(
+        ("TestTeam2", "CVExchange", "Flagstore1", "13"): CheckerTaskMessage(
             task_id=10,
             method=CheckerMethod.EXPLOIT,
             address="10.1.2.1",
@@ -419,13 +419,17 @@ async def test_orchestrator_send_exploit_requests(simulation_container):
     assert mock_client.post.call_count == 2
     mock_client.post.assert_any_call(
         "http://234.123.12.32:7331",
-        data=req_to_json(exploit_requests[("TestTeam2", "CVExchange", "Flagstore0")]),
+        data=req_to_json(
+            exploit_requests[("TestTeam2", "CVExchange", "Flagstore0", "12")]
+        ),
         headers={"Content-Type": "application/json"},
         timeout=10,
     )
     mock_client.post.assert_any_call(
         "http://234.123.12.32:7331",
-        data=req_to_json(exploit_requests[("TestTeam2", "CVExchange", "Flagstore1")]),
+        data=req_to_json(
+            exploit_requests[("TestTeam2", "CVExchange", "Flagstore1", "13")]
+        ),
         headers={"Content-Type": "application/json"},
         timeout=10,
     )

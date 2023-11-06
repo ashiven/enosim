@@ -203,32 +203,34 @@ class Orchestrator:
                             or other_team.address == team.address
                         ):
                             continue
+
                         try:
-                            attack_info = ",".join(
-                                self.attack_info["services"][
-                                    self.service_info[service][1]
-                                ][other_team.address][str(round_id)][str(flagstore_id)]
-                            )
+                            service_name = self.service_info[service][1]
+                            attack_info = self.attack_info["services"][service_name][
+                                other_team.address
+                            ][str(round_id)][str(flagstore_id)]
                         except:
                             attack_info = None
 
-                        exploit_request = checker_request(
-                            method="exploit",
-                            round_id=round_id,
-                            team_id=other_team.id,
-                            team_name=other_team.name,
-                            variant_id=flagstore_id,
-                            service_address=other_team.address,
-                            flag_regex=FLAG_REGEX_ASCII,
-                            flag=None,
-                            flag_hash=FLAG_HASH,
-                            unique_variant_index=None,
-                            attack_info=attack_info,
-                        )
+                        if attack_info:
+                            for info in attack_info:
+                                exploit_request = checker_request(
+                                    method="exploit",
+                                    round_id=round_id,
+                                    team_id=other_team.id,
+                                    team_name=other_team.name,
+                                    variant_id=flagstore_id,
+                                    service_address=other_team.address,
+                                    flag_regex=FLAG_REGEX_ASCII,
+                                    flag=None,
+                                    flag_hash=FLAG_HASH,
+                                    unique_variant_index=None,
+                                    attack_info=info,
+                                )
 
-                        exploit_requests[
-                            other_team.name, service, flagstore
-                        ] = exploit_request
+                                exploit_requests[
+                                    other_team.name, service, flagstore, info
+                                ] = exploit_request
 
         return exploit_requests
 
@@ -237,7 +239,7 @@ class Orchestrator:
     ) -> List[str]:
         flags = []
         for (
-            (team_name, service, flagstore),
+            (team_name, service, flagstore, _info),
             exploit_request,
         ) in exploit_requests.items():
             exploit_checker_ip = self.private_to_public_ip[team.address]

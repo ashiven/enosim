@@ -282,9 +282,13 @@ class Setup:
             "name": service,
             "flagsPerRoundMultiplier": 30
             if simulation_type == "basic-stress-test"
+            else 10
+            if simulation_type == "intensive-stress-test"
             else 1,
             "noisesPerRoundMultiplier": 30
             if simulation_type == "basic-stress-test"
+            else 10
+            if simulation_type == "intensive-stress-test"
             else 1,
             "havocsPerRoundMultiplier": 1,
             "weightFactor": 1,

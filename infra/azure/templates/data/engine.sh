@@ -69,7 +69,7 @@ if [ -f "./docker-compose.yml" ]; then
 fi
 
 # Start the engine
-echo -e "\033[32m[+] Starting EnoEngine...\033[0m"
+echo -e "\033[32m[+] Starting EnoEngine ...\033[0m"
 cd EnoEngine
 retry sudo dotnet build
 retry sudo docker compose up -d

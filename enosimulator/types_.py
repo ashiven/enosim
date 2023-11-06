@@ -183,6 +183,7 @@ class ConfigSettings:
         if settings["simulation-type"] not in [
             "stress-test",
             "basic-stress-test",
+            "intensive-stress-test",
             "realistic",
         ]:
             raise ValueError("Invalid simulation type in config file.")
