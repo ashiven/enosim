@@ -19,6 +19,7 @@ def get_args() -> argparse.Namespace:
     Returns:
         argparse.Namespace: The parsed command line arguments
     """
+
     dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
 
     parser = argparse.ArgumentParser(

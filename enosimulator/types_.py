@@ -65,6 +65,7 @@ class Experience(Enum):
     @staticmethod
     def from_str(s):
         """Turns a string into an Experience enum."""
+
         if s == "noob":
             return Experience.NOOB
         elif s == "beginner":
@@ -102,6 +103,7 @@ class Team:
         """Returns a json representation of the team which is used to generate responses
         in the backend.
         """
+
         new_dict = {
             "id": self.id,
             "name": self.name,
@@ -132,6 +134,7 @@ class Service:
         """Returns a json representation of the service which is used to generate
         responses in the backend.
         """
+
         new_dict = {
             "id": self.id,
             "name": self.name,
@@ -320,6 +323,7 @@ class Config:
         The Config object consists of a ConfigSetup, a ConfigSettings and a
         ConfigCtfJson object.
         """
+
         try:
             new_config = Config(
                 setup=ConfigSetup.from_(config["setup"]),
@@ -347,6 +351,7 @@ class VmSecrets:
 
         Also checks if the values in the dictionary are valid secrets values.
         """
+
         if not type(vm_secrets["github-personal-access-token"]) is str:
             raise ValueError("Invalid github personal access token in secrets file.")
 
@@ -378,6 +383,7 @@ class CloudSecrets:
 
         Also checks if the values in the dictionary are valid secrets values.
         """
+
         if not type(cloud_secrets["azure-service-principal"]) is dict:
             raise ValueError("Invalid azure service principal in secrets file.")
 

@@ -55,6 +55,7 @@ class Services(Resource):
     @classmethod
     def create_api(cls, services, service_lock):
         """Creates the API endpoint."""
+
         cls.services = services
         cls.service_lock = service_lock
         return cls
@@ -130,11 +131,13 @@ class VMList(Resource):
 
     def get(self):
         """Generates the response for the API endpoint."""
+
         return self.response
 
     @classmethod
     def create_api(cls, response):
         """Creates the API endpoint."""
+
         cls.response = response
         return cls
 
@@ -151,6 +154,7 @@ class Containers(Resource):
 
     def get(self):
         """Generates the response for the API endpoint."""
+
         container_name = request.args.get("name")
 
         if container_name:
@@ -169,6 +173,7 @@ class Containers(Resource):
 
     def post(self):
         """Stores the container information in the database."""
+
         data = request.get_json()
         if not data:
             return {"message": "Invalid JSON"}, 400
@@ -189,6 +194,7 @@ class Containers(Resource):
     @classmethod
     def create_api(cls):
         """Creates the API endpoint."""
+
         return cls
 
 
@@ -201,6 +207,7 @@ class ContainerList(Resource):
 
     def get(self):
         """Generates the response for the API endpoint."""
+
         with FlaskApp.get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT DISTINCT name FROM containerinfo")
@@ -211,6 +218,7 @@ class ContainerList(Resource):
     @classmethod
     def create_api(cls):
         """Creates the API endpoint."""
+
         return cls
 
 
@@ -226,6 +234,7 @@ class RoundInfo(Resource):
 
     def get(self):
         """Generates the response for the API endpoint."""
+
         with self.round_info_lock:
             return {
                 "round_id": self.simulation.round_id,
@@ -238,6 +247,7 @@ class RoundInfo(Resource):
     @classmethod
     def create_api(cls, simulation, round_info_lock):
         """Creates the API endpoint."""
+
         cls.simulation = simulation
         cls.round_info_lock = round_info_lock
         return cls
@@ -280,12 +290,14 @@ class FlaskApp:
 
     def run(self) -> None:
         """Starts the Flask server."""
+
         log = logging.getLogger("werkzeug")
         log.setLevel(logging.ERROR)
         self.app.run(host="0.0.0.0", debug=False)
 
     def init_db(self) -> None:
         """Initializes the database."""
+
         connection = sqlite3.connect("database.db")
 
         with open(f"{self.path}/schema.sql") as f:
@@ -297,6 +309,7 @@ class FlaskApp:
     @staticmethod
     def get_db_connection() -> sqlite3.Connection:
         """Returns a connection to the database."""
+
         connection = sqlite3.connect("database.db")
         connection.row_factory = sqlite3.Row
         return connection
@@ -305,6 +318,7 @@ class FlaskApp:
     @retry(stop=stop_after_attempt(10))
     def db_insert_values(table_name, data) -> Tuple[str, Tuple]:
         """Inserts values into the database."""
+
         value_names = ",".join(data.keys())
         value_placeholders = ",".join(["?" for _ in data.keys()])
 
@@ -321,5 +335,6 @@ class FlaskApp:
 
     def delete_db(self) -> None:
         """Deletes the database."""
+
         if os.path.exists("database.db"):
             os.remove("database.db")
