@@ -113,6 +113,113 @@ class Setup:
                     f"{'sh' if sys.platform == 'win32' else 'bash'} {self.setup_path}/build.sh"
                 )
 
+        with open(f"{self.setup_path}/logs/ip_addresses.log", "w") as ip_log_file:
+            ip_log_file.write(
+                "vulnbox_public_ips = {\n"
+                + '  "vulnbox1" = "234.123.12.32"\n'
+                + '  "vulnbox2" = "234.231.12.32"\n'
+                + '  "vulnbox3" = "234.231.12.32"\n'
+                + '  "vulnbox4" = "234.231.12.32"\n'
+                + '  "vulnbox5" = "234.231.12.32"\n'
+                + '  "vulnbox6" = "234.231.12.32"\n'
+                + '  "vulnbox7" = "234.231.12.32"\n'
+                + '  "vulnbox8" = "234.231.12.32"\n'
+                + '  "vulnbox9" = "234.231.12.32"\n'
+                + '  "vulnbox10" = "234.231.12.32"\n'
+                + '  "vulnbox11" = "234.231.12.32"\n'
+                + '  "vulnbox12" = "234.231.12.32"\n'
+                + '  "vulnbox13" = "234.231.12.32"\n'
+                + '  "vulnbox14" = "234.231.12.32"\n'
+                + '  "vulnbox15" = "234.231.12.32"\n'
+                + '  "vulnbox16" = "234.231.12.32"\n'
+                + '  "vulnbox17" = "234.231.12.32"\n'
+                + '  "vulnbox18" = "234.231.12.32"\n'
+                + '  "vulnbox19" = "234.231.12.32"\n'
+                + '  "vulnbox20" = "234.231.12.32"\n'
+                + '  "vulnbox21" = "234.231.12.32"\n'
+                + '  "vulnbox22" = "234.231.12.32"\n'
+                + '  "vulnbox23" = "234.231.12.32"\n'
+                + '  "vulnbox24" = "234.231.12.32"\n'
+                + '  "vulnbox25" = "234.231.12.32"\n'
+                + '  "vulnbox26" = "234.231.12.32"\n'
+                + '  "vulnbox27" = "234.231.12.32"\n'
+                + '  "vulnbox28" = "234.231.12.32"\n'
+                + '  "vulnbox29" = "234.231.12.32"\n'
+                + '  "vulnbox30" = "234.231.12.32"\n'
+                + '  "vulnbox31" = "234.231.12.32"\n'
+                + '  "vulnbox32" = "234.231.12.32"\n'
+                + '  "vulnbox33" = "234.231.12.32"\n'
+                + '  "vulnbox34" = "234.231.12.32"\n'
+                + '  "vulnbox35" = "234.231.12.32"\n'
+                + '  "vulnbox36" = "234.231.12.32"\n'
+                + '  "vulnbox37" = "234.231.12.32"\n'
+                + '  "vulnbox38" = "234.231.12.32"\n'
+                + '  "vulnbox39" = "234.231.12.32"\n'
+                + '  "vulnbox40" = "234.231.12.32"\n'
+                + '  "vulnbox41" = "234.231.12.32"\n'
+                + '  "vulnbox42" = "234.231.12.32"\n'
+                + '  "vulnbox43" = "234.231.12.32"\n'
+                + '  "vulnbox44" = "234.231.12.32"\n'
+                + '  "vulnbox45" = "234.231.12.32"\n'
+                + '  "vulnbox46" = "234.231.12.32"\n'
+                + '  "vulnbox47" = "234.231.12.32"\n'
+                + '  "vulnbox48" = "234.231.12.32"\n'
+                + '  "vulnbox49" = "234.231.12.32"\n'
+                + '  "vulnbox50" = "234.231.12.32"\n'
+                + '  "vulnbox51" = "234.231.12.32"\n'
+                + '  "vulnbox52" = "234.231.12.32"\n'
+                + '  "vulnbox53" = "234.231.12.32"\n'
+                + '  "vulnbox54" = "234.231.12.32"\n'
+                + '  "vulnbox55" = "234.231.12.32"\n'
+                + '  "vulnbox56" = "234.231.12.32"\n'
+                + '  "vulnbox57" = "234.231.12.32"\n'
+                + '  "vulnbox58" = "234.231.12.32"\n'
+                + '  "vulnbox59" = "234.231.12.32"\n'
+                + '  "vulnbox60" = "234.231.12.32"\n'
+                + '  "vulnbox61" = "234.231.12.32"\n'
+                + '  "vulnbox62" = "234.231.12.32"\n'
+                + '  "vulnbox63" = "234.231.12.32"\n'
+                + '  "vulnbox64" = "234.231.12.32"\n'
+                + '  "vulnbox65" = "234.231.12.32"\n'
+                + '  "vulnbox66" = "234.231.12.32"\n'
+                + '  "vulnbox67" = "234.231.12.32"\n'
+                + '  "vulnbox68" = "234.231.12.32"\n'
+                + '  "vulnbox69" = "234.231.12.32"\n'
+                + '  "vulnbox70" = "234.231.12.32"\n'
+                + '  "vulnbox71" = "234.231.12.32"\n'
+                + '  "vulnbox72" = "234.231.12.32"\n'
+                + '  "vulnbox73" = "234.231.12.32"\n'
+                + '  "vulnbox74" = "234.231.12.32"\n'
+                + '  "vulnbox75" = "234.231.12.32"\n'
+                + '  "vulnbox76" = "234.231.12.32"\n'
+                + '  "vulnbox77" = "234.231.12.32"\n'
+                + '  "vulnbox78" = "234.231.12.32"\n'
+                + '  "vulnbox79" = "234.231.12.32"\n'
+                + '  "vulnbox80" = "234.231.12.32"\n'
+                + '  "vulnbox81" = "234.231.12.32"\n'
+                + '  "vulnbox82" = "234.231.12.32"\n'
+                + '  "vulnbox83" = "234.231.12.32"\n'
+                + '  "vulnbox84" = "234.231.12.32"\n'
+                + '  "vulnbox85" = "234.231.12.32"\n'
+                + '  "vulnbox86" = "234.231.12.32"\n'
+                + '  "vulnbox87" = "234.231.12.32"\n'
+                + '  "vulnbox88" = "234.231.12.32"\n'
+                + '  "vulnbox89" = "234.231.12.32"\n'
+                + '  "vulnbox90" = "234.231.12.32"\n'
+                + '  "vulnbox91" = "234.231.12.32"\n'
+                + '  "vulnbox92" = "234.231.12.32"\n'
+                + '  "vulnbox93" = "234.231.12.32"\n'
+                + '  "vulnbox94" = "234.231.12.32"\n'
+                + '  "vulnbox95" = "234.231.12.32"\n'
+                + '  "vulnbox96" = "234.231.12.32"\n'
+                + '  "vulnbox97" = "234.231.12.32"\n'
+                + '  "vulnbox98" = "234.231.12.32"\n'
+                + '  "vulnbox99" = "234.231.12.32"\n'
+                + '  "vulnbox100" = "234.123.32.12"\n}\n'
+                + 'checker = "123.32.32.21"\n'
+                + 'engine = "123.32.23.21"\n',
+            )
+
         # Get ip addresses from terraform output
         public_ips, private_ips = await self.setup_helper.get_ip_addresses()
         self.ips.public_ip_addresses = public_ips
@@ -145,7 +252,7 @@ class Setup:
         ) as ctf_file:
             await ctf_file.write(json.dumps(ctf_json, indent=4))
 
-        self.info()
+        # self.info()
 
     def configure_infra(self) -> None:
         """
@@ -190,10 +297,10 @@ class Setup:
         """Destroys the infrastructure and deletes all files created for this setup."""
 
         try:
-            with self.console.status("[bold red]Destroying infrastructure ..."):
-                execute_command(
-                    f"{'sh' if sys.platform == 'win32' else 'bash'} {self.setup_path}/build.sh -d"
-                )
+            # with self.console.status("[bold red]Destroying infrastructure ..."):
+            #     execute_command(
+            #         f"{'sh' if sys.platform == 'win32' else 'bash'} {self.setup_path}/build.sh -d"
+            #     )
 
             # Delete all files created for this setup
             delete_files(f"{self.setup_path}")
@@ -269,6 +376,8 @@ class Setup:
         If an infrastructure has already been built the build step is skipped.
         """
 
+        return True
+
         try:
             ip_logs_available = os.path.exists(
                 f"{self.setup_path}/logs/ip_addresses.log"
@@ -299,6 +408,8 @@ class Setup:
 
         If an infrastructure has already been configured the configure step is skipped.
         """
+
+        return True
 
         try:
             r = get(

@@ -88,35 +88,65 @@ class Simulation:
         await self.orchestrator.update_team_info()
         await self._scoreboard_available()
 
-        for round_ in range(self.total_rounds):
+        for round_ in range(440):
             async with async_lock(self.locks["round_info"]):
                 self.round_start = time()
                 self.remaining_rounds = self.total_rounds - round_
-                self.round_id = await self.orchestrator.get_round_info()
+                # self.round_id = await self.orchestrator.get_round_info()
+                self.round_id = round_
+                self.orchestrator.attack_info = {
+                    "availableTeams": ["10.1.1.1", "10.1.2.1", "10.1.3.1"],
+                    "services": {
+                        "enowars7-service-CVExchange": {
+                            "10.1.1.1": {"10": {"0": ["12"], "1": ["13"], "2": ["11"]}},
+                            "10.1.2.1": {"10": {"0": ["12"], "1": ["13"], "2": ["11"]}},
+                            "10.1.3.1": {"10": {"0": ["12"], "1": ["13"], "2": ["11"]}},
+                        },
+                        "enowars7-service-bollwerk": {
+                            "10.1.1.1": {"10": {"0": ["12"], "1": ["13"]}},
+                            "10.1.2.1": {"10": {"0": ["12"], "1": ["13"]}},
+                            "10.1.3.1": {"10": {"0": ["12"], "1": ["13"]}},
+                        },
+                    },
+                }
 
-            info_messages = await self._update_teams()
-            self.info(info_messages)
+            # info_messages = await self._update_teams()
+            # self.info(info_messages)
 
-            self.orchestrator.parse_scoreboard()
+            # self.orchestrator.parse_scoreboard()
 
             # Send out exploit tasks while collecting system analytics
             exploit_task = asyncio.get_event_loop().create_task(
                 self._exploit_all_teams()
             )
-            container_panels, system_panels = self._system_analytics()
+            # container_panels, system_panels = self._system_analytics()
 
             # Submit collected flags
             flags = await exploit_task
             self._submit_all_flags(flags)
 
             # Print system analytics and store them in the database
-            self._print_system_analytics(container_panels, system_panels)
-            await self.orchestrator.collect_system_analytics()
+            # self._print_system_analytics(container_panels, system_panels)
+            # await self.orchestrator.collect_system_analytics()
 
-            round_end = time()
-            round_duration = round_end - self.round_start
-            if round_duration < self.round_length:
-                await asyncio.sleep(self.round_length - round_duration)
+            # round_end = time()
+            # round_duration = round_end - self.round_start
+            # if round_duration < self.round_length:
+            #     await asyncio.sleep(self.round_length - round_duration)
+
+            # await asyncio.sleep(10)
+
+        with open("scoreboard.txt", "w") as f:
+            for team_name, team in dict(
+                sorted(
+                    self.setup.teams.items(),
+                    key=lambda item: item[1].points,
+                    reverse=True,
+                )
+            ).items():
+                f.write(f"Team: {team_name:<30}      score: {team.points:<15}\n")
+
+        self._team_info(self.setup.teams.values())
 
     def info(self, info_messages: List[str]) -> None:
         """
@@ -164,6 +194,8 @@ class Simulation:
         It tries to get the round info every 2 seconds until the attack info becomes
         available on the engine VM.
         """
+
+        return True
 
         with self.console.status(
             "[bold green]Waiting for scoreboard to become available ..."
@@ -365,7 +397,7 @@ class Simulation:
 
         team_flags = []
         for team in self.setup.teams.values():
-            team_flags.append([team.address])
+            team_flags.append([team.name])
 
         async with asyncio.TaskGroup() as task_group:
             tasks = [
@@ -419,9 +451,9 @@ class Simulation:
         with ThreadPoolExecutor(
             max_workers=self.setup.config.settings.teams
         ) as executor:
-            for team_address, flags in team_flags:
+            for team_name, flags in team_flags:
                 if flags:
-                    executor.submit(self.orchestrator.submit_flags, team_address, flags)
+                    executor.submit(self.orchestrator.submit_flags, team_name, flags)
 
     def _print_system_analytics(self, container_panels, system_panels) -> None:
         """

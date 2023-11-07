@@ -27,3 +27,6 @@ infra/*/data/*
 
 ## Flask files ##
 database.db
+
+## Dummy files ##
+scoreboard.txt

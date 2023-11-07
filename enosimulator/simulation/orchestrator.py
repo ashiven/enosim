@@ -2,12 +2,7 @@ from typing import Dict, List, Tuple
 
 import jsons
 from bs4 import BeautifulSoup
-from enochecker_core import (
-    CheckerInfoMessage,
-    CheckerResultMessage,
-    CheckerTaskMessage,
-    CheckerTaskResult,
-)
+from enochecker_core import CheckerInfoMessage, CheckerTaskMessage
 from httpx import AsyncClient
 from rich.console import Console
 from rich.panel import Panel
@@ -24,14 +19,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 from .flagsubmitter import FlagSubmitter
 from .statchecker import StatChecker
-from .util import (
-    REQUEST_TIMEOUT,
-    async_lock,
-    checker_request,
-    port_from_address,
-    private_to_public_ip,
-    req_to_json,
-)
+from .util import async_lock, checker_request, port_from_address, private_to_public_ip
 
 FLAG_REGEX_ASCII = r"ENO[A-Za-z0-9+\/=]{48}"
 FLAG_HASH = "ignore_flag_hash"
@@ -206,7 +194,7 @@ class Orchestrator:
         flags = await self._send_exploit_requests(team, exploit_requests)
         return flags
 
-    def submit_flags(self, team_address: str, flags: List[str]) -> None:
+    def submit_flags(self, team_name: str, flags: List[str]) -> None:
         """
         Submit flags for a given team.
 
@@ -215,7 +203,12 @@ class Orchestrator:
             flags (List[str]): The flags to submit.
         """
 
-        self.flag_submitter.submit_flags(team_address, flags)
+        POINTS_PER_FLAG = 10
+        # print(f"Submitting {flags} for {team_name}")
+        self.setup.teams[team_name].points += len(flags) * POINTS_PER_FLAG
+        return
+
+        self.flag_submitter.submit_flags(team_name, flags)
 
     async def collect_system_analytics(self) -> None:
         """
@@ -239,6 +232,26 @@ class Orchestrator:
         Returns:
             CheckerInfoMessage: The service information for the given Service object.
         """
+
+        if service.name == "enowars7-service-CVExchange":
+            self.service_info["CVExchange"] = (7331, "enowars7-service-CVExchange")
+            return CheckerInfoMessage(
+                service_name="CVExchange",
+                flag_variants=3,
+                noise_variants=3,
+                havoc_variants=1,
+                exploit_variants=1,
+            )
+
+        else:
+            self.service_info["bollwerk"] = (6008, "enowars7-service-bollwerk")
+            return CheckerInfoMessage(
+                service_name="bollwerk",
+                flag_variants=2,
+                noise_variants=2,
+                havoc_variants=7,
+                exploit_variants=2,
+            )
 
         checker_address = service.checkers[0]
         response = await self.client.get(f"{checker_address}/service")
@@ -350,7 +363,7 @@ class Orchestrator:
                             service_name = self.service_info[service][1]
                             attack_info = self.attack_info["services"][service_name][
                                 other_team.address
-                            ][str(round_id)][str(flagstore_id)]
+                            ]["10"][str(flagstore_id)]
                         except Exception:
                             attack_info = None
 
@@ -395,43 +408,45 @@ class Orchestrator:
             (team_name, service, flagstore, _info),
             exploit_request,
         ) in exploit_requests.items():
-            exploit_checker_ip = self.private_to_public_ip[team.address]
-            exploit_checker_port = self.service_info[service][0]
-            exploit_checker_address = (
-                f"http://{exploit_checker_ip}:{exploit_checker_port}"
-            )
+            # exploit_checker_ip = self.private_to_public_ip[team.address]
+            # exploit_checker_port = self.service_info[service][0]
+            # exploit_checker_address = (
+            #     f"http://{exploit_checker_ip}:{exploit_checker_port}"
+            # )
 
-            if self.debug:
-                self.console.log(
-                    f"[bold green]{team.name} :anger_symbol: {team_name}-{service}-{flagstore}"
-                )
-                self.console.log(exploit_request)
+            flags.append("DUMMY_FLAG")
 
-            try:
-                # TODO: - do the following in an async task group for more performance
-                r = await self.client.post(
-                    exploit_checker_address,
-                    data=req_to_json(exploit_request),
-                    headers={"Content-Type": "application/json"},
-                    timeout=REQUEST_TIMEOUT,
-                )
+            # if self.debug:
+            #     self.console.log(
+            #         f"[bold green]{team.name} :anger_symbol: {team_name}-{service}-{flagstore}"
+            #     )
+            #     self.console.log(exploit_request)
 
-                exploit_result = jsons.loads(
-                    r.content,
-                    CheckerResultMessage,
-                    key_transformer=jsons.KEY_TRANSFORMER_SNAKECASE,
-                )
+            # try:
+            #     # TODO: - do the following in an async task group for more performance
+            #     r = await self.client.post(
+            #         exploit_checker_address,
+            #         data=req_to_json(exploit_request),
+            #         headers={"Content-Type": "application/json"},
+            #         timeout=REQUEST_TIMEOUT,
+            #     )
 
-                if CheckerTaskResult(exploit_result.result) is not CheckerTaskResult.OK:
-                    if self.debug:
-                        self.console.print(exploit_result.message)
-                else:
-                    if self.debug:
-                        self.console.log(
-                            f"[bold green]:triangular_flag:: {exploit_result.flag}\n"
-                        )
-                    flags.append(exploit_result.flag)
-            except Exception:
-                pass
+            #     exploit_result = jsons.loads(
+            #         r.content,
+            #         CheckerResultMessage,
+            #         key_transformer=jsons.KEY_TRANSFORMER_SNAKECASE,
+            #     )
+
+            #     if CheckerTaskResult(exploit_result.result) is not CheckerTaskResult.OK:
+            #         if self.debug:
+            #             self.console.print(exploit_result.message)
+            #     else:
+            #         if self.debug:
+            #             self.console.log(
+            #                 f"[bold green]:triangular_flag:: {exploit_result.flag}\n"
+            #             )
+            #         flags.append(exploit_result.flag)
+            # except Exception:
+            #     pass
 
         return flags

@@ -2,7 +2,6 @@ import argparse
 import asyncio
 import os
 import sys
-from threading import Thread
 
 from containers import Application
 from dotenv import load_dotenv
@@ -106,11 +105,11 @@ async def main() -> None:
             return
 
         simulation = application.simulation_container.simulation()
-        app = application.backend_container.flask_app()
+        # app = application.backend_container.flask_app()
 
-        flask_thread = Thread(target=app.run)
-        flask_thread.daemon = True
-        flask_thread.start()
+        # flask_thread = Thread(target=app.run)
+        # flask_thread.daemon = True
+        # flask_thread.start()
 
         await simulation.run()
         setup.destroy()

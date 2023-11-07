@@ -114,7 +114,7 @@ def _analyze_scoreboard_file(json_path: str) -> Dict[str, Tuple[float, float]]:
     scores = sorted([float(p) for p in list(attack_points.values())])
 
     # TODO: - the points per flag value needs to be analyzed further
-    POINTS_PER_FLAG = 20
+    POINTS_PER_FLAG = 10
     PARTICIPATING_TEAMS = len(scores)
     TOTAL_FLAGSTORES = sum([service["flagVariants"] for service in data["services"]])
     TOTAL_ROUNDS = data["currentRound"]
