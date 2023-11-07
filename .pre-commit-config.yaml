@@ -22,7 +22,7 @@ repos:
      hooks:
         - id: isort
           args: ["--profile=black"]
-   - repo: https://github.com/DanielNoord/pydocstringformatter
-     rev: v0.7.3
+   - repo: https://github.com/PyCQA/docformatter
+     rev: v1.7.5
      hooks:
-        - id: pydocstringformatter
+        - id: docformatter

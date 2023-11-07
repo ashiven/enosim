@@ -97,7 +97,8 @@ class Team:
     gain: float
 
     def to_json(self):
-        """Returns a json representation of the team which is used to generate responses in the backend."""
+        """Returns a json representation of the team which is used to generate
+        responses in the backend."""
         new_dict = {
             "id": self.id,
             "name": self.name,
@@ -125,7 +126,8 @@ class Service:
     checkers: List[str]
 
     def to_json(self):
-        """Returns a json representation of the service which is used to generate responses in the backend."""
+        """Returns a json representation of the service which is used to
+        generate responses in the backend."""
         new_dict = {
             "id": self.id,
             "name": self.name,
@@ -156,7 +158,8 @@ class Service:
 class IpAddresses:
     """A dataclass representing the ip addresses in a setup.
 
-    Contains a public and a private ip address entry for each virtual machine.
+    Contains a public and a private ip address entry for each virtual
+    machine.
     """
 
     public_ip_addresses: Dict
@@ -176,7 +179,8 @@ class ConfigSetup:
     def from_(setup):
         """Creates a ConfigSetup object from a dictionary.
 
-        Also checks if the values in the dictionary are valid config values.
+        Also checks if the values in the dictionary are valid config
+        values.
         """
 
         if not type(setup["ssh-config-path"]) is str:
@@ -215,7 +219,8 @@ class ConfigSettings:
     def from_(settings):
         """Creates a ConfigSettings object from a dictionary.
 
-        Also checks if the values in the dictionary are valid config values.
+        Also checks if the values in the dictionary are valid config
+        values.
         """
 
         if settings["simulation-type"] not in [
@@ -269,7 +274,8 @@ class ConfigCtfJson:
     def from_(ctf_json):
         """Creates a ConfigCtfJson object from a dictionary.
 
-        Also checks if the values in the dictionary are valid config values.
+        Also checks if the values in the dictionary are valid config
+        values.
         """
 
         if not type(ctf_json["title"]) is str:
@@ -305,7 +311,8 @@ class Config:
     def from_(config):
         """Creates a Config object from a dictionary.
 
-        The Config object consists of a ConfigSetup, a ConfigSettings and a ConfigCtfJson object.
+        The Config object consists of a ConfigSetup, a ConfigSettings
+        and a ConfigCtfJson object.
         """
         try:
             new_config = Config(
@@ -331,7 +338,8 @@ class VmSecrets:
     def from_(vm_secrets):
         """Creates a VmSecrets object from a dictionary.
 
-        Also checks if the values in the dictionary are valid secrets values.
+        Also checks if the values in the dictionary are valid secrets
+        values.
         """
         if not type(vm_secrets["github-personal-access-token"]) is str:
             raise ValueError("Invalid github personal access token in secrets file.")
@@ -352,7 +360,8 @@ class VmSecrets:
 
 @dataclass
 class CloudSecrets:
-    """A dataclass representing the cloud secrets section of the secrets file."""
+    """A dataclass representing the cloud secrets section of the secrets
+    file."""
 
     azure_service_principal: dict
     hetzner_api_token: str
@@ -361,7 +370,8 @@ class CloudSecrets:
     def from_(cloud_secrets):
         """Creates a CloudSecrets object from a dictionary.
 
-        Also checks if the values in the dictionary are valid secrets values.
+        Also checks if the values in the dictionary are valid secrets
+        values.
         """
         if not type(cloud_secrets["azure-service-principal"]) is dict:
             raise ValueError("Invalid azure service principal in secrets file.")
@@ -387,7 +397,8 @@ class Secrets:
     def from_(secrets):
         """Creates a Secrets object from a dictionary.
 
-        The Secrets object consists of a VmSecrets and a CloudSecrets object.
+        The Secrets object consists of a VmSecrets and a CloudSecrets
+        object.
         """
         try:
             new_secrets = Secrets(
