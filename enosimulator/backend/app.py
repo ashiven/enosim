@@ -67,7 +67,7 @@ class VMs(Resource):
 
     The response contains a list of dictionaries of VM information.
 
-    The VM information gets stored in the database via the system_analytics() method of the StatChecker class.           fadssssssssssssssssssssssssssssssssssssssssssssssss
+    The VM information gets stored in the database via the system_analytics() method of the StatChecker class.
     """
 
     def get(self):
