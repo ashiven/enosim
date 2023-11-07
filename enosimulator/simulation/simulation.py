@@ -94,7 +94,7 @@ class Simulation:
                 self.remaining_rounds = self.total_rounds - round_
                 self.round_id = await self.orchestrator.get_round_info()
 
-            info_messages = await self._update_exploiting_and_patched()
+            info_messages = await self._update_teams()
             self.info(info_messages)
 
             self.orchestrator.parse_scoreboard()
@@ -322,14 +322,13 @@ class Simulation:
 
         return f"[bold red][!] Team {team_name} {info_text} {service}-{flagstore}"
 
-    async def _update_exploiting_and_patched(self) -> List[str]:
+    async def _update_teams(self) -> List[str]:
         """
         A helper method to update the team's exploiting and patched categories.
 
         This method updates the team's exploiting and patched categories.
-        It does this by randomly choosing a team to update.
-        Then, it randomly chooses a category to update.
-        Finally, it randomly chooses a service and flagstore to update.
+        It does this by randomly choosing a category to update if a team passes the random test.
+        Then, it randomly chooses and updates a service and flagstore in the given category.
 
         Returns:
             List[str]: A list of info messages about the updates.

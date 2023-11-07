@@ -448,7 +448,7 @@ async def test_simulation_run(simulation_container):
     simulation.orchestrator.collect_system_analytics = AsyncMock()
 
     simulation._scoreboard_available = AsyncMock()
-    simulation._update_exploiting_and_patched = AsyncMock()
+    simulation._update_teams = AsyncMock()
     simulation.info = Mock()
     simulation._exploit_all_teams = AsyncMock()
     simulation._system_analytics = Mock()
@@ -465,7 +465,7 @@ async def test_simulation_run(simulation_container):
     assert simulation.orchestrator.collect_system_analytics.call_count == 2
 
     assert simulation._scoreboard_available.call_count == 1
-    assert simulation._update_exploiting_and_patched.call_count == 2
+    assert simulation._update_teams.call_count == 2
     assert simulation.info.call_count == 2
     assert simulation._exploit_all_teams.call_count == 2
     assert simulation._system_analytics.call_count == 2
@@ -474,7 +474,7 @@ async def test_simulation_run(simulation_container):
 
 
 @pytest.mark.asyncio
-async def test_simulation_update_exploiting_and_patched(simulation_container):
+async def test_simulation_update_teams(simulation_container):
     simulation_container.reset_singletons()
     simulation = simulation_container.simulation()
     simulation.setup.config.settings.simulation_type = "realistic"
@@ -482,7 +482,7 @@ async def test_simulation_update_exploiting_and_patched(simulation_container):
     simulation._random_test = Mock()
     simulation._random_test.return_value = True
 
-    await simulation._update_exploiting_and_patched()
+    await simulation._update_teams()
 
     assert (
         len(
