@@ -16,6 +16,12 @@ _pool = ThreadPoolExecutor()
 
 @asynccontextmanager
 async def async_lock(lock) -> None:
+    """
+    Lock context manager for async code.
+
+    Source: https://stackoverflow.com/a/63425191
+    """
+
     loop = asyncio.get_event_loop()
     await loop.run_in_executor(_pool, lock.acquire)
     try:
@@ -37,6 +43,26 @@ def checker_request(
     flag_hash: str,
     attack_info: str,
 ) -> CheckerTaskMessage:
+    """
+    Create a checker task request.
+
+    Args:
+        method: Checker method.
+        round_id: Round ID.
+        team_id: Team ID.
+        team_name: Team name.
+        variant_id: Variant ID.
+        service_address: Service address.
+        flag: Flag.
+        unique_variant_index: Unique variant index.
+        flag_regex: Flag regex.
+        flag_hash: Flag hash.
+        attack_info: Attack info.
+
+    Returns:
+        Checker task request.
+    """
+
     if not unique_variant_index:
         unique_variant_index = variant_id
     prefix = "havoc"
@@ -70,6 +96,16 @@ def checker_request(
 
 
 def req_to_json(request: CheckerTaskMessage) -> Dict:
+    """
+    Convert a checker task request to JSON.
+
+    Args:
+        request: Checker task request.
+
+    Returns:
+        Checker task request as JSON.
+    """
+
     return jsons.dumps(
         request,
         use_enum_name=False,
@@ -79,12 +115,32 @@ def req_to_json(request: CheckerTaskMessage) -> Dict:
 
 
 def port_from_address(address: str) -> str:
+    """
+    Extract the port number from an address.
+
+    Args:
+        address: Address.
+
+    Returns:
+        Port.
+    """
+
     url = urllib.parse.urlparse(address)
     _, _, port = url.netloc.partition(":")
     return port
 
 
 def private_to_public_ip(ip_addresses: IpAddresses) -> Dict[str, str]:
+    """
+    Convert private IP addresses to public IP addresses.
+
+    Args:
+        ip_addresses: IP addresses.
+
+    Returns:
+        A dictionary mapping private IP addresses to public IP addresses
+    """
+
     return {
         ip_addresses.private_ip_addresses[team_name]: ip_addresses.public_ip_addresses[
             team_name

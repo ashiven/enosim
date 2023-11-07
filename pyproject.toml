@@ -19,4 +19,6 @@ close-quotes-on-newline = true
 pre-summary-newline = true
 
 [tool.interrogate]
+ignore-init-module = true
+ignore-module = true
 exclude = ["frontend", "tests", "util"]

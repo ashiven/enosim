@@ -10,10 +10,10 @@ from types_ import Config, Secrets, SetupVariant
 
 class StatChecker:
     """
-    A Class for checking the stats of the VMs and containers.
+    A Class for checking the system and Docker stats on the VMs.
 
     Connects to the VMs via SSH.
-    After connecting, the stats are collected and sent to the analytics endpoint.
+    After connecting, the stats are collected and sent to the Flask server.
 
     Attributes:
         config: The configuration file supplied by the user.
@@ -22,7 +22,7 @@ class StatChecker:
         vm_count: The number of VMs in the simulation.
         vm_stats: The stats of the VMs.
         container_stats: The stats of the containers.
-        client: The HTTP client used for sending the stats to the analytics endpoint.
+        client: The HTTP client used for sending the stats to the Flask server.
         console: The console used for printing.
         usernames: The SSH usernames according to the chosen setup location.
     """
@@ -53,13 +53,13 @@ class StatChecker:
 
     def check_containers(self, ip_addresses: Dict[str, str]) -> Dict[str, Panel]:
         """
-        A method for checking the Docker container stats of the VMs.
+        A method for checking the Docker container stats on the VMs.
 
         Args:
-            ip_addresses (Dict[str, str]): The IP addresses of the VMs to be checked.
+            ip_addresses (Dict[str, str]): A mapping of VM names to IP addresses for the VMs to be checked.
 
         Returns:
-            Dict[str, Panel]: The stats of the containers.
+            Dict[str, Panel]: The stats of the containers inside of a Panel for better formatting.
         """
 
         futures = dict()
@@ -79,10 +79,10 @@ class StatChecker:
         A method for checking the system stats of the VMs.
 
         Args:
-            ip_addresses (Dict[str, str]): The IP addresses of the VMs to be checked.
+            ip_addresses (Dict[str, str]):A mapping of VM names to IP addresses for the VMs to be checked.
 
         Returns:
-            Dict[str, List[Panel]]: The system stats of the VMs.
+            Dict[str, List[Panel]]: The system stats of the VM as a list of Panels for better formatting.
         """
 
         futures = dict()
@@ -96,6 +96,12 @@ class StatChecker:
         return system_stat_panels
 
     async def system_analytics(self) -> None:
+        """
+        A method for sending the system and Docker stats to the Flask server.
+
+        The stats are sent to the Flask server once every round.
+        """
+
         FLASK_PORT = 5000
         for stats in self.vm_stats.values():
             if any(stat is None for stat in stats.values()):
@@ -111,6 +117,17 @@ class StatChecker:
             )
 
     def _container_stats(self, vm_name: str, ip_address: str) -> Panel:
+        """
+        A method for checking the Docker container stats on a VM.
+
+        Args:
+            vm_name (str): The name of the VM to be checked.
+            ip_address (str): The IP address of the VM to be checked.
+
+        Returns:
+            Panel: The stats of the containers inside of a Panel for better formatting.
+        """
+
         with paramiko.SSHClient() as client:
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             client.connect(
@@ -130,6 +147,17 @@ class StatChecker:
         return self._beautify_container_stats(container_stats_blank)
 
     def _save_container_stats(self, vm_name: str, container_stats: str) -> None:
+        """
+        A method for saving the Docker container stats as an attribute of the
+        StatChecker class.
+
+        The saved stats will be sent to the Flask server in the system_analytics method.
+
+        Args:
+            vm_name (str): The name of the VM to be checked.
+            container_stats (str): The raw Docker container stats of the VM.
+        """
+
         stats = dict()
         lines = container_stats.splitlines()
         for i, line in enumerate(lines):
@@ -157,7 +185,27 @@ class StatChecker:
         self.container_stats[vm_name] = stats
 
     def _beautify_container_stats(self, container_stats_blank: str) -> Panel:
+        """
+        A method for beautifying the Docker container stats.
+
+        Args:
+            container_stats_blank (str): The raw Docker container stats of the VM.
+
+        Returns:
+            Panel: The stats of the containers inside of a Panel for better formatting.
+        """
+
         def _beautify_line(line: str):
+            """
+            A method for beautifying a single line of the Docker container stats.
+
+            Args:
+                line (str): A single line of the Docker container stats.
+
+            Returns:
+                str: The beautified line.
+            """
+
             word_index = 0
             words = line.split(" ")
             for i, word in enumerate(words):
@@ -183,6 +231,17 @@ class StatChecker:
         return Panel("\n".join(container_stats), expand=True)
 
     def _system_stats(self, vm_name: str, ip_address: str) -> List[Panel]:
+        """
+        A method for checking the system stats of a VM.
+
+        Args:
+            vm_name (str): The name of the VM to be checked.
+            ip_address (str): The IP address of the VM to be checked.
+
+        Returns:
+            List[Panel]: The system stats of the VM as a list of Panels for better formatting.
+        """
+
         with paramiko.SSHClient() as client:
             client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             client.connect(
@@ -242,6 +301,18 @@ class StatChecker:
         )
 
     def _parse_system_stats(self, system_stats: str, network_usage: str) -> Tuple:
+        """
+        A method for parsing the system stats from the raw output of the commands
+        executed on the VM.
+
+        Args:
+            system_stats (str): The raw system stats of the VM.
+            network_usage (str): The raw network usage stats of the VM.
+
+        Returns:
+            Tuple: The parsed system stats.
+        """
+
         if system_stats:
             [
                 ram_percent,
@@ -298,6 +369,23 @@ class StatChecker:
         network_rx: float,
         network_tx: float,
     ) -> None:
+        """
+        A method for saving the system stats as an attribute of the StatChecker class.
+
+        The saved stats will be sent to the Flask server in the system_analytics method.
+
+        Args:
+            vm_name (str): The name of the VM to be checked.
+            ip_address (str): The IP address of the VM to be checked.
+            ram_percent (float): The percentage of RAM used on the VM.
+            ram_total (float): The total amount of RAM on the VM.
+            cpu_usage (float): The percentage of CPU used on the VM.
+            cpu_cores (int): The number of CPU cores on the VM.
+            disk_size (float): The size of the disk on the VM.
+            network_rx (float): The amount of data received on the network interface of the VM.
+            network_tx (float): The amount of data sent on the network interface of the VM.
+        """
+
         prev_uptime = (
             self.vm_stats[vm_name]["uptime"] if vm_name in self.vm_stats else 0
         )
@@ -326,6 +414,22 @@ class StatChecker:
         network_rx: float,
         network_tx: float,
     ) -> List[Panel]:
+        """
+        A method for beautifying the system stats.
+
+        Args:
+            ram_percent (float): The percentage of RAM used on the VM.
+            ram_total (float): The total amount of RAM on the VM.
+            ram_used (float): The amount of RAM used on the VM.
+            cpu_usage (float): The percentage of CPU used on the VM.
+            cpu_cores (int): The number of CPU cores on the VM.
+            network_rx (float): The amount of data received on the network interface of the VM.
+            network_tx (float): The amount of data sent on the network interface of the VM.
+
+        Returns:
+            List[Panel]: The system stats of the VM as a list of Panels for better formatting.
+        """
+
         ram_panel = (
             Panel(
                 f"[b]RAM Stats[/b]\n"
