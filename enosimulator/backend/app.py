@@ -264,6 +264,8 @@ class FlaskApp:
     """
 
     def __init__(self, setup: Setup, simulation: Simulation, locks: Dict):
+        """Initializes the Flask application."""
+
         self.app = Flask(__name__)
         self.setup = setup
         self.simulation = simulation

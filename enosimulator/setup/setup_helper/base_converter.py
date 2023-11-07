@@ -8,7 +8,7 @@ class TemplateConverter(ABC):
         pass
 
     @abstractmethod
-    async def convert_deploy_script(self) -> None:
+    async def convert_configure_script(self) -> None:
         pass
 
     @abstractmethod

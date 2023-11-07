@@ -29,7 +29,7 @@ class SetupHelper:
             SetupVariant.from_str(self.config.setup.location)
         ]
         await converter.convert_buildscript()
-        await converter.convert_deploy_script()
+        await converter.convert_configure_script()
         await converter.convert_tf_files()
         await converter.convert_vm_scripts()
 

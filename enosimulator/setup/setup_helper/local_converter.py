@@ -22,7 +22,7 @@ class LocalConverter(TemplateConverter):
     def convert_buildscript(self) -> None:
         pass
 
-    def convert_deploy_script(self) -> None:
+    def convert_configure_script(self) -> None:
         pass
 
     def convert_tf_files(self) -> None:

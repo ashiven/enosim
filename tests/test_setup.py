@@ -93,7 +93,7 @@ async def test_setup_helper_azure(mock_fs, setup_container, test_setup_dir):
     assert os.path.exists(test_setup_dir + "/azure/data/engine.sh")
     assert os.path.exists(test_setup_dir + "/azure/data/vulnbox.sh")
     assert os.path.exists(test_setup_dir + "/azure/build.sh")
-    assert os.path.exists(test_setup_dir + "/azure/deploy.sh")
+    assert os.path.exists(test_setup_dir + "/azure/configure.sh")
     assert os.path.exists(test_setup_dir + "/azure/main.tf")
     assert os.path.exists(test_setup_dir + "/azure/outputs.tf")
     assert os.path.exists(test_setup_dir + "/azure/variables.tf")
@@ -150,7 +150,7 @@ async def test_setup_helper_hetzner(mock_fs, setup_container, test_setup_dir):
     assert os.path.exists(test_setup_dir + "/hetzner/data/engine.sh")
     assert os.path.exists(test_setup_dir + "/hetzner/data/vulnbox.sh")
     assert os.path.exists(test_setup_dir + "/hetzner/build.sh")
-    assert os.path.exists(test_setup_dir + "/hetzner/deploy.sh")
+    assert os.path.exists(test_setup_dir + "/hetzner/configure.sh")
     assert os.path.exists(test_setup_dir + "/hetzner/main.tf")
     assert os.path.exists(test_setup_dir + "/hetzner/outputs.tf")
     assert os.path.exists(test_setup_dir + "/hetzner/variables.tf")
@@ -191,7 +191,7 @@ async def test_setup_helper_local(mock_fs, setup_container, test_setup_dir):
 
 
 @pytest.mark.asyncio
-async def test_setup_configure(mock_fs, setup_container, test_setup_dir):
+async def test_setup_initialize(mock_fs, setup_container, test_setup_dir):
     mock_fs.add_real_directory(test_setup_dir, read_only=False)
     setup_container.reset_singletons()
     setup_container.configuration.config.from_dict(
@@ -232,7 +232,7 @@ async def test_setup_configure(mock_fs, setup_container, test_setup_dir):
     }
     setup.setup_helper.generate_teams.return_value = (ctf_teams, setup_teams)
     setup.setup_helper.convert_templates = AsyncMock()
-    await setup.configure()
+    await setup.initialize()
 
     assert os.path.exists(test_setup_dir + "/hetzner/config/services.txt")
     assert os.path.exists(test_setup_dir + "/hetzner/config/ctf.json")
@@ -357,7 +357,7 @@ async def test_setup_build(mock_fs, setup_container, test_setup_dir):
 
 
 @pytest.mark.asyncio
-async def test_setup_deploy(setup_container, test_setup_dir):
+async def test_setup_configure(setup_container, test_setup_dir):
     setup_container.reset_singletons()
     setup_container.configuration.config.from_dict(
         {
@@ -382,7 +382,7 @@ async def test_setup_deploy(setup_container, test_setup_dir):
     with patch("setup.setup.execute_command") as mock_execute:
         with patch.object(Console, "status"):
             with patch.object(Console, "print"):
-                setup.deploy()
+                setup.configure_infra()
 
     mock_execute.assert_any_call("ssh-keygen -R 123.32.32.21")
     mock_execute.assert_any_call("ssh-keygen -R 231.32.32.21")
@@ -400,11 +400,11 @@ async def test_setup_deploy(setup_container, test_setup_dir):
         mock_execute.assert_any_call(
             f"icacls /path/to/your/private_key /remove *S-1-5-11 *S-1-5-18 *S-1-5-32-544 *S-1-5-32-545"
         )
-        mock_execute.assert_any_call(f"sh {test_setup_dir}/hetzner/deploy.sh")
+        mock_execute.assert_any_call(f"sh {test_setup_dir}/hetzner/configure.sh")
     else:
         assert mock_execute.call_count == 5
         mock_execute.assert_any_call(f"chmod 600 /path/to/your/private_key")
-        mock_execute.assert_any_call(f"bash {test_setup_dir}/hetzner/deploy.sh")
+        mock_execute.assert_any_call(f"bash {test_setup_dir}/hetzner/configure.sh")
 
 
 @pytest.mark.asyncio
@@ -434,7 +434,7 @@ async def test_setup_destroy(mock_fs, setup_container, test_setup_dir):
     assert os.path.exists(test_setup_dir + "/hetzner/data/engine.sh")
     assert os.path.exists(test_setup_dir + "/hetzner/data/vulnbox.sh")
     assert os.path.exists(test_setup_dir + "/hetzner/build.sh")
-    assert os.path.exists(test_setup_dir + "/hetzner/deploy.sh")
+    assert os.path.exists(test_setup_dir + "/hetzner/configure.sh")
     assert os.path.exists(test_setup_dir + "/hetzner/main.tf")
     assert os.path.exists(test_setup_dir + "/hetzner/outputs.tf")
     assert os.path.exists(test_setup_dir + "/hetzner/variables.tf")
@@ -459,7 +459,7 @@ async def test_setup_destroy(mock_fs, setup_container, test_setup_dir):
     assert not os.path.exists(test_setup_dir + "/hetzner/data/engine.sh")
     assert not os.path.exists(test_setup_dir + "/hetzner/data/vulnbox.sh")
     assert not os.path.exists(test_setup_dir + "/hetzner/build.sh")
-    assert not os.path.exists(test_setup_dir + "/hetzner/deploy.sh")
+    assert not os.path.exists(test_setup_dir + "/hetzner/configure.sh")
     assert not os.path.exists(test_setup_dir + "/hetzner/main.tf")
     assert not os.path.exists(test_setup_dir + "/hetzner/outputs.tf")
     assert not os.path.exists(test_setup_dir + "/hetzner/variables.tf")

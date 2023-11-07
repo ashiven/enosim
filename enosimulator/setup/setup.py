@@ -16,6 +16,20 @@ from .util import create_file, delete_files, execute_command, kebab_to_camel, pa
 
 
 class Setup:
+    """
+    A class representing the simulation setup.
+
+    Attributes:
+        ips: A dictionary containing the public and private ip addresses of the infrastructure components.
+        teams: A dictionary containing information about the teams participating in the competition.
+        services: A dictionary containing information about the services played in the competition.
+        config: A Config object containing the configuration of the simulation and the infrastructure.
+        secrets: A Secrets object containing the secrets used for building and configuring the infrastructure.
+        setup_path: A string containing the path to the setup directory for the chosen location.
+        setup_helper: A SetupHelper object used for generating the infrastructure.
+        console: A Console object used for printing to the console.
+    """
+
     def __init__(
         self,
         config: Config,
@@ -23,6 +37,8 @@ class Setup:
         setup_helper: SetupHelper,
         console: Console,
     ):
+        """Initializes the Setup with the given configuration and secrets."""
+
         self.ips = IpAddresses(dict(), dict())
         self.teams = dict()
         self.services = dict()
@@ -37,11 +53,15 @@ class Setup:
             self.config.settings.teams = 1
 
     async def build(self) -> None:
-        await self.configure()
-        await self.build_infra()
-        self.deploy()
+        """Builds and configures the infrastructure."""
 
-    async def configure(self) -> None:
+        await self.initialize()
+        await self.build_infra()
+        self.configure_infra()
+
+    async def initialize(self) -> None:
+        """Generates the infrastructure configuration files."""
+
         # Create services.txt
         await create_file(f"{self.setup_path}/config/services.txt")
         async with aiofiles.open(
@@ -81,10 +101,12 @@ class Setup:
         ) as ctf_file:
             await ctf_file.write(json.dumps(ctf_json, indent=4))
 
-        # Convert template files (terraform, deploy.sh, build.sh, etc.) according to config
+        # Convert template files (terraform, configure.sh, build.sh, etc.) according to config
         await self.setup_helper.convert_templates()
 
     async def build_infra(self) -> None:
+        """Builds the infrastructure."""
+
         if not self._existing_infra():
             with self.console.status("[bold green]Building infrastructure ..."):
                 execute_command(
@@ -125,7 +147,15 @@ class Setup:
 
         self.info()
 
-    def deploy(self) -> None:
+    def configure_infra(self) -> None:
+        """
+        Uses the configuration files generated in the initialize step to configure the
+        infrastructure.
+
+        This includes configuring the known hosts and setting the appropriate private
+        key permissions.
+        """
+
         if not self._existing_config():
             with self.console.status("[bold green]Configuring infrastructure ..."):
                 self.console.print(
@@ -153,10 +183,12 @@ class Setup:
                     )
 
                 execute_command(
-                    f"{'sh' if sys.platform == 'win32' else 'bash'} {self.setup_path}/deploy.sh"
+                    f"{'sh' if sys.platform == 'win32' else 'bash'} {self.setup_path}/configure.sh"
                 )
 
     def destroy(self) -> None:
+        """Destroys the infrastructure and deletes all files created for this setup."""
+
         try:
             with self.console.status("[bold red]Destroying infrastructure ..."):
                 execute_command(
@@ -177,6 +209,12 @@ class Setup:
             delete_files(f"{self.setup_path}/logs")
 
     def info(self) -> None:
+        """
+        Prints information about the setup to the console.
+
+        This includes the teams, services, and ip addresses.
+        """
+
         table = Table(title="Teams")
         table.add_column("ID", justify="center", style="magenta")
         table.add_column("Name", justify="center", style="magenta")
@@ -222,6 +260,15 @@ class Setup:
         self.console.print(table)
 
     def _existing_infra(self) -> bool:
+        """
+        Checks whether the infrastructure has already been built.
+
+        This is done by checking whether the terraform state file exists and whether the
+        ip_addresses.log file exists.
+
+        If an infrastructure has already been built the build step is skipped.
+        """
+
         try:
             ip_logs_available = os.path.exists(
                 f"{self.setup_path}/logs/ip_addresses.log"
@@ -244,6 +291,15 @@ class Setup:
             return False
 
     def _existing_config(self) -> bool:
+        """
+        Checks whether the infrastructure has already been configured.
+
+        This is done by checking whether the infrastructure is reachable and whether the
+        attack.json file exists.
+
+        If an infrastructure has already been configured the configure step is skipped.
+        """
+
         try:
             r = get(
                 f"http://{self.ips.public_ip_addresses['engine']}:5001/scoreboard/attack.json"
@@ -261,6 +317,10 @@ class Setup:
             return False
 
     def _generate_ctf_json(self) -> Dict:
+        """Generates a ctf.json file template in the form of a dictionary from the
+        config.json file.
+        """
+
         new_ctf_json = {
             "title": "eno-ctf",
             "flagValidityInRounds": 2,
@@ -277,6 +337,8 @@ class Setup:
     def _generate_service(
         self, id: int, service: str, checker_port: int, simulation_type: str
     ) -> Dict:
+        """Generates a service in the form of a dictionary from the config.json file."""
+
         new_service = {
             "id": id,
             "name": service,

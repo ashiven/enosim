@@ -17,7 +17,7 @@ infra/*/variables.tf
 infra/*/outputs.tf
 infra/*/versions.tf
 infra/*/build.sh
-infra/*/deploy.sh
+infra/*/configure.sh
 infra/*/data/*
 !infra/*/config/.gitkeep
 !infra/*/data/.gitkeep

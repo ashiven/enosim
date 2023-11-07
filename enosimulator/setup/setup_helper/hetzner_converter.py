@@ -70,28 +70,28 @@ class HetznerConverter(TemplateConverter):
             )
         await insert_after(f"{self.setup_path}/build.sh", 'echo -e "Host engine', lines)
 
-    async def convert_deploy_script(self) -> None:
-        # Copy deploy.sh template for configuration
+    async def convert_configure_script(self) -> None:
+        # Copy configure.sh template for configuration
         await copy_file(
-            f"{self.setup_path}/templates/deploy.sh",
-            f"{self.setup_path}/deploy.sh",
+            f"{self.setup_path}/templates/configure.sh",
+            f"{self.setup_path}/configure.sh",
         )
 
         # Configure setup_path, ssh_config_path
         ABSOLUTE_SETUP_PATH_LINE = 4
         SSH_CONFIG_PATH_LINE = 5
         await replace_line(
-            f"{self.setup_path}/deploy.sh",
+            f"{self.setup_path}/configure.sh",
             ABSOLUTE_SETUP_PATH_LINE,
             f'setup_path="{os.path.abspath(self.setup_path)}"\n',
         )
         await replace_line(
-            f"{self.setup_path}/deploy.sh",
+            f"{self.setup_path}/configure.sh",
             SSH_CONFIG_PATH_LINE,
             f'ssh_config="{self.config.setup.ssh_config_path}"\n',
         )
 
-        # Configure vulnbox deployments
+        # Configure vulnbox configurements
         lines = []
         for vulnbox_id in range(1, self.config.settings.teams + 1):
             lines.append(
@@ -107,7 +107,9 @@ class HetznerConverter(TemplateConverter):
                 f'retry ssh -F ${{ssh_config}} vulnbox{vulnbox_id} "chmod +x vulnbox.sh && ./vulnbox.sh" > ./logs/vulnbox{vulnbox_id}_config.log 2>&1 &\n'
             )
         await insert_after(
-            f"{self.setup_path}/deploy.sh", "retry ssh -F ${ssh_config} checker", lines
+            f"{self.setup_path}/configure.sh",
+            "retry ssh -F ${ssh_config} checker",
+            lines,
         )
 
     async def convert_tf_files(self) -> None:
