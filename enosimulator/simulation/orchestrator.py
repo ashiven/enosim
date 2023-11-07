@@ -38,6 +38,30 @@ FLAG_HASH = "ignore_flag_hash"
 
 
 class Orchestrator:
+    """
+    A Class for orchestrating the simulation.
+
+    This class is provides an interface for all tasks that involve interacting with the infrastructure including:
+        - Getting the current round's attack information.
+        - Parsing the scoreboard.
+        - Collecting system analytics.
+        - Instructing teams to exploit other teams.
+        - Submitting flags for teams.
+
+    Attributes:
+        setup: The setup object containing all information about the simulation setup.
+        verbose: Whether to print verbose output.
+        debug: Whether to print debug output.
+        locks: The locks used for synchronizing access to shared resources with the Flask server running in a separate thread.
+        service_info: A dictionary containing information about each service.
+        private_to_public_ip: A dictionary mapping private IP addresses to public IP addresses.
+        attack_info: A dictionary containing the current round's attack information.
+        client: The HTTP client used for sending requests.
+        flag_submitter: The flag submitter used for submitting flags.
+        stat_checker: The stat checker used for collecting system analytics.
+        console: The console used for printing.
+    """
+
     def __init__(
         self,
         setup: Setup,
@@ -49,6 +73,8 @@ class Orchestrator:
         verbose: bool = False,
         debug: bool = False,
     ):
+        """Initialize the Orchestrator class."""
+
         self.setup = setup
         self.verbose = verbose
         self.debug = debug
@@ -62,6 +88,18 @@ class Orchestrator:
         self.console = console
 
     async def update_team_info(self) -> None:
+        """
+        Update the team information for each team.
+
+        For each service played in the competition, each team's exploiting and patched
+        categories are initialized.
+
+        In realistic or basic-stress-test simulation setups, the exploiting and patched
+        categories are initialized to False for every service / flagstore. In all other
+        simulation setups (stress-test, intesive-stress-test), the exploiting category
+        is initialized to True for every service / flagstore.
+        """
+
         async with async_lock(self.locks["service"]):
             for service in self.setup.services.values():
                 info = await self._get_service_info(service)
@@ -85,6 +123,16 @@ class Orchestrator:
                             )
 
     async def get_round_info(self) -> int:
+        """
+        Get the current round's attack information and round id and store the attack
+        information in the attack_info attribute.
+
+        The attack information later gets used for constructing checker task requests for exploiting other teams.
+
+        Returns:
+            int: The current round's ID.
+        """
+
         attack_info_text = await self.client.get(
             f'http://{self.setup.ips.public_ip_addresses["engine"]}:5001/scoreboard/attack.json'
         )
@@ -100,6 +148,12 @@ class Orchestrator:
         return current_round
 
     def parse_scoreboard(self) -> None:
+        """
+        Parse the scoreboard and update each team's points and gain.
+
+        These values become accessible through the Flask server's API.
+        """
+
         with self.console.status("[bold green]Parsing scoreboard ..."):
             team_scores = self._get_team_scores()
             with self.locks["team"]:
@@ -107,28 +161,85 @@ class Orchestrator:
                     team.points = team_scores[team.name][0]
                     team.gain = team_scores[team.name][1]
 
-    def container_stats(self, team_addresses: Dict[str, str]) -> Dict[str, Panel]:
-        return self.stat_checker.check_containers(team_addresses)
+    def container_stats(self, addresses: Dict[str, str]) -> Dict[str, Panel]:
+        """
+        Get the Docker container statistics for a set of VMs.
 
-    def system_stats(self, team_addresses: Dict[str, str]) -> Dict[str, List[Panel]]:
-        return self.stat_checker.check_system(team_addresses)
+        Args:
+            addresses (Dict[str, str]): A dictionary mapping vm names to their public IP addresses.
+
+        Returns:
+            Dict[str, Panel]: A dictionary mapping vm names to container statistics panels.
+        """
+
+        return self.stat_checker.check_containers(addresses)
+
+    def system_stats(self, addresses: Dict[str, str]) -> Dict[str, List[Panel]]:
+        """
+        Get the system statistics for a set of VMs.
+
+        Args:
+            addresses (Dict[str, str]): A dictionary mapping vm names to their public IP addresses.
+
+        Returns:
+            Dict[str, List[Panel]]: A dictionary mapping vm names to lists of system statistics panels.
+        """
+
+        return self.stat_checker.check_system(addresses)
 
     async def exploit(
         self, round_id: int, team: Team, all_teams: List[Team]
     ) -> List[str]:
+        """
+        Exploit all other teams for a given team.
+
+        Args:
+            round_id (int): The current round's ID.
+            team (Team): The team to exploit for.
+            all_teams (List[Team]): A list of all participating teams.
+
+        Returns:
+            List[str]: A list of flags that were obtained by exploiting other teams.
+        """
+
         exploit_requests = self._create_exploit_requests(round_id, team, all_teams)
         flags = await self._send_exploit_requests(team, exploit_requests)
         return flags
 
     def submit_flags(self, team_address: str, flags: List[str]) -> None:
+        """
+        Submit flags for a given team.
+
+        Args:
+            team_address (str): The IP address of the team's VM.
+            flags (List[str]): The flags to submit.
+        """
+
         self.flag_submitter.submit_flags(team_address, flags)
 
     async def collect_system_analytics(self) -> None:
+        """
+        Collect system analytics for each VM.
+
+        The system statistics and Docker statistics retrieved in each round are
+        propagated to the database and become accessible through the Flask server's API.
+        """
+
         with self.console.status("[bold green]Collecting analytics ..."):
             await self.stat_checker.system_analytics()
 
     @retry(stop=stop_after_attempt(10))
     async def _get_service_info(self, service: Service) -> CheckerInfoMessage:
+        """
+        Get the service information from the checker for a given Service object.
+
+        Args:
+            service (Service): The Service object to obtain the information for.
+
+        Returns:
+            CheckerInfoMessage: The service information for the given Service object.
+        """
+
         checker_address = service.checkers[0]
         response = await self.client.get(f"{checker_address}/service")
         if response.status_code != 200:
@@ -148,6 +259,16 @@ class Orchestrator:
         return info
 
     def _parse_rounds(self, attack_info: Dict) -> Tuple[int, int]:
+        """
+        Parse the round IDs from the attack information.
+
+        Args:
+            attack_info (Dict): The attack information to parse.
+
+        Returns:
+            Tuple[int, int]: A tuple containing the previous round's ID and the current round's ID.
+        """
+
         try:
             first_service = list(attack_info["services"].values())[0]
             first_team = list(first_service.values())[0]
@@ -159,6 +280,15 @@ class Orchestrator:
 
     @retry(stop=stop_after_attempt(10))
     def _get_team_scores(self) -> Dict[str, Tuple[float, float]]:
+        """
+        Get the team scores from the scoreboard.
+
+        Uses Selenium in headless mode to parse the current team scores from the scoreboard running on the engine VM.
+
+        Returns:
+            Dict[str, Tuple[float, float]]: A dictionary mapping team names to tuples containing the team's points and gain.
+        """
+
         team_scores = dict()
         scoreboard_url = (
             f'http://{self.setup.ips.public_ip_addresses["engine"]}:5001/scoreboard'
@@ -191,7 +321,19 @@ class Orchestrator:
 
     def _create_exploit_requests(
         self, round_id: int, team: Team, all_teams: List[Team]
-    ) -> Dict[Tuple[str, str, str], CheckerTaskMessage]:
+    ) -> Dict[Tuple[str, str, str, str], CheckerTaskMessage]:
+        """
+        Create checker task requests for a team to exploit all other teams.
+
+        Args:
+            round_id (int): The current round's ID.
+            team (Team): The team to exploit for.
+            all_teams (List[Team]): A list of all participating teams.
+
+        Returns:
+            Dict[Tuple[str, str, str, str], CheckerTaskMessage]: A dictionary mapping tuples containing the team name, service name, flagstore, and attack info to checker task requests.
+        """
+
         exploit_requests = dict()
         other_teams = [other_team for other_team in all_teams if other_team != team]
         for service, flagstores in team.exploiting.items():
@@ -237,6 +379,17 @@ class Orchestrator:
     async def _send_exploit_requests(
         self, team: Team, exploit_requests: Dict
     ) -> List[str]:
+        """
+        Send exploit checker task requests to the specified team's checker.
+
+        Args:
+            team (Team): The team to exploit for.
+            exploit_requests (Dict): A dictionary mapping tuples containing the team name, service name, flagstore, and attack info to checker task requests.
+
+        Returns:
+            List[str]: A list of flags that were obtained by exploiting other teams.
+        """
+
         flags = []
         for (
             (team_name, service, flagstore, _info),

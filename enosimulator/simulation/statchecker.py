@@ -9,6 +9,24 @@ from types_ import Config, Secrets, SetupVariant
 
 
 class StatChecker:
+    """
+    A Class for checking the stats of the VMs and containers.
+
+    Connects to the VMs via SSH.
+    After connecting, the stats are collected and sent to the analytics endpoint.
+
+    Attributes:
+        config: The configuration file supplied by the user.
+        secrets: The secrets file supplied by the user.
+        verbose: Whether to print verbose output.
+        vm_count: The number of VMs in the simulation.
+        vm_stats: The stats of the VMs.
+        container_stats: The stats of the containers.
+        client: The HTTP client used for sending the stats to the analytics endpoint.
+        console: The console used for printing.
+        usernames: The SSH usernames according to the chosen setup location.
+    """
+
     def __init__(
         self,
         config: Config,
@@ -17,6 +35,8 @@ class StatChecker:
         console: Console,
         verbose: bool = False,
     ):
+        """Initialize the StatChecker class."""
+
         self.config = config
         self.secrets = secrets
         self.verbose = verbose
@@ -32,6 +52,16 @@ class StatChecker:
         }
 
     def check_containers(self, ip_addresses: Dict[str, str]) -> Dict[str, Panel]:
+        """
+        A method for checking the Docker container stats of the VMs.
+
+        Args:
+            ip_addresses (Dict[str, str]): The IP addresses of the VMs to be checked.
+
+        Returns:
+            Dict[str, Panel]: The stats of the containers.
+        """
+
         futures = dict()
         with ThreadPoolExecutor(max_workers=self.vm_count) as executor:
             for name, ip_address in ip_addresses.items():
@@ -45,6 +75,16 @@ class StatChecker:
         return container_stat_panels
 
     def check_system(self, ip_addresses: Dict[str, str]) -> Dict[str, List[Panel]]:
+        """
+        A method for checking the system stats of the VMs.
+
+        Args:
+            ip_addresses (Dict[str, str]): The IP addresses of the VMs to be checked.
+
+        Returns:
+            Dict[str, List[Panel]]: The system stats of the VMs.
+        """
+
         futures = dict()
         with ThreadPoolExecutor(max_workers=self.vm_count) as executor:
             for name, ip_address in ip_addresses.items():

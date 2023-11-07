@@ -7,6 +7,22 @@ from types_ import SetupVariant
 
 
 class FlagSubmitter:
+    """
+    A Class for submitting flags to the submission endpoint running on the engine.
+
+    Connects to the engine by creating an SSH tunnel through the VM.
+    After connecting, the flags are submitted to the submission endpoint.
+
+    Attributes:
+        config: The configuration file supplied by the user.
+        secrets: The secrets file supplied by the user.
+        ip_addresses: The IP addresses of the VMs in the simulation.
+        verbose: Whether to print verbose output.
+        debug: Whether to print debug output.
+        console: The console used for printing.
+        usernames: The SSH usernames according to the chosen setup location.
+    """
+
     def __init__(
         self,
         setup: Setup,
@@ -14,6 +30,8 @@ class FlagSubmitter:
         verbose: bool = False,
         debug: bool = False,
     ):
+        """Initialize the FlagSubmitter class."""
+
         self.config = setup.config
         self.secrets = setup.secrets
         self.ip_addresses = setup.ips
@@ -27,6 +45,17 @@ class FlagSubmitter:
         }
 
     def submit_flags(self, team_address: str, flags: List[str]) -> None:
+        """
+        Submit the flags for a team to the submission endpoint.
+
+        This works by creating an SSH tunnel through the team's VM to the submission endpoint.
+        After connecting, the flags are submitted to the submission endpoint.
+
+        Args:
+            team_address (str): The IP address of the team's VM.
+            flags (List[str]): The flags to submit.
+        """
+
         SUBMISSION_ENDPOINT_PORT = 1337
         flag_str = "\n".join(flags) + "\n"
 
@@ -56,6 +85,8 @@ class FlagSubmitter:
                     self.console.log(f"[bold blue]Submitted {flag_str}for {vm_name}\n")
 
     def _private_to_public_ip(self, team_address: str) -> Tuple[str, str]:
+        """Convert a private IP address to a public IP address."""
+
         for name, ip_address in self.ip_addresses.private_ip_addresses.items():
             if ip_address == team_address:
                 return name, self.ip_addresses.public_ip_addresses[name]

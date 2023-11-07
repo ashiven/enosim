@@ -8,6 +8,8 @@ from rich.console import Console
 
 
 async def copy_file(src: str, dst: str) -> None:
+    """Copy a file from src to dst."""
+
     if os.path.exists(src):
         async with aiofiles.open(src, "rb") as src_file:
             async with aiofiles.open(dst, "wb") as dst_file:
@@ -16,6 +18,8 @@ async def copy_file(src: str, dst: str) -> None:
 
 
 async def replace_line(path: str, line_number: int, new_line: str) -> None:
+    """Replace a line in a file with a new line."""
+
     async with aiofiles.open(path, "rb+") as file:
         lines = await file.readlines()
         lines[line_number] = new_line.replace("\\", "/").encode("utf-8")
@@ -25,6 +29,8 @@ async def replace_line(path: str, line_number: int, new_line: str) -> None:
 
 
 async def insert_after(path: str, after: str, insert_lines: List[str]) -> None:
+    """Insert a list of lines after a specific line in a file."""
+
     new_lines = []
     async with aiofiles.open(path, "rb") as file:
         lines = await file.readlines()
@@ -38,12 +44,16 @@ async def insert_after(path: str, after: str, insert_lines: List[str]) -> None:
 
 
 async def append_lines(path: str, append_lines: List[str]) -> None:
+    """Append a list of lines to a file."""
+
     async with aiofiles.open(path, "ab") as file:
         for line in append_lines:
             await file.write(line.encode("utf-8"))
 
 
 async def delete_lines(path: str, delete_lines: List[int]) -> None:
+    """Delete a list of line numbers from a file."""
+
     new_lines = []
     async with aiofiles.open(path, "rb") as file:
         lines = await file.readlines()
@@ -55,8 +65,20 @@ async def delete_lines(path: str, delete_lines: List[int]) -> None:
 
 
 def analyze_scoreboard_file(json_path: str) -> Dict[str, Tuple[float, float]]:
-    # try to extract distribution and probabilities from a scoreboard file if it exists
-    # otherwise return default values that were sourced from the enowars7 scoreboard
+    """
+    Analyze a scoreboard file and return a dictionary containing the experience
+    distribution and exploit probabilities.
+
+    This function tries to extract an experience distribution and exploit probabilities from a scoreboard file if it exists.
+    Otherwise, it returns default values that were sourced from the enowars7 competition.
+
+    Args:
+        json_path (str): The path to the scoreboard file.
+
+    Returns:
+        A dictionary containing the experience distribution and exploit probabilities.
+    """
+
     try:
         return _analyze_scoreboard_file(json_path)
 
@@ -76,6 +98,8 @@ def analyze_scoreboard_file(json_path: str) -> Dict[str, Tuple[float, float]]:
 
 
 def _analyze_scoreboard_file(json_path: str) -> Dict[str, Tuple[float, float]]:
+    """The internal implementation of the analyze_scoreboard_file function."""
+
     if os.path.exists(json_path):
         with open(json_path, "r") as json_file:
             data = json.load(json_file)
@@ -104,6 +128,8 @@ def _analyze_scoreboard_file(json_path: str) -> Dict[str, Tuple[float, float]]:
     PROFESSIONAL_AVERAGE_POINTS = (0.8 * HIGH_SCORE + 1 * HIGH_SCORE) / 2
 
     def score_to_experience(score):
+        """Convert a score to an experience level in the form of a string."""
+
         exp = "NOOB"
         if 0.2 * HIGH_SCORE < score <= 0.4 * HIGH_SCORE:
             exp = "BEGINNER"
@@ -116,6 +142,8 @@ def _analyze_scoreboard_file(json_path: str) -> Dict[str, Tuple[float, float]]:
         return exp
 
     def exploit_probability(score):
+        """Calculate the exploit probability for a given score."""
+
         score_per_flagstore = score / TOTAL_FLAGSTORES
         rounds_needed = score_per_flagstore / POINTS_PER_ROUND_PER_FLAGSTORE
         exploit_probability = rounds_needed / TOTAL_ROUNDS

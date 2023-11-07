@@ -17,3 +17,6 @@ line_length = 88
 black = true
 close-quotes-on-newline = true
 pre-summary-newline = true
+
+[tool.interrogate]
+exclude = ["frontend", "tests", "util"]

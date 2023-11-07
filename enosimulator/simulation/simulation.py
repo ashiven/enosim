@@ -18,6 +18,32 @@ from .util import async_lock
 
 
 class Simulation:
+    """
+    A Class representing the simulation.
+
+    The main logic of the simulation is contained in this class.
+
+    It is responsible for:
+        - Running the main simulation loop
+        - Updating the team's exploiting and patched flags
+        - Interacting with the orchestrator interface
+        - Printing the simulation status
+
+
+    Attributes:
+        setup: The setup object containing all information relevant to the simulation.
+        locks: The locks used for synchronizing the simulation.
+        orchestrator: The orchestrator used for communicating with the game network.
+        verbose: Whether to print verbose output.
+        debug: Whether to print debug output.
+        console: The console used for printing.
+        round_id: The current round ID.
+        round_start: The time the current round started.
+        round_length: The length of a round in seconds.
+        total_rounds: The total number of rounds in the simulation.
+        remaining_rounds: The number of rounds remaining in the simulation.
+    """
+
     def __init__(
         self,
         setup: Setup,
@@ -27,6 +53,8 @@ class Simulation:
         verbose: bool,
         debug: bool,
     ):
+        """Initialize the Simulation class."""
+
         self.setup = setup
         self.locks = locks
         self.orchestrator = orchestrator
@@ -42,6 +70,21 @@ class Simulation:
         self.remaining_rounds = self.total_rounds
 
     async def run(self) -> None:
+        """
+        Run the simulation.
+
+        This is the main simulation loop.
+        It ensures that the simulation runs for the specified duration and that the right sequence of events is executed in each round.
+
+        The main simulation loop consists of the following steps:
+            1. Update the team's exploiting and patched categories randomly
+            2. Send out exploit requests to the team's checkers
+            3. Submit flags
+            4. Collect system analytics
+            5. Print system analytics
+            6. Store system analytics in the database
+        """
+
         await self.orchestrator.update_team_info()
         await self._scoreboard_available()
 
@@ -76,6 +119,22 @@ class Simulation:
                 await asyncio.sleep(self.round_length - round_duration)
 
     def info(self, info_messages: List[str]) -> None:
+        """
+        Print the simulation status.
+
+        This method prints the simulation status to the console.
+        It prints the following information:
+            - The current round ID
+            - The number of rounds remaining
+            - The infrastructure info
+            - The team's exploiting and patched categories
+            - The attack info
+            - The info messages (optional)
+
+        Args:
+            info_messages (List[str]): The info messages to print in addition to the simulation status.
+        """
+
         os.system("cls" if sys.platform == "win32" else "clear")
         self.console.print("\n")
         self.console.log(
@@ -99,6 +158,13 @@ class Simulation:
             self.console.print("\n")
 
     async def _scoreboard_available(self) -> None:
+        """
+        A helper method to wait for the scoreboard to become available.
+
+        It tries to get the round info every 2 seconds until the attack info becomes
+        available on the engine VM.
+        """
+
         with self.console.status(
             "[bold green]Waiting for scoreboard to become available ..."
         ):
@@ -107,6 +173,19 @@ class Simulation:
                 await asyncio.sleep(2)
 
     def _team_info(self, teams: List[Team]) -> None:
+        """
+        Print the team's exploiting and patched categories.
+
+        This method prints the team's exploiting and patched categories to the console.
+        It prints the following information:
+            - The team's name
+            - The team's experience
+            - The team's exploiting and patched categories
+
+        Args:
+            teams (List[Team]): The teams to print the info for.
+        """
+
         tables = []
         for team in teams:
             table = Table(
@@ -143,11 +222,38 @@ class Simulation:
         self.console.print(Columns(tables))
 
     def _random_test(self, team: Team) -> bool:
+        """
+        A helper method to determine whether a team should be updated.
+
+        This method determines whether a team should be updated randomly.
+        It does this by comparing a random value to the team's experience.
+
+        Args:
+            team (Team): The team to determine whether it should be updated.
+
+        Returns:
+            bool: Whether the team should be updated.
+        """
+
         probability = team.experience.value[0]
         random_value = random.random()
         return random_value < probability
 
     def _choose_random(self, team: Team) -> Tuple[str, str, str]:
+        """
+        A helper method to choose a random service and flagstore to update.
+
+        This method chooses a random service and flagstore to update.
+        It does this by randomly choosing between exploiting and patched.
+        Then, it chooses a random service and flagstore from the chosen category.
+
+        Args:
+            team (Team): The team to choose a random service and flagstore for.
+
+        Returns:
+            Tuple[str, str, str]: The chosen category, service and flagstore.
+        """
+
         try:
             random_variant = random.choice(["exploiting", "patched"])
             if random_variant == "exploiting":
@@ -189,6 +295,22 @@ class Simulation:
     def _update_team(
         self, team_name: str, variant: str, service: str, flagstore: str
     ) -> str:
+        """
+        A helper method to update a team's exploiting and patched categories.
+
+        This method updates a team's exploiting and patched categories.
+        It does this by setting the corresponding category to True.
+
+        Args:
+            team_name (str): The name of the team to update.
+            variant (str): The category to update.
+            service (str): The service to update.
+            flagstore (str): The flagstore to update.
+
+        Returns:
+            str: An info message about the update.
+        """
+
         if variant == "exploiting":
             self.setup.teams[team_name].exploiting[service][flagstore] = True
             info_text = "started exploiting"
@@ -201,6 +323,18 @@ class Simulation:
         return f"[bold red][!] Team {team_name} {info_text} {service}-{flagstore}"
 
     async def _update_exploiting_and_patched(self) -> List[str]:
+        """
+        A helper method to update the team's exploiting and patched categories.
+
+        This method updates the team's exploiting and patched categories.
+        It does this by randomly choosing a team to update.
+        Then, it randomly chooses a category to update.
+        Finally, it randomly chooses a service and flagstore to update.
+
+        Returns:
+            List[str]: A list of info messages about the updates.
+        """
+
         info_messages = []
         if self.setup.config.settings.simulation_type == "realistic":
             async with async_lock(self.locks["team"]):
@@ -216,6 +350,16 @@ class Simulation:
         return info_messages
 
     async def _exploit_all_teams(self) -> List:
+        """
+        A helper method to send out exploit requests to the team's checkers.
+
+        This method sends out exploit requests to the team's checkers.
+        It does this by creating a task for each team and waiting for them to finish.
+
+        Returns:
+            List: A list containing the team's IP address and the flags that were collected.
+        """
+
         exploit_status = self.console.status("[bold green]Sending exploits ...")
         if not self.debug:
             exploit_status.start()
@@ -243,6 +387,16 @@ class Simulation:
         return team_flags
 
     def _system_analytics(self) -> Tuple[Dict[str, Panel], Dict[str, List[Panel]]]:
+        """
+        A helper method to collect system analytics.
+
+        This method collects system analytics.
+        It does this by calling the orchestrator's container_stats and system_stats methods.
+
+        Returns:
+            Tuple[Dict[str, Panel], Dict[str, List[Panel]]]: A tuple containing the Docker container and system statistics panels.
+        """
+
         container_panels = self.orchestrator.container_stats(
             self.setup.ips.public_ip_addresses
         )
@@ -253,6 +407,16 @@ class Simulation:
         return container_panels, system_panels
 
     def _submit_all_flags(self, team_flags: List) -> None:
+        """
+        A helper method to submit flags.
+
+        This method submits flags.
+        It does this by creating a thread for each team and waiting for them to finish.
+
+        Args:
+            team_flags (List): A list containing the team's IP address and the flags that were collected.
+        """
+
         with ThreadPoolExecutor(
             max_workers=self.setup.config.settings.teams
         ) as executor:
@@ -261,6 +425,17 @@ class Simulation:
                     executor.submit(self.orchestrator.submit_flags, team_address, flags)
 
     def _print_system_analytics(self, container_panels, system_panels) -> None:
+        """
+        A helper method to print system analytics.
+
+        This method prints system analytics to the console.
+        It does this by printing the Docker container and system statistics panels.
+
+        Args:
+            container_panels (Dict[str, Panel]): A dictionary containing the Docker container statistics panels.
+            system_panels (Dict[str, List[Panel]]): A dictionary containing the system statistics panels.
+        """
+
         if self.verbose:
             for name, container_stat_panel in container_panels.items():
                 self.console.print(f"[bold red]Docker stats for {name}:")
