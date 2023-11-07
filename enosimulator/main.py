@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 
 
 def get_args() -> argparse.Namespace:
-    """Parse command line arguments.
+    """
+    Parse command line arguments.
 
     Raises:
         Exception: If no config file is supplied
@@ -76,12 +77,14 @@ def get_args() -> argparse.Namespace:
 
 
 async def main() -> None:
-    """The main application logic.
+    """
+    The main application logic.
 
     Creates a setup and uses it to run a simulation.
 
     Also starts a Flask server to serve the frontend.
     """
+
     load_dotenv()
     sys.path.append("..")
     sys.path.append("../..")

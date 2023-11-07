@@ -28,18 +28,19 @@ class SetupVariant(Enum):
 
 
 class Experience(Enum):
-    """An enum representing the experience level of a team.
+    """
+    An enum representing the experience level of a team.
 
-    The first value stands for the probability of the team exploiting /
-    patching a vulnerability in any given round. The second value stands
-    for the prevalence of an experience level in real ctf competitions
-    and will be used to distribute teams in the simulation.
+    The first value stands for the probability of the team exploiting / patching a
+    vulnerability in any given round. The second value stands for the prevalence of an
+    experience level in real ctf competitions and will be used to distribute teams in
+    the simulation.
 
     The variants prefixed with TEST_ are used for testing purposes only.
 
-    The production values for variants prefixed with TEST_ will be added
-    via the extend_enum function in the TeamGenerator class. Their
-    values are determined by analysing a given scoreboard.json file.
+    The production values for variants prefixed with TEST_ will be added via the
+    extend_enum function in the TeamGenerator class. Their values are determined by
+    analysing a given scoreboard.json file.
 
     The values for the HAXXOR variant are not subject to change.
     """
@@ -52,10 +53,11 @@ class Experience(Enum):
     HAXXOR = (1, 1)
 
     def __str__(self):
-        """Returns a string representation of the enum.
+        """
+        Returns a string representation of the enum.
 
-        The string representation is the name of the enum with the first
-        letter capitalized.
+        The string representation is the name of the enum with the first letter
+        capitalized.
         """
 
         return self.name.lower().capitalize()
@@ -97,8 +99,9 @@ class Team:
     gain: float
 
     def to_json(self):
-        """Returns a json representation of the team which is used to generate
-        responses in the backend."""
+        """Returns a json representation of the team which is used to generate responses
+        in the backend.
+        """
         new_dict = {
             "id": self.id,
             "name": self.name,
@@ -126,8 +129,9 @@ class Service:
     checkers: List[str]
 
     def to_json(self):
-        """Returns a json representation of the service which is used to
-        generate responses in the backend."""
+        """Returns a json representation of the service which is used to generate
+        responses in the backend.
+        """
         new_dict = {
             "id": self.id,
             "name": self.name,
@@ -142,6 +146,7 @@ class Service:
     @staticmethod
     def from_(dictionary):
         """Creates a Service object from a dictionary."""
+
         new_service = Service(
             id=dictionary["id"],
             name=dictionary["name"],
@@ -156,10 +161,10 @@ class Service:
 
 @dataclass
 class IpAddresses:
-    """A dataclass representing the ip addresses in a setup.
+    """
+    A dataclass representing the ip addresses in a setup.
 
-    Contains a public and a private ip address entry for each virtual
-    machine.
+    Contains a public and a private ip address entry for each virtual machine.
     """
 
     public_ip_addresses: Dict
@@ -177,10 +182,10 @@ class ConfigSetup:
 
     @staticmethod
     def from_(setup):
-        """Creates a ConfigSetup object from a dictionary.
+        """
+        Creates a ConfigSetup object from a dictionary.
 
-        Also checks if the values in the dictionary are valid config
-        values.
+        Also checks if the values in the dictionary are valid config values.
         """
 
         if not type(setup["ssh-config-path"]) is str:
@@ -217,10 +222,10 @@ class ConfigSettings:
 
     @staticmethod
     def from_(settings):
-        """Creates a ConfigSettings object from a dictionary.
+        """
+        Creates a ConfigSettings object from a dictionary.
 
-        Also checks if the values in the dictionary are valid config
-        values.
+        Also checks if the values in the dictionary are valid config values.
         """
 
         if settings["simulation-type"] not in [
@@ -272,10 +277,10 @@ class ConfigCtfJson:
 
     @staticmethod
     def from_(ctf_json):
-        """Creates a ConfigCtfJson object from a dictionary.
+        """
+        Creates a ConfigCtfJson object from a dictionary.
 
-        Also checks if the values in the dictionary are valid config
-        values.
+        Also checks if the values in the dictionary are valid config values.
         """
 
         if not type(ctf_json["title"]) is str:
@@ -309,10 +314,11 @@ class Config:
 
     @staticmethod
     def from_(config):
-        """Creates a Config object from a dictionary.
+        """
+        Creates a Config object from a dictionary.
 
-        The Config object consists of a ConfigSetup, a ConfigSettings
-        and a ConfigCtfJson object.
+        The Config object consists of a ConfigSetup, a ConfigSettings and a
+        ConfigCtfJson object.
         """
         try:
             new_config = Config(
@@ -336,10 +342,10 @@ class VmSecrets:
 
     @staticmethod
     def from_(vm_secrets):
-        """Creates a VmSecrets object from a dictionary.
+        """
+        Creates a VmSecrets object from a dictionary.
 
-        Also checks if the values in the dictionary are valid secrets
-        values.
+        Also checks if the values in the dictionary are valid secrets values.
         """
         if not type(vm_secrets["github-personal-access-token"]) is str:
             raise ValueError("Invalid github personal access token in secrets file.")
@@ -360,18 +366,17 @@ class VmSecrets:
 
 @dataclass
 class CloudSecrets:
-    """A dataclass representing the cloud secrets section of the secrets
-    file."""
+    """A dataclass representing the cloud secrets section of the secrets file."""
 
     azure_service_principal: dict
     hetzner_api_token: str
 
     @staticmethod
     def from_(cloud_secrets):
-        """Creates a CloudSecrets object from a dictionary.
+        """
+        Creates a CloudSecrets object from a dictionary.
 
-        Also checks if the values in the dictionary are valid secrets
-        values.
+        Also checks if the values in the dictionary are valid secrets values.
         """
         if not type(cloud_secrets["azure-service-principal"]) is dict:
             raise ValueError("Invalid azure service principal in secrets file.")
@@ -395,10 +400,10 @@ class Secrets:
 
     @staticmethod
     def from_(secrets):
-        """Creates a Secrets object from a dictionary.
+        """
+        Creates a Secrets object from a dictionary.
 
-        The Secrets object consists of a VmSecrets and a CloudSecrets
-        object.
+        The Secrets object consists of a VmSecrets and a CloudSecrets object.
         """
         try:
             new_secrets = Secrets(

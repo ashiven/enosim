@@ -15,6 +15,5 @@ line_length = 88
 
 [tool.docformatter]
 black = true
-blank = true
 close-quotes-on-newline = true
 pre-summary-newline = true

@@ -12,13 +12,12 @@ from tenacity import retry, stop_after_attempt
 
 
 class Teams(Resource):
-    """An API endpoint for team information.
+    """
+    An API endpoint for team information.
 
-    The response contains a dictionary of team names and their
-    respective information.
+    The response contains a dictionary of team names and their respective information.
 
-    For more details on the response format, see the Team.to_json()
-    method.
+    For more details on the response format, see the Team.to_json() method.
     """
 
     def get(self):
@@ -36,13 +35,13 @@ class Teams(Resource):
 
 
 class Services(Resource):
-    """An API endpoint for service information.
+    """
+    An API endpoint for service information.
 
-    The response contains a dictionary of service names and their
-    respective information.
+    The response contains a dictionary of service names and their respective
+    information.
 
-    For more details on the response format, see the Service.to_json()
-    method.
+    For more details on the response format, see the Service.to_json() method.
     """
 
     def get(self):
@@ -62,7 +61,8 @@ class Services(Resource):
 
 
 class VMs(Resource):
-    """An API endpoint for VM information.
+    """
+    An API endpoint for VM information.
 
     The response contains a list of dictionaries of VM information.
 
@@ -117,14 +117,15 @@ class VMs(Resource):
     @classmethod
     def create_api(cls):
         """Creates the API endpoint."""
+
         return cls
 
 
 class VMList(Resource):
-    """An API endpoint for VM names.
+    """
+    An API endpoint for VM names.
 
-    The response contains a list of the names of all VMs in the
-    simulation.
+    The response contains a list of the names of all VMs in the simulation.
     """
 
     def get(self):
@@ -139,13 +140,13 @@ class VMList(Resource):
 
 
 class Containers(Resource):
-    """An API endpoint for container information.
+    """
+    An API endpoint for container information.
 
-    The response contains a list of dictionaries of container
-    information.
+    The response contains a list of dictionaries of container information.
 
-    The container information gets stored in the database via the
-    system_anlytics() method of the StatChecker class.
+    The container information gets stored in the database via the system_anlytics()
+    method of the StatChecker class.
     """
 
     def get(self):
@@ -192,10 +193,10 @@ class Containers(Resource):
 
 
 class ContainerList(Resource):
-    """An API endpoint for container names.
+    """
+    An API endpoint for container names.
 
-    The response contains a list of the names of all containers in the
-    simulation.
+    The response contains a list of the names of all containers in the simulation.
     """
 
     def get(self):
@@ -214,13 +215,13 @@ class ContainerList(Resource):
 
 
 class RoundInfo(Resource):
-    """An API endpoint for round information.
+    """
+    An API endpoint for round information.
 
-    The response contains a dictionary of information about the current
-    round.
+    The response contains a dictionary of information about the current round.
 
-    The round information gets updated at the start of each round in the
-    Simulation class.
+    The round information gets updated at the start of each round in the Simulation
+    class.
     """
 
     def get(self):
@@ -243,13 +244,13 @@ class RoundInfo(Resource):
 
 
 class FlaskApp:
-    """The Flask application.
+    """
+    The Flask application.
 
-    This class is used to create the Flask application and the RESTful
-    API endpoints.
+    This class is used to create the Flask application and the RESTful API endpoints.
 
-    It needs to be instantiated with the setup and simulation objects
-    from the main application.
+    It needs to be instantiated with the setup and simulation objects from the main
+    application.
     """
 
     def __init__(self, setup: Setup, simulation: Simulation, locks: Dict):

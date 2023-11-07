@@ -11,7 +11,8 @@ from types_ import Config, Secrets
 
 
 class SetupContainer(containers.DeclarativeContainer):
-    """Container for setup related classes.
+    """
+    Container for setup related classes.
 
     This container is used to inject dependencies into the setup module.
     """
@@ -41,10 +42,10 @@ class SetupContainer(containers.DeclarativeContainer):
 
 
 class SimulationContainer(containers.DeclarativeContainer):
-    """Container for simulation related classes.
+    """
+    Container for simulation related classes.
 
-    This container is used to inject dependencies into the simulation
-    module.
+    This container is used to inject dependencies into the simulation module.
     """
 
     configuration = providers.Configuration()
@@ -98,10 +99,10 @@ class SimulationContainer(containers.DeclarativeContainer):
 
 
 class BackendContainer(containers.DeclarativeContainer):
-    """Container for backend related classes.
+    """
+    Container for backend related classes.
 
-    This container is used to inject dependencies into the backend
-    module.
+    This container is used to inject dependencies into the backend module.
     """
 
     setup_container = providers.DependenciesContainer()
@@ -117,10 +118,10 @@ class BackendContainer(containers.DeclarativeContainer):
 
 
 class Application(containers.DeclarativeContainer):
-    """Container for the whole application.
+    """
+    Container for the whole application.
 
-    This container is used to instantiate every component of the
-    application.
+    This container is used to instantiate every component of the application.
     """
 
     configuration = providers.Configuration()
