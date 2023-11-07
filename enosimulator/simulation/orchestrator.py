@@ -153,7 +153,7 @@ class Orchestrator:
             first_team = list(first_service.values())[0]
             prev_round = list(first_team.keys())[0]
             current_round = list(first_team.keys())[1]
-        except:
+        except Exception:
             prev_round, current_round = 1, 1
         return int(prev_round), int(current_round)
 
@@ -209,7 +209,7 @@ class Orchestrator:
                             attack_info = self.attack_info["services"][service_name][
                                 other_team.address
                             ][str(round_id)][str(flagstore_id)]
-                        except:
+                        except Exception:
                             attack_info = None
 
                         if attack_info:
@@ -278,7 +278,7 @@ class Orchestrator:
                             f"[bold green]:triangular_flag:: {exploit_result.flag}\n"
                         )
                     flags.append(exploit_result.flag)
-            except:
+            except Exception:
                 pass
 
         return flags

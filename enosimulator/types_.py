@@ -47,7 +47,8 @@ class Experience(Enum):
     TEST_PRO = (0.12, 0.02)
     HAXXOR = (1, 1)
 
-    __str__ = lambda self: self.name.lower().capitalize()
+    def __str__(self):
+        return self.name.lower().capitalize()
 
     @staticmethod
     def from_str(s):

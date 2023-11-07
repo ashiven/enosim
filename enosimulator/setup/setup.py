@@ -169,7 +169,7 @@ class Setup:
             delete_files(f"{self.setup_path}/data")
             delete_files(f"{self.setup_path}/logs")
 
-        except:
+        except Exception:
             # Delete all files created for this setup
             delete_files(f"{self.setup_path}")
             delete_files(f"{self.setup_path}/config")
@@ -257,7 +257,7 @@ class Setup:
 
             return True
 
-        except:
+        except Exception:
             return False
 
     def _generate_ctf_json(self) -> Dict:

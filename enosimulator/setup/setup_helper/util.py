@@ -60,7 +60,7 @@ def analyze_scoreboard_file(json_path: str) -> Dict[str, Tuple[float, float]]:
     try:
         return _analyze_scoreboard_file(json_path)
 
-    except:
+    except Exception:
         if json_path:
             Console().print(
                 "[bold red]\n[!] Scoreboard file not valid. Using default values.\n"

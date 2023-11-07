@@ -118,7 +118,7 @@ class TeamGenerator:
         try:
             for experience, distribution in experience_distribution.items():
                 extend_enum(Experience, experience, distribution)
-        except:
+        except Exception:
             pass
 
         self.config = config

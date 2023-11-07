@@ -10,7 +10,7 @@ RUN npm run build
 
 
 FROM node:18-alpine
-RUN apk update && apk upgrade && apk add dumb-init && adduser -D nextuser 
+RUN apk update && apk upgrade && apk add dumb-init && adduser -D nextuser
 
 WORKDIR /app
 COPY --from=build --chown=nextuser:nextuser /app/public ./public

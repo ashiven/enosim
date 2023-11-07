@@ -36,6 +36,7 @@ def test_team_generator_stress_test(setup_container):
     assert len(ctf_json_teams) == 3
     assert len(ctf_json_teams) == len(setup_teams)
 
+
 def test_team_generator_intensive_stress_test(setup_container):
     setup_container.reset_singletons()
     setup_container.configuration.config.from_dict(
