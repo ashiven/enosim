@@ -12,3 +12,7 @@ include_trailing_comma = true
 
 [tool.black]
 line_length = 88
+
+[tool.pydocstringformatter]
+max-line-length = 88
+linewrap-full-docstring = true
