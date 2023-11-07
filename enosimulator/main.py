@@ -9,6 +9,16 @@ from dotenv import load_dotenv
 
 
 def get_args() -> argparse.Namespace:
+    """
+    Parse command line arguments.
+
+    Raises:
+        Exception: If no config file is supplied
+        Exception: If no secrets file is supplied
+
+    Returns:
+        argparse.Namespace: The parsed command line arguments
+    """
     dir_path = os.path.dirname(os.path.abspath(__file__)).replace("\\", "/")
 
     parser = argparse.ArgumentParser(
@@ -67,6 +77,13 @@ def get_args() -> argparse.Namespace:
 
 
 async def main() -> None:
+    """
+    The main application logic.
+
+    Creates a setup and uses it to run a simulation.
+
+    Also starts a Flask server to serve the frontend.
+    """
     load_dotenv()
     sys.path.append("..")
     sys.path.append("../..")

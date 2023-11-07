@@ -7,12 +7,16 @@ from aenum import Enum
 
 
 class SetupVariant(Enum):
+    """An enum representing the location of the simulation infrastructure."""
+
     AZURE = "azure"
     HETZNER = "hetzner"
     LOCAL = "local"
 
     @staticmethod
     def from_str(s):
+        """Turns a string into a SetupVariant enum."""
+
         if s == "azure":
             return SetupVariant.AZURE
         elif s == "hetzner":
@@ -48,10 +52,17 @@ class Experience(Enum):
     HAXXOR = (1, 1)
 
     def __str__(self):
+        """Returns a string representation of the enum.
+
+        The string representation is the name of the enum with the first
+        letter capitalized.
+        """
+
         return self.name.lower().capitalize()
 
     @staticmethod
     def from_str(s):
+        """Turns a string into an Experience enum."""
         if s == "noob":
             return Experience.NOOB
         elif s == "beginner":
@@ -73,6 +84,8 @@ class Experience(Enum):
 
 @dataclass
 class Team:
+    """A dataclass representing a team."""
+
     id: int
     name: str
     team_subnet: str
@@ -84,6 +97,7 @@ class Team:
     gain: float
 
     def to_json(self):
+        """Returns a json representation of the team which is used to generate responses in the backend."""
         new_dict = {
             "id": self.id,
             "name": self.name,
@@ -100,6 +114,8 @@ class Team:
 
 @dataclass
 class Service:
+    """A dataclass representing a service."""
+
     id: int
     name: str
     flags_per_round_multiplier: int
@@ -109,6 +125,7 @@ class Service:
     checkers: List[str]
 
     def to_json(self):
+        """Returns a json representation of the service which is used to generate responses in the backend."""
         new_dict = {
             "id": self.id,
             "name": self.name,
@@ -122,6 +139,7 @@ class Service:
 
     @staticmethod
     def from_(dictionary):
+        """Creates a Service object from a dictionary."""
         new_service = Service(
             id=dictionary["id"],
             name=dictionary["name"],
@@ -136,12 +154,19 @@ class Service:
 
 @dataclass
 class IpAddresses:
+    """A dataclass representing the ip addresses in a setup.
+
+    Contains a public and a private ip address entry for each virtual machine.
+    """
+
     public_ip_addresses: Dict
     private_ip_addresses: Dict
 
 
 @dataclass
 class ConfigSetup:
+    """A dataclass representing the setup section of the config file."""
+
     ssh_config_path: str
     location: str
     vm_sizes: Dict
@@ -149,6 +174,11 @@ class ConfigSetup:
 
     @staticmethod
     def from_(setup):
+        """Creates a ConfigSetup object from a dictionary.
+
+        Also checks if the values in the dictionary are valid config values.
+        """
+
         if not type(setup["ssh-config-path"]) is str:
             raise ValueError("Invalid ssh config path in config file.")
 
@@ -172,6 +202,8 @@ class ConfigSetup:
 
 @dataclass
 class ConfigSettings:
+    """A dataclass representing the settings section of the config file."""
+
     duration_in_minutes: int
     teams: int
     services: List[str]
@@ -181,6 +213,11 @@ class ConfigSettings:
 
     @staticmethod
     def from_(settings):
+        """Creates a ConfigSettings object from a dictionary.
+
+        Also checks if the values in the dictionary are valid config values.
+        """
+
         if settings["simulation-type"] not in [
             "stress-test",
             "basic-stress-test",
@@ -221,6 +258,8 @@ class ConfigSettings:
 
 @dataclass
 class ConfigCtfJson:
+    """A dataclass representing the ctf json section of the config file."""
+
     title: str
     flag_validity_in_rounds: int
     checked_rounds_per_round: int
@@ -228,6 +267,11 @@ class ConfigCtfJson:
 
     @staticmethod
     def from_(ctf_json):
+        """Creates a ConfigCtfJson object from a dictionary.
+
+        Also checks if the values in the dictionary are valid config values.
+        """
+
         if not type(ctf_json["title"]) is str:
             raise ValueError("Invalid title in config file.")
 
@@ -251,12 +295,18 @@ class ConfigCtfJson:
 
 @dataclass
 class Config:
+    """A dataclass representing the config file."""
+
     setup: ConfigSetup
     settings: ConfigSettings
     ctf_json: ConfigCtfJson
 
     @staticmethod
     def from_(config):
+        """Creates a Config object from a dictionary.
+
+        The Config object consists of a ConfigSetup, a ConfigSettings and a ConfigCtfJson object.
+        """
         try:
             new_config = Config(
                 setup=ConfigSetup.from_(config["setup"]),
@@ -271,12 +321,18 @@ class Config:
 
 @dataclass
 class VmSecrets:
+    """A dataclass representing the vm secrets section of the secrets file."""
+
     github_personal_access_token: str
     ssh_public_key_path: str
     ssh_private_key_path: str
 
     @staticmethod
     def from_(vm_secrets):
+        """Creates a VmSecrets object from a dictionary.
+
+        Also checks if the values in the dictionary are valid secrets values.
+        """
         if not type(vm_secrets["github-personal-access-token"]) is str:
             raise ValueError("Invalid github personal access token in secrets file.")
 
@@ -296,11 +352,17 @@ class VmSecrets:
 
 @dataclass
 class CloudSecrets:
+    """A dataclass representing the cloud secrets section of the secrets file."""
+
     azure_service_principal: dict
     hetzner_api_token: str
 
     @staticmethod
     def from_(cloud_secrets):
+        """Creates a CloudSecrets object from a dictionary.
+
+        Also checks if the values in the dictionary are valid secrets values.
+        """
         if not type(cloud_secrets["azure-service-principal"]) is dict:
             raise ValueError("Invalid azure service principal in secrets file.")
 
@@ -316,11 +378,17 @@ class CloudSecrets:
 
 @dataclass
 class Secrets:
+    """A dataclass representing the secrets file."""
+
     vm_secrets: VmSecrets
     cloud_secrets: CloudSecrets
 
     @staticmethod
     def from_(secrets):
+        """Creates a Secrets object from a dictionary.
+
+        The Secrets object consists of a VmSecrets and a CloudSecrets object.
+        """
         try:
             new_secrets = Secrets(
                 vm_secrets=VmSecrets.from_(secrets["vm-secrets"]),

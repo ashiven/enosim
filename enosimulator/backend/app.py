@@ -12,20 +12,39 @@ from tenacity import retry, stop_after_attempt
 
 
 class Teams(Resource):
+    """An API endpoint for team information.
+
+    The response contains a dictionary of team names and their respective
+    information.
+
+    For more details on the response format, see the Team.to_json() method.
+    """
+
     def get(self):
+        """Generates the response for the API endpoint."""
         with self.team_lock:
             response = {name: team.to_json() for name, team in self.teams.items()}
             return response
 
     @classmethod
     def create_api(cls, teams, team_lock):
+        """Creates the API endpoint."""
         cls.teams = teams
         cls.team_lock = team_lock
         return cls
 
 
 class Services(Resource):
+    """An API endpoint for service information.
+
+    The response contains a dictionary of service names and their respective
+    information.
+
+    For more details on the response format, see the Service.to_json() method.
+    """
+
     def get(self):
+        """Generates the response for the API endpoint."""
         with self.service_lock:
             response = {
                 name: service.to_json() for name, service in self.services.items()
@@ -34,13 +53,23 @@ class Services(Resource):
 
     @classmethod
     def create_api(cls, services, service_lock):
+        """Creates the API endpoint."""
         cls.services = services
         cls.service_lock = service_lock
         return cls
 
 
 class VMs(Resource):
+    """An API endpoint for VM information.
+
+    The response contains a list of dictionaries of VM information.
+
+    The VM information gets stored in the database via the system_anlytics() method of the StatChecker class.
+    """
+
     def get(self):
+        """Generates the response for the API endpoint."""
+
         vm_name = request.args.get("name")
 
         if vm_name:
@@ -58,6 +87,8 @@ class VMs(Resource):
             return {"message": "Missing VM name"}, 400
 
     def post(self):
+        """Stores the VM information in the database."""
+
         data = request.get_json()
         if not data:
             return {"message": "Invalid JSON"}, 400
@@ -83,21 +114,37 @@ class VMs(Resource):
 
     @classmethod
     def create_api(cls):
+        """Creates the API endpoint."""
         return cls
 
 
 class VMList(Resource):
+    """An API endpoint for VM names.
+
+    The response contains a list of the names of all VMs in the simulation.
+    """
+
     def get(self):
+        """Generates the response for the API endpoint."""
         return self.response
 
     @classmethod
     def create_api(cls, response):
+        """Creates the API endpoint."""
         cls.response = response
         return cls
 
 
 class Containers(Resource):
+    """An API endpoint for container information.
+
+    The response contains a list of dictionaries of container information.
+
+    The container information gets stored in the database via the system_anlytics() method of the StatChecker class.
+    """
+
     def get(self):
+        """Generates the response for the API endpoint."""
         container_name = request.args.get("name")
 
         if container_name:
@@ -115,6 +162,7 @@ class Containers(Resource):
             return {"message": "Missing container name"}, 400
 
     def post(self):
+        """Stores the container information in the database."""
         data = request.get_json()
         if not data:
             return {"message": "Invalid JSON"}, 400
@@ -134,11 +182,18 @@ class Containers(Resource):
 
     @classmethod
     def create_api(cls):
+        """Creates the API endpoint."""
         return cls
 
 
 class ContainerList(Resource):
+    """An API endpoint for container names.
+
+    The response contains a list of the names of all containers in the simulation.
+    """
+
     def get(self):
+        """Generates the response for the API endpoint."""
         with FlaskApp.get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT DISTINCT name FROM containerinfo")
@@ -148,11 +203,20 @@ class ContainerList(Resource):
 
     @classmethod
     def create_api(cls):
+        """Creates the API endpoint."""
         return cls
 
 
 class RoundInfo(Resource):
+    """An API endpoint for round information.
+
+    The response contains a dictionary of information about the current round.
+
+    The round information gets updated at the start of each round in the Simulation class.
+    """
+
     def get(self):
+        """Generates the response for the API endpoint."""
         with self.round_info_lock:
             return {
                 "round_id": self.simulation.round_id,
@@ -164,12 +228,20 @@ class RoundInfo(Resource):
 
     @classmethod
     def create_api(cls, simulation, round_info_lock):
+        """Creates the API endpoint."""
         cls.simulation = simulation
         cls.round_info_lock = round_info_lock
         return cls
 
 
 class FlaskApp:
+    """The Flask application.
+
+    This class is used to create the Flask application and the RESTful API endpoints.
+
+    It needs to be instantiated with the setup and simulation objects from the main application.
+    """
+
     def __init__(self, setup: Setup, simulation: Simulation, locks: Dict):
         self.app = Flask(__name__)
         self.setup = setup
@@ -196,11 +268,13 @@ class FlaskApp:
         self.api.add_resource(RoundInfoApi, "/roundinfo")
 
     def run(self) -> None:
+        """Starts the Flask server."""
         log = logging.getLogger("werkzeug")
         log.setLevel(logging.ERROR)
         self.app.run(host="0.0.0.0", debug=False)
 
     def init_db(self) -> None:
+        """Initializes the database."""
         connection = sqlite3.connect("database.db")
 
         with open(f"{self.path}/schema.sql") as f:
@@ -211,6 +285,7 @@ class FlaskApp:
 
     @staticmethod
     def get_db_connection() -> sqlite3.Connection:
+        """Returns a connection to the database."""
         connection = sqlite3.connect("database.db")
         connection.row_factory = sqlite3.Row
         return connection
@@ -218,6 +293,7 @@ class FlaskApp:
     @staticmethod
     @retry(stop=stop_after_attempt(10))
     def db_insert_values(table_name, data) -> Tuple[str, Tuple]:
+        """Inserts values into the database."""
         value_names = ",".join(data.keys())
         value_placeholders = ",".join(["?" for _ in data.keys()])
 
@@ -233,5 +309,6 @@ class FlaskApp:
         return query, params
 
     def delete_db(self) -> None:
+        """Deletes the database."""
         if os.path.exists("database.db"):
             os.remove("database.db")
