@@ -16,8 +16,14 @@
    "settings": {
       "duration-in-minutes": 300,
       "teams": 100,
-      "services": ["enowars7-service-CVExchange", "enowars7-service-bollwerk"],
-      "checker-ports": [7331, 6008],
+      "services": [
+         "enowars7-service-CVExchange",
+         "enowars7-service-bollwerk",
+         "enowars7-service-yvm",
+         "enowars7-service-phreaking",
+         "enowars7-service-oldschool"
+      ],
+      "checker-ports": [7331, 6008, 7332, 7333, 7334],
       "simulation-type": "realistic",
       "scoreboard-file": "C:/Users/janni/Downloads/scoreboard_enowars7/scoreboard478.json"
    },

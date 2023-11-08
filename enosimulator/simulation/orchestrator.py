@@ -204,7 +204,7 @@ class Orchestrator:
         """
 
         POINTS_PER_FLAG = 10
-        # print(f"Submitting {flags} for {team_name}")
+        print(f"Submitting {flags} for {team_name}")
         self.setup.teams[team_name].points += len(flags) * POINTS_PER_FLAG
         return
 
@@ -238,6 +238,36 @@ class Orchestrator:
             return CheckerInfoMessage(
                 service_name="CVExchange",
                 flag_variants=3,
+                noise_variants=3,
+                havoc_variants=1,
+                exploit_variants=1,
+            )
+
+        elif service.name == "enowars7-service-yvm":
+            self.service_info["yvm"] = (7332, "enowars7-service-yvm")
+            return CheckerInfoMessage(
+                service_name="yvm",
+                flag_variants=2,
+                noise_variants=3,
+                havoc_variants=1,
+                exploit_variants=1,
+            )
+
+        elif service.name == "enowars7-service-phreaking":
+            self.service_info["phreaking"] = (7333, "enowars7-service-phreaking")
+            return CheckerInfoMessage(
+                service_name="phreaking",
+                flag_variants=1,
+                noise_variants=3,
+                havoc_variants=1,
+                exploit_variants=1,
+            )
+
+        elif service.name == "enowars7-service-oldschool":
+            self.service_info["oldschool"] = (7334, "enowars7-service-oldschool")
+            return CheckerInfoMessage(
+                service_name="oldschool",
+                flag_variants=2,
                 noise_variants=3,
                 havoc_variants=1,
                 exploit_variants=1,

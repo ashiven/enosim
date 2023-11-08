@@ -1,7 +1,5 @@
 import asyncio
-import os
 import random
-import sys
 from concurrent.futures import ThreadPoolExecutor
 from time import time
 from typing import Dict, List, Tuple
@@ -110,8 +108,8 @@ class Simulation:
                     },
                 }
 
-            # info_messages = await self._update_teams()
-            # self.info(info_messages)
+            info_messages = await self._update_teams()
+            self.info(info_messages)
 
             # self.orchestrator.parse_scoreboard()
 
@@ -144,7 +142,9 @@ class Simulation:
                     reverse=True,
                 )
             ).items():
-                f.write(f"Team: {team_name:<30}      score: {team.points:<15}\n")
+                f.write(
+                    f"({team.experience.name:<20}): {team_name:<30}      score: {team.points:<15}\n"
+                )
 
         self._team_info(self.setup.teams.values())
 
@@ -165,23 +165,23 @@ class Simulation:
             info_messages (List[str]): The info messages to print in addition to the simulation status.
         """
 
-        os.system("cls" if sys.platform == "win32" else "clear")
-        self.console.print("\n")
-        self.console.log(
-            f"[bold blue]Round {self.round_id} ({self.remaining_rounds} rounds remaining):\n"
-        )
+        # os.system("cls" if sys.platform == "win32" else "clear")
+        # self.console.print("\n")
+        # self.console.log(
+        #     f"[bold blue]Round {self.round_id} ({self.remaining_rounds} rounds remaining):\n"
+        # )
 
-        if self.verbose:
-            self.setup.info()
-            self.console.print("\n\n[bold red]Attack info:")
-            self.console.print(self.orchestrator.attack_info)
+        # if self.verbose:
+        #     self.setup.info()
+        #     self.console.print("\n\n[bold red]Attack info:")
+        #     self.console.print(self.orchestrator.attack_info)
 
-        self.console.print("\n")
+        # self.console.print("\n")
 
-        with self.locks["team"]:
-            self._team_info(self.setup.teams.values())
+        # with self.locks["team"]:
+        #     self._team_info(self.setup.teams.values())
 
-        self.console.print("\n")
+        # self.console.print("\n")
         if self.verbose:
             for info_message in info_messages:
                 self.console.print(info_message)

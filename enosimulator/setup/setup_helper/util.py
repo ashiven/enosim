@@ -80,6 +80,7 @@ def analyze_scoreboard_file(json_path: str) -> Dict[str, Tuple[float, float]]:
     """
 
     try:
+        raise Exception
         return _analyze_scoreboard_file(json_path)
 
     except Exception:
@@ -89,10 +90,10 @@ def analyze_scoreboard_file(json_path: str) -> Dict[str, Tuple[float, float]]:
             )
 
         return {
-            "NOOB": (0.03, 0.91),
-            "BEGINNER": (0.1, 0.06),
-            "INTERMEDIATE": (0.17, 0.01),
-            "ADVANCED": (0.23, 0),
+            "NOOB": (0.001, 0.91),
+            "BEGINNER": (0.005, 0.06),
+            "INTERMEDIATE": (0.025, 0.01),
+            "ADVANCED": (0.05, 0),
             "PRO": (0.3, 0.02),
         }
 
