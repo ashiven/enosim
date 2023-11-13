@@ -204,7 +204,7 @@ class Orchestrator:
         """
 
         POINTS_PER_FLAG = 10
-        print(f"Submitting {flags} for {team_name}")
+        # print(f"Submitting {flags} for {team_name}")
         self.setup.teams[team_name].points += len(flags) * POINTS_PER_FLAG
         return
 

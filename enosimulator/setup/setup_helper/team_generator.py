@@ -142,6 +142,7 @@ class TeamGenerator:
             for experience, distribution in experience_distribution.items():
                 print(experience, distribution)
                 extend_enum(Experience, experience, distribution)
+            print("\n")
         except Exception:
             pass
 
