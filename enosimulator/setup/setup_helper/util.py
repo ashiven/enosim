@@ -89,11 +89,11 @@ def analyze_scoreboard_file(json_path: str) -> Dict[str, Tuple[float, float]]:
             )
 
         return {
-            "NOOB": (0.03, 0.91),
-            "BEGINNER": (0.1, 0.06),
-            "INTERMEDIATE": (0.17, 0.01),
-            "ADVANCED": (0.23, 0),
-            "PRO": (0.3, 0.02),
+            "NOOB": (0.003, 0.91),
+            "BEGINNER": (0.011, 0.06),
+            "INTERMEDIATE": (0.021, 0.01),
+            "ADVANCED": (0.03, 0),
+            "PRO": (0.058, 0.02),
         }
 
 
@@ -113,12 +113,12 @@ def _analyze_scoreboard_file(json_path: str) -> Dict[str, Tuple[float, float]]:
 
     scores = sorted([float(p) for p in list(attack_points.values())])
 
-    # TODO: - the points per flag value needs to be analyzed further
-    POINTS_PER_FLAG = 20
     PARTICIPATING_TEAMS = len(scores)
-    TOTAL_FLAGSTORES = sum([service["flagVariants"] for service in data["services"]])
-    TOTAL_ROUNDS = data["currentRound"]
-    POINTS_PER_ROUND_PER_FLAGSTORE = (PARTICIPATING_TEAMS - 1) * POINTS_PER_FLAG
+    # how many rounds on average are still included in a scoreboard.json after the game has already ended
+    END_ROUNDS_OFFSET = 40
+    TOTAL_ROUNDS = data["currentRound"] - END_ROUNDS_OFFSET
+    POINTS_PER_ROUND_PER_FLAGSTORE = 50
+    MAX_SCORE_PER_SERVICE = POINTS_PER_ROUND_PER_FLAGSTORE * TOTAL_ROUNDS
     HIGH_SCORE = scores[-1]
 
     NOOB_AVERAGE_POINTS = (0 * HIGH_SCORE + 0.2 * HIGH_SCORE) / 2
@@ -141,13 +141,52 @@ def _analyze_scoreboard_file(json_path: str) -> Dict[str, Tuple[float, float]]:
             exp = "PROFESSIONAL"
         return exp
 
-    def exploit_probability(score):
-        """Calculate the exploit probability for a given score."""
+    def exploit_probability_service(score):
+        """Calculate the exploit probability a team has for a specific service based on
+        their score for that service.
+        """
 
-        score_per_flagstore = score / TOTAL_FLAGSTORES
-        rounds_needed = score_per_flagstore / POINTS_PER_ROUND_PER_FLAGSTORE
-        exploit_probability = rounds_needed / TOTAL_ROUNDS
-        return exploit_probability * 100
+        max_percent = score / MAX_SCORE_PER_SERVICE
+        first_success = TOTAL_ROUNDS - (TOTAL_ROUNDS * max_percent)
+        exploit_probability = 1 / first_success
+        return exploit_probability
+
+    def exploit_probability(average_score):
+        """
+        Calculate the exploit probability a team has based on their average score.
+
+        Firstly, a specific team from the scoreboard whose score is closest to the given
+        average score is selected. Then, the exploit probability is calculated by
+        deriving the exploit probability for each service and then summing them up.
+        """
+
+        teams = data["teams"]
+        closest_team = None
+        closest_team_distance = float("inf")
+
+        for team in teams:
+            team_attack_points = team["attackScore"]
+            if team_attack_points >= average_score:
+                team_distance = abs(team_attack_points - average_score)
+                if team_distance < closest_team_distance:
+                    closest_team = team
+                    closest_team_distance = team_distance
+
+        exploit_probability = 0
+
+        for service in closest_team["serviceDetails"]:
+            service_score = service["attackScore"]
+            service_exploit_probability = exploit_probability_service(service_score)
+            exploit_probability += service_exploit_probability
+
+        # double the exploit probability because we are also using it as the patch probability
+        exploit_probability *= 2
+
+        # scale exploit probability once more by experience level
+        # (e.g. PROFESSIONAL teams are more likely to exploit a service than NOOB teams if they managed to find the vulnerability)
+        exploit_probability *= average_score / HIGH_SCORE
+
+        return exploit_probability
 
     team_distribution = Counter([score_to_experience(score) for score in scores])
     noob_teams = team_distribution["NOOB"]
@@ -158,23 +197,23 @@ def _analyze_scoreboard_file(json_path: str) -> Dict[str, Tuple[float, float]]:
 
     return {
         "NOOB": (
-            round(exploit_probability(NOOB_AVERAGE_POINTS), 2),
+            round(exploit_probability(NOOB_AVERAGE_POINTS), 3),
             round(noob_teams / PARTICIPATING_TEAMS, 2),
         ),
         "BEGINNER": (
-            round(exploit_probability(BEGINNER_AVERAGE_POINTS), 2),
+            round(exploit_probability(BEGINNER_AVERAGE_POINTS), 3),
             round(beginner_teams / PARTICIPATING_TEAMS, 2),
         ),
         "INTERMEDIATE": (
-            round(exploit_probability(INTERMEDIATE_AVERAGE_POINTS), 2),
+            round(exploit_probability(INTERMEDIATE_AVERAGE_POINTS), 3),
             round(intermediate_teams / PARTICIPATING_TEAMS, 2),
         ),
         "ADVANCED": (
-            round(exploit_probability(ADVANCED_AVERAGE_POINTS), 2),
+            round(exploit_probability(ADVANCED_AVERAGE_POINTS), 3),
             round(advanced_teams / PARTICIPATING_TEAMS, 2),
         ),
         "PRO": (
-            round(exploit_probability(PROFESSIONAL_AVERAGE_POINTS), 2),
+            round(exploit_probability(PROFESSIONAL_AVERAGE_POINTS), 3),
             round(professional_teams / PARTICIPATING_TEAMS, 2),
         ),
     }
