@@ -1,8 +1,7 @@
 import os
 from typing import Dict, Tuple
 
-from types_ import Config, Secrets
-
+from ...types_ import Config, Secrets
 from .base_converter import TemplateConverter
 
 

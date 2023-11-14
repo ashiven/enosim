@@ -4,8 +4,9 @@ import os
 import sys
 from threading import Thread
 
-from containers import Application
 from dotenv import load_dotenv
+
+from .containers import Application
 
 
 def get_args() -> argparse.Namespace:
