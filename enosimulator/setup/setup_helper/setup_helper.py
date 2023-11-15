@@ -1,6 +1,7 @@
 from typing import Dict, List, Tuple
 
-from ...types_ import Config, Secrets, SetupVariant
+from types_ import Config, Secrets, SetupVariant
+
 from .azure_converter import AzureConverter
 from .hetzner_converter import HetznerConverter
 from .local_converter import LocalConverter

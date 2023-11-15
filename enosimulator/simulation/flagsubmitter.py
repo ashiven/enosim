@@ -2,9 +2,8 @@ from typing import List, Tuple
 
 import paramiko
 from rich.console import Console
-
-from ..setup import Setup
-from ..types_ import SetupVariant
+from setup import Setup
+from types_ import SetupVariant
 
 
 class FlagSubmitter:
