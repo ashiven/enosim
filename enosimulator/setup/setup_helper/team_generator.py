@@ -1,8 +1,8 @@
 from typing import Dict, List, Tuple
 
 from aenum import extend_enum
-from types_ import Config, Experience, Team
 
+from ...types_ import Config, Experience, Team
 from .util import analyze_scoreboard_file
 
 TEAM_NAMES = [

@@ -1,13 +1,14 @@
 from threading import Lock
 
-from backend import FlaskApp
 from dependency_injector import containers, providers
 from httpx import AsyncClient
 from rich.console import Console
-from setup import Setup
-from setup.setup_helper import SetupHelper, TeamGenerator
-from simulation import FlagSubmitter, Orchestrator, Simulation, StatChecker
-from types_ import Config, Secrets
+
+from .backend import FlaskApp
+from .setup import Setup
+from .setup.setup_helper import SetupHelper, TeamGenerator
+from .simulation import FlagSubmitter, Orchestrator, Simulation, StatChecker
+from .types_ import Config, Secrets
 
 
 class SetupContainer(containers.DeclarativeContainer):

@@ -10,9 +10,9 @@ from rich.columns import Columns
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from setup import Setup
-from types_ import Team
 
+from ..setup import Setup
+from ..types_ import Team
 from .orchestrator import Orchestrator
 from .util import async_lock
 
