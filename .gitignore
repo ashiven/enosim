@@ -12,18 +12,18 @@ terraform.tfstate.backup
 .terraform.lock.hcl
 
 ## Setup files ##
-infra/*/logs/*
-infra/*/config/*
-infra/*/main.tf
-infra/*/variables.tf
-infra/*/outputs.tf
-infra/*/versions.tf
-infra/*/build.sh
-infra/*/configure.sh
-infra/*/data/*
-!infra/*/config/.gitkeep
-!infra/*/data/.gitkeep
-!infra/*/logs/.gitkeep
+enosimulator/infra/*/logs/*
+enosimulator/infra/*/config/*
+enosimulator/infra/*/main.tf
+enosimulator/infra/*/variables.tf
+enosimulator/infra/*/outputs.tf
+enosimulator/infra/*/versions.tf
+enosimulator/infra/*/build.sh
+enosimulator/infra/*/configure.sh
+enosimulator/infra/*/data/*
+!enosimulator/infra/*/config/.gitkeep
+!enosimulator/infra/*/data/.gitkeep
+!enosimulator/infra/*/logs/.gitkeep
 
 ## Flask files ##
 database.db

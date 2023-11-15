@@ -30,7 +30,7 @@ class HetznerConverter(TemplateConverter):
         self.secrets = secrets
         dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
-        self.setup_path = f"{dir_path}/../../../infra/{config.setup.location}"
+        self.setup_path = f"{dir_path}/../../infra/{config.setup.location}"
         self.use_vm_images = any(
             ref != "" for ref in self.config.setup.vm_image_references.values()
         )

@@ -19,9 +19,7 @@ WORKDIR /app
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-COPY ./config ./config
 COPY ./enosimulator ./enosimulator
-COPY ./infra ./infra
 
 RUN rm -rf /app/enosimulator/.env
 
