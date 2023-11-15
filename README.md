@@ -77,16 +77,16 @@ This software can be used to simulate an attack/defense cybersecurity competitio
 2. Create an SSH key pair in the **config** directory:
 
    ```bash
-   ssh-keygen -f ./config/simkey
+   ssh-keygen -f ./enosimulator/config/simkey
    ```
 
-3. Specify simulation details in **config/config.json** and **config/secrets.json** with the following SSH key paths.
+3. Specify simulation details in **enosimulator/config/config.json** and **enosimulator/config/secrets.json** with the following SSH key paths.
 
    ```json
    {
       "vm-secrets": {
-         "ssh-public-key-path": "/app/config/simkey.pub",
-         "ssh-private-key-path": "/app/config/simkey"
+         "ssh-public-key-path": "/app/enosimulator/config/simkey.pub",
+         "ssh-private-key-path": "/app/enosimulator/config/simkey"
       }
    }
    ```
@@ -94,7 +94,7 @@ This software can be used to simulate an attack/defense cybersecurity competitio
    ```json
    {
       "setup": {
-         "ssh-config-path": "/app/config/simconfig"
+         "ssh-config-path": "/app/enosimulator/config/simconfig"
       }
    }
    ```
@@ -109,7 +109,7 @@ This software can be used to simulate an attack/defense cybersecurity competitio
 
 ### Configuration
 
-There are two configuration files that need to be supplied before launching the simulation (examples can be found [here](/config/examples)).
+There are two configuration files that need to be supplied before launching the simulation (examples can be found [here](/enosimulator/config/examples)).
 
 #### secrets.json
 
@@ -174,7 +174,7 @@ The deployment process can be sped up considerably by using virtual machine imag
 1. Navigate to the **packer** directory for your chosen cloud provider. For example, for Hetzner Cloud:
 
    ```bash
-   cd infra/hetzner/util/packer
+   cd ./packer/hetzner
    ```
 
 2. Install the Hetzner plugin for Packer:

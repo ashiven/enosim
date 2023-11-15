@@ -77,7 +77,7 @@ def mock_fs():
 @fixture
 def test_setup_dir():
     test_setup_dir = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "../infra")
+        os.path.join(os.path.dirname(__file__), "../enosimulator/infra")
     ).replace("\\", "/")
     return test_setup_dir
 

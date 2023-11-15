@@ -46,7 +46,7 @@ class Setup:
         self.secrets = secrets
         dir_path = os.path.dirname(os.path.abspath(__file__))
         dir_path = dir_path.replace("\\", "/")
-        self.setup_path = f"{dir_path}/../../infra/{self.config.setup.location}"
+        self.setup_path = f"{dir_path}/../infra/{self.config.setup.location}"
         self.setup_helper = setup_helper
         self.console = console
         if self.config.settings.simulation_type == "basic-stress-test":
