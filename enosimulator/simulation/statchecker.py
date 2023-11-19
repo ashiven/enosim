@@ -5,8 +5,7 @@ import paramiko
 from httpx import AsyncClient
 from rich.console import Console
 from rich.panel import Panel
-
-from ..types_ import Config, Secrets, SetupVariant
+from types_ import Config, Secrets, SetupVariant
 
 
 class StatChecker:

@@ -9,8 +9,8 @@ import jsons
 from requests import get
 from rich.console import Console
 from rich.table import Table
+from types_ import Config, IpAddresses, Secrets, Service, SimulationType, VMType
 
-from ..types_ import Config, IpAddresses, Secrets, Service, SimulationType, VMType
 from .setup_helper import SetupHelper
 from .util import create_file, delete_files, execute_command, kebab_to_camel, parse_json
 

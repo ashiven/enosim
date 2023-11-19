@@ -5,8 +5,7 @@ from typing import Dict, List, Tuple
 
 from aenum import extend_enum
 from rich.console import Console
-
-from ...types_ import Config, Experience, SimulationType, Team
+from types_ import Config, Experience, SimulationType, Team
 
 TEAM_NAMES = [
     "Edible Frog",
