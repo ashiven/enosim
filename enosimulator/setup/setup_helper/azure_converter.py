@@ -3,8 +3,8 @@ import re
 from typing import Dict, Tuple
 
 import aiofiles
+from types_ import Config, Secrets, VMType
 
-from ...types_ import Config, Secrets, VMType
 from .base_converter import TemplateConverter
 from .util import append_lines, copy_file, delete_lines, insert_after, replace_line
 
