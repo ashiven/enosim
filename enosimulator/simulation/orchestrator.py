@@ -17,11 +17,11 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from setup import Setup
 from tenacity import retry, stop_after_attempt
-from types_ import SimulationType, Team, VMType
 from webdriver_manager.chrome import ChromeDriverManager
 
+from ..setup import Setup
+from ..types_ import SimulationType, Team, VMType
 from .flagsubmitter import FlagSubmitter
 from .statchecker import StatChecker
 from .util import (
