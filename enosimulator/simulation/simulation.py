@@ -11,7 +11,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from setup import Setup
-from types_ import Team
+from types_ import SimulationType, Team
 
 from .orchestrator import Orchestrator
 from .util import async_lock
@@ -335,7 +335,7 @@ class Simulation:
         """
 
         info_messages = []
-        if self.setup.config.settings.simulation_type == "realistic":
+        if self.setup.config.settings.simulation_type == SimulationType.REALISTIC.value:
             async with async_lock(self.locks["team"]):
                 for team_name, team in self.setup.teams.items():
                     if self._random_test(team):

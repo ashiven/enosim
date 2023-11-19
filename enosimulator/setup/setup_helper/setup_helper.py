@@ -1,6 +1,6 @@
 from typing import Dict, List, Tuple
 
-from types_ import Config, Secrets, SetupVariant
+from types_ import Config, Secrets, SetupVariant, SimulationType
 
 from .azure_converter import AzureConverter
 from .hetzner_converter import HetznerConverter
@@ -27,7 +27,10 @@ class SetupHelper:
         self.config = config
         self.secrets = secrets
         self.team_generator = team_generator
-        if self.config.settings.simulation_type == "basic-stress-test":
+        if (
+            self.config.settings.simulation_type
+            == SimulationType.BASIC_STRESS_TEST.value
+        ):
             self.config.settings.teams = 1
         self.template_converters = {
             SetupVariant.AZURE: AzureConverter(self.config, self.secrets),

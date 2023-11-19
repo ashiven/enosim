@@ -9,7 +9,7 @@ import jsons
 from requests import get
 from rich.console import Console
 from rich.table import Table
-from types_ import Config, IpAddresses, Secrets, Service
+from types_ import Config, IpAddresses, Secrets, Service, SimulationType, VMType
 
 from .setup_helper import SetupHelper
 from .util import create_file, delete_files, execute_command, kebab_to_camel, parse_json
@@ -49,7 +49,10 @@ class Setup:
         self.setup_path = f"{dir_path}/../infra/{self.config.setup.location}"
         self.setup_helper = setup_helper
         self.console = console
-        if self.config.settings.simulation_type == "basic-stress-test":
+        if (
+            self.config.settings.simulation_type
+            == SimulationType.BASIC_STRESS_TEST.value
+        ):
             self.config.settings.teams = 1
 
     async def build(self) -> None:
@@ -302,7 +305,7 @@ class Setup:
 
         try:
             r = get(
-                f"http://{self.ips.public_ip_addresses['engine']}:5001/scoreboard/attack.json"
+                f"http://{self.ips.public_ip_addresses[VMType.ENGINE.value]}:5001/scoreboard/attack.json"
             )
             if r.status_code != 200:
                 raise Exception("Infrastructure is not configured!")
@@ -343,14 +346,14 @@ class Setup:
             "id": id,
             "name": service,
             "flagsPerRoundMultiplier": 30
-            if simulation_type == "basic-stress-test"
+            if simulation_type == SimulationType.BASIC_STRESS_TEST.value
             else 10
-            if simulation_type == "intensive-stress-test"
+            if simulation_type == SimulationType.INTENSIVE_STRESS_TEST.value
             else 1,
             "noisesPerRoundMultiplier": 30
-            if simulation_type == "basic-stress-test"
+            if simulation_type == SimulationType.BASIC_STRESS_TEST.value
             else 10
-            if simulation_type == "intensive-stress-test"
+            if simulation_type == SimulationType.INTENSIVE_STRESS_TEST.value
             else 1,
             "havocsPerRoundMultiplier": 1,
             "weightFactor": 1,

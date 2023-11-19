@@ -19,7 +19,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from setup import Setup
 from tenacity import retry, stop_after_attempt
-from types_ import Team
+from types_ import SimulationType, Team, VMType
 from webdriver_manager.chrome import ChromeDriverManager
 
 from .flagsubmitter import FlagSubmitter
@@ -113,9 +113,9 @@ class Orchestrator:
                             team.exploiting[info.service_name].update(
                                 {f"Flagstore{flagstore_id}": False}
                                 if self.setup.config.settings.simulation_type
-                                == "realistic"
+                                == SimulationType.REALISTIC.value
                                 or self.setup.config.settings.simulation_type
-                                == "basic-stress-test"
+                                == SimulationType.BASIC_STRESS_TEST.value
                                 else {f"Flagstore{flagstore_id}": True}
                             )
                             team.patched[info.service_name].update(
@@ -134,7 +134,7 @@ class Orchestrator:
         """
 
         attack_info_text = await self.client.get(
-            f'http://{self.setup.ips.public_ip_addresses["engine"]}:5001/scoreboard/attack.json'
+            f"http://{self.setup.ips.public_ip_addresses[VMType.ENGINE.value]}:5001/scoreboard/attack.json"
         )
         if attack_info_text.status_code != 200:
             return None
@@ -290,9 +290,7 @@ class Orchestrator:
         """
 
         team_scores = dict()
-        scoreboard_url = (
-            f'http://{self.setup.ips.public_ip_addresses["engine"]}:5001/scoreboard'
-        )
+        scoreboard_url = f"http://{self.setup.ips.public_ip_addresses[VMType.ENGINE.value]}:5001/scoreboard"
 
         options = Options()
         options.add_argument("--headless")

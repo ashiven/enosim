@@ -57,7 +57,7 @@ fi
 
 # Clone the EnoEngine and the EnoCTFPortal if they haven't been cloned already and create the data directory if it doesn't exist
 optional EnoEngine sudo git clone "https://${pat}@github.com/enowars/EnoEngine.git"
-optional EnoCTFPortal sudo git clone "https://${pat}@github.com/enowars/EnoCTFPortal.git"
+optional EnoCTFPortal sudo git clone "https://${pat}@github.com/enowars/EnoCTFPortal.git" && cd EnoCTFPortal && git reset --hard 7515883b && cd ..
 optional data sudo mkdir data
 
 # Move the ctf.json and docker-compose.yml to the EnoEngine and EnoCTFPortal directories if they haven't been moved already

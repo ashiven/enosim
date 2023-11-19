@@ -27,6 +27,51 @@ class SetupVariant(Enum):
             raise NotImplementedError
 
 
+class VMType(Enum):
+    """An enum representing the type of a virtual machine."""
+
+    ENGINE = "engine"
+    CHECKER = "checker"
+    VULNBOX = "vulnbox"
+
+    @staticmethod
+    def from_str(s):
+        """Turns a string into a VMTypes enum."""
+
+        if s == "engine":
+            return VMType.ENGINE
+        elif s == "checker":
+            return VMType.CHECKER
+        elif s == "vulnbox":
+            return VMType.VULNBOX
+        else:
+            raise NotImplementedError
+
+
+class SimulationType(Enum):
+    """An enum representing the type of the simulation."""
+
+    STRESS_TEST = "stress-test"
+    BASIC_STRESS_TEST = "basic-stress-test"
+    INTENSIVE_STRESS_TEST = "intensive-stress-test"
+    REALISTIC = "realistic"
+
+    @staticmethod
+    def from_str(s):
+        """Turns a string into a SimulationType enum."""
+
+        if s == "stress-test":
+            return SimulationType.STRESS_TEST
+        elif s == "basic-stress-test":
+            return SimulationType.BASIC_STRESS_TEST
+        elif s == "intensive-stress-test":
+            return SimulationType.INTENSIVE_STRESS_TEST
+        elif s == "realistic":
+            return SimulationType.REALISTIC
+        else:
+            raise NotImplementedError
+
+
 class Experience(Enum):
     """
     An enum representing the experience level of a team.
@@ -40,7 +85,7 @@ class Experience(Enum):
 
     The production values for variants prefixed with TEST_ will be added via the
     extend_enum function in the TeamGenerator class. Their values are determined by
-    analysing a given scoreboard.json file.
+    analyzing a given scoreboard.json file.
 
     The values for the HAXXOR variant are not subject to change.
     """
@@ -232,10 +277,10 @@ class ConfigSettings:
         """
 
         if settings["simulation-type"] not in [
-            "stress-test",
-            "basic-stress-test",
-            "intensive-stress-test",
-            "realistic",
+            SimulationType.STRESS_TEST.value,
+            SimulationType.BASIC_STRESS_TEST.value,
+            SimulationType.INTENSIVE_STRESS_TEST.value,
+            SimulationType.REALISTIC.value,
         ]:
             raise ValueError("Invalid simulation type in config file.")
 

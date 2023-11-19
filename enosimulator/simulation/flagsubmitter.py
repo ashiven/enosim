@@ -3,7 +3,7 @@ from typing import List, Tuple
 import paramiko
 from rich.console import Console
 from setup import Setup
-from types_ import SetupVariant
+from types_ import SetupVariant, VMType
 
 
 class FlagSubmitter:
@@ -75,7 +75,7 @@ class FlagSubmitter:
             with transport.open_channel(
                 "direct-tcpip",
                 (
-                    self.ip_addresses.private_ip_addresses["engine"],
+                    self.ip_addresses.private_ip_addresses[VMType.ENGINE.value],
                     SUBMISSION_ENDPOINT_PORT,
                 ),
                 ("localhost", 0),

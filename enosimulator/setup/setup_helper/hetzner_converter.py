@@ -2,7 +2,7 @@ import os
 from typing import Dict, Tuple
 
 import aiofiles
-from types_ import Config, Secrets
+from types_ import Config, Secrets, VMType
 
 from .base_converter import TemplateConverter
 from .util import append_lines, copy_file, delete_lines, insert_after, replace_line
@@ -189,7 +189,7 @@ class HetznerConverter(TemplateConverter):
         lines.append(
             'resource "hcloud_server" "checker_vm" {\n'
             '  name = "checker"\n'
-            + f'  server_type = "{self.config.setup.vm_sizes["checker"]}"\n'
+            + f'  server_type = "{self.config.setup.vm_sizes[VMType.CHECKER.value]}"\n'
             + '  image = "ubuntu-20.04"\n'
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
@@ -201,7 +201,7 @@ class HetznerConverter(TemplateConverter):
         lines.append(
             'resource "hcloud_server" "engine_vm" {\n'
             '  name = "engine"\n'
-            + f'  server_type = "{self.config.setup.vm_sizes["engine"]}"\n'
+            + f'  server_type = "{self.config.setup.vm_sizes[VMType.ENGINE.value]}"\n'
             + '  image = "ubuntu-20.04"\n'
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
@@ -214,7 +214,7 @@ class HetznerConverter(TemplateConverter):
             'resource "hcloud_server" "vulnbox_vm" {\n'
             f"  count = {self.config.settings.teams}\n"
             f'  name = "vulnbox${{count.index + 1}}"\n'
-            + f'  server_type = "{self.config.setup.vm_sizes["vulnbox"]}"\n'
+            + f'  server_type = "{self.config.setup.vm_sizes[VMType.VULNBOX.value]}"\n'
             + '  image = "ubuntu-20.04"\n'
             + '  location = "nbg1"\n'
             + "  ssh_keys = [\n  hcloud_ssh_key.ssh_key.id\n  ]\n"
@@ -232,17 +232,17 @@ class HetznerConverter(TemplateConverter):
             lines = []
             lines.append(
                 'data "hcloud_image" "engine" {\n'
-                + f'  with_selector = "name={self.config.setup.vm_image_references["engine"]}"\n'
+                + f'  with_selector = "name={self.config.setup.vm_image_references[VMType.ENGINE.value]}"\n'
                 + "}\n"
             )
             lines.append(
                 'data "hcloud_image" "checker" {\n'
-                + f'  with_selector = "name={self.config.setup.vm_image_references["checker"]}"\n'
+                + f'  with_selector = "name={self.config.setup.vm_image_references[VMType.CHECKER.value]}"\n'
                 + "}\n"
             )
             lines.append(
                 'data "hcloud_image" "vulnbox" {\n'
-                + f'  with_selector = "name={self.config.setup.vm_image_references["vulnbox"]}"\n'
+                + f'  with_selector = "name={self.config.setup.vm_image_references[VMType.VULNBOX.value]}"\n'
                 + "}\n"
             )
             await append_lines(f"{self.setup_path}/variables.tf", lines)
@@ -372,7 +372,11 @@ class HetznerConverter(TemplateConverter):
         private_ip_addresses = dict()
         for vulnbox_id in range(1, self.config.settings.teams + 1):
             private_ip_addresses[f"vulnbox{vulnbox_id}"] = f"10.1.{vulnbox_id}.1"
-        private_ip_addresses["checker"] = f"10.1.{self.config.settings.teams + 1}.1"
-        private_ip_addresses["engine"] = f"10.1.{self.config.settings.teams + 2}.1"
+        private_ip_addresses[
+            VMType.CHECKER.value
+        ] = f"10.1.{self.config.settings.teams + 1}.1"
+        private_ip_addresses[
+            VMType.ENGINE.value
+        ] = f"10.1.{self.config.settings.teams + 2}.1"
 
         return ip_addresses, private_ip_addresses

@@ -3,7 +3,7 @@ import re
 from typing import Dict, Tuple
 
 import aiofiles
-from types_ import Config, Secrets
+from types_ import Config, Secrets, VMType
 
 from .base_converter import TemplateConverter
 from .util import append_lines, copy_file, delete_lines, insert_after, replace_line
@@ -222,8 +222,8 @@ class AzureConverter(TemplateConverter):
             f"{self.setup_path}/variables.tf",
             '      name = "engine"',
             f"      subnet_id = {self.config.settings.teams + 2}\n"
-            + f'      size = "{self.config.setup.vm_sizes["engine"]}"\n'
-            + f'      source_image_id = "{basepath}/{self.config.setup.vm_image_references["engine"]}"\n'
+            + f'      size = "{self.config.setup.vm_sizes[VMType.ENGINE.value]}"\n'
+            + f'      source_image_id = "{basepath}/{self.config.setup.vm_image_references[VMType.ENGINE.value]}"\n'
             if self.use_vm_images
             else "",
         )
@@ -231,8 +231,8 @@ class AzureConverter(TemplateConverter):
             f"{self.setup_path}/variables.tf",
             '      name = "checker"',
             f"      subnet_id = {self.config.settings.teams + 1}\n"
-            + f'      size = "{self.config.setup.vm_sizes["checker"]}"\n'
-            + f'      source_image_id = "{basepath}/{self.config.setup.vm_image_references["checker"]}"\n'
+            + f'      size = "{self.config.setup.vm_sizes[VMType.CHECKER.value]}"\n'
+            + f'      source_image_id = "{basepath}/{self.config.setup.vm_image_references[VMType.CHECKER.value]}"\n'
             if self.use_vm_images
             else "",
         )
@@ -240,8 +240,8 @@ class AzureConverter(TemplateConverter):
             f"{self.setup_path}/variables.tf",
             '        name = "vulnbox${vulnbox_id}"',
             f"        subnet_id = vulnbox_id\n"
-            + f'        size = "{self.config.setup.vm_sizes["vulnbox"]}"\n'
-            + f'        source_image_id = "{basepath}/{self.config.setup.vm_image_references["vulnbox"]}"\n'
+            + f'        size = "{self.config.setup.vm_sizes[VMType.VULNBOX.value]}"\n'
+            + f'        source_image_id = "{basepath}/{self.config.setup.vm_image_references[VMType.VULNBOX.value]}"\n'
             if self.use_vm_images
             else "",
         )
