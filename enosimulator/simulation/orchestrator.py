@@ -1,3 +1,4 @@
+import asyncio
 from typing import Dict, List, Tuple
 
 import jsons
@@ -388,48 +389,52 @@ class Orchestrator:
             List[str]: A list of flags that were obtained by exploiting other teams.
         """
 
+        tasks = []
+        async with asyncio.TaskGroup() as task_group:
+            for (
+                (team_name, service, flagstore, _info),
+                exploit_request,
+            ) in exploit_requests.items():
+                exploit_checker_ip = self.private_to_public_ip[team.address]
+                exploit_checker_port = self.service_info[service][0]
+                exploit_checker_address = (
+                    f"http://{exploit_checker_ip}:{exploit_checker_port}"
+                )
+
+                if self.debug:
+                    self.console.log(
+                        f"[bold green]{team.name} :anger_symbol: {team_name}-{service}-{flagstore}"
+                    )
+                    self.console.log(exploit_request)
+
+                    exploit_task = task_group.create_task(
+                        self.client.post(
+                            exploit_checker_address,
+                            data=req_to_json(exploit_request),
+                            headers={"Content-Type": "application/json"},
+                            timeout=REQUEST_TIMEOUT,
+                        )
+                    )
+                    tasks.append(exploit_task)
+
+        results = [task.result() for task in tasks]
+
         flags = []
-        for (
-            (team_name, service, flagstore, _info),
-            exploit_request,
-        ) in exploit_requests.items():
-            exploit_checker_ip = self.private_to_public_ip[team.address]
-            exploit_checker_port = self.service_info[service][0]
-            exploit_checker_address = (
-                f"http://{exploit_checker_ip}:{exploit_checker_port}"
+        for r in results:
+            exploit_result = jsons.loads(
+                r.content,
+                CheckerResultMessage,
+                key_transformer=jsons.KEY_TRANSFORMER_SNAKECASE,
             )
 
-            if self.debug:
-                self.console.log(
-                    f"[bold green]{team.name} :anger_symbol: {team_name}-{service}-{flagstore}"
-                )
-                self.console.log(exploit_request)
-
-            try:
-                # TODO: - do the following in an async task group for more performance
-                r = await self.client.post(
-                    exploit_checker_address,
-                    data=req_to_json(exploit_request),
-                    headers={"Content-Type": "application/json"},
-                    timeout=REQUEST_TIMEOUT,
-                )
-
-                exploit_result = jsons.loads(
-                    r.content,
-                    CheckerResultMessage,
-                    key_transformer=jsons.KEY_TRANSFORMER_SNAKECASE,
-                )
-
-                if CheckerTaskResult(exploit_result.result) is not CheckerTaskResult.OK:
-                    if self.debug:
-                        self.console.print(exploit_result.message)
-                else:
-                    if self.debug:
-                        self.console.log(
-                            f"[bold green]:triangular_flag:: {exploit_result.flag}\n"
-                        )
-                    flags.append(exploit_result.flag)
-            except Exception:
-                pass
+            if CheckerTaskResult(exploit_result.result) is not CheckerTaskResult.OK:
+                if self.debug:
+                    self.console.print(exploit_result.message)
+            else:
+                if self.debug:
+                    self.console.log(
+                        f"[bold green]:triangular_flag:: {exploit_result.flag}\n"
+                    )
+                flags.append(exploit_result.flag)
 
         return flags
