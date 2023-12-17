@@ -24,22 +24,47 @@ if os.path.exists(json_path):
     with open(json_path, "r") as f:
         data = json.load(f)
 
-teams = data["teams"]
-attack_points = dict()
+    teams = data["teams"]
+    attack_points = dict()
 
-for team in teams:
-    team_name = team["teamName"]
-    team_attack_points = team["attackScore"]
-    attack_points[team_name] = team_attack_points
+    for team in teams:
+        team_name = team["teamName"]
+        team_attack_points = team["attackScore"]
+        attack_points[team_name] = team_attack_points
 
-points = sorted([float(p) for p in list(attack_points.values())])
+    points = sorted([float(p) for p in list(attack_points.values())])
 
 
 MEAN = sum(points) / len(points)
 STANDARD_DEVIATION = (sum([(p - MEAN) ** 2 for p in points]) / len(points)) ** 0.5
 
+enowars_sim_points = [0.0 for _ in range(77)] + [
+    24550.0,
+    20090.0,
+    17820.0,
+    14590.0,
+    13650.0,
+    12620.0,
+    11460.0,
+    10500.0,
+    9890.0,
+    8460.0,
+    8380.0,
+    8360.0,
+    8210.0,
+    6720.0,
+    6630.0,
+    5580.0,
+    5100.0,
+    4260.0,
+    3880.0,
+    3240.0,
+    3180.0,
+    3120.0,
+    960.0,
+]
 
-plt.hist(points, bins=100)
+plt.hist(sorted(enowars_sim_points), bins=100)
 plt.title("Attack points distribution")
 plt.show()
 
