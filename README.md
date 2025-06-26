@@ -49,7 +49,7 @@ This application can be used to simulate an attack/defense cybersecurity competi
 2. Install the necessary dependencies:
 
    ```bash
-   pip install --user -r requirements.txt
+   cd ./enosimulator && pip install --user -r requirements.txt
    ```
 
 3. Start the program (paths to the configuration files can also be defined in the environment variables `ENOSIMULATOR_CONFIG` and `ENOSIMULATOR_SECRETS`):
