@@ -10,7 +10,7 @@
 
 ## About
 
-This software can be used to simulate an attack/defense cybersecurity competition using the game engine and services provided by [Enowars](https://github.com/enowars). For further information on how to use it, please refer to the [documentation](docs/README.md).
+This application can be used to simulate an attack/defense cybersecurity competition using the game engine and services provided by [Enowars](https://github.com/enowars). For further information on how to use it, please refer to the [documentation](docs/README.md).
 
 ## Getting Started
 
