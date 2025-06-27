@@ -1,12 +1,20 @@
+<div align="center">
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://github.com/ashiven/enosimulator/actions/workflows/tests.yml/badge.svg)](https://github.com/ashiven/enosimulator/actions/workflows/tests.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/ashiven/enosimulator)](https://github.com/ashiven/enosimulator/releases)
 [![PyPI version](https://badge.fury.io/py/enosimulator.svg)](https://badge.fury.io/py/enosimulator)
+[![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/ashiven/enosimulator)](https://github.com/ashiven/enosimulator/issues)
+[![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr/ashiven/enosimulator)](https://github.com/ashiven/enosimulator/pulls)
+[![Tests](https://github.com/ashiven/enosimulator/actions/workflows/tests.yml/badge.svg)](https://github.com/ashiven/enosimulator/actions/workflows/tests.yml)
+![GitHub Repo stars](https://img.shields.io/github/stars/ashiven/enosimulator)
 
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
 ![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=for-the-badge&logo=terraform&logoColor=white)
 ![Next JS](https://img.shields.io/badge/Next-black?style=for-the-badge&logo=next.js&logoColor=white)
+
+</div>
 
 ## About
 
