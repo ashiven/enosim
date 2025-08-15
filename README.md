@@ -18,7 +18,7 @@
 
 ## About
 
-This application can be used to simulate an attack/defense cybersecurity competition using the game engine and services provided by [Enowars](https://github.com/enowars). For further information on how to use it, please refer to the [documentation](docs/README.md).
+This application can be used to simulate an attack/defense cybersecurity competition with the game engine and services provided by [Enowars](https://github.com/enowars). For further information on how to use it, please refer to the [documentation](docs/README.md).
 
 ## Getting Started
 
@@ -32,9 +32,9 @@ This application can be used to simulate an attack/defense cybersecurity competi
 
 ### Setup
 
-#### Pip
+#### Method 1: Pip
 
-1. Install the package via pip:
+1. Install the program via pip:
 
    ```bash
    pip install enosimulator
@@ -46,7 +46,7 @@ This application can be used to simulate an attack/defense cybersecurity competi
    enosimulator -c /path/to/config.json -s /path/to/secrets.json -v
    ```
 
-#### Manual
+#### Method 2: Manual
 
 1. Clone the repository to your local machine as follows:
 
@@ -74,7 +74,7 @@ This application can be used to simulate an attack/defense cybersecurity competi
 
 5. A graphical user interface is available at `http://localhost:3000` to monitor the simulation. (It may take a while for the simulation to start.)
 
-#### Docker
+#### Method 3: Docker
 
 1. Clone the repository to your local machine as follows:
 
@@ -113,7 +113,7 @@ This application can be used to simulate an attack/defense cybersecurity competi
    docker compose up -d
    ```
 
-5. A graphical user interface is available at `http://localhost:3000` to monitor the simulation. (It may take up to 20 minutes for the simulation to start.)
+5. A graphical user interface is available at `http://localhost:3000` to monitor the simulation. (It may take a while for the simulation to start.)
 
 ### Configuration
 
@@ -177,7 +177,7 @@ There are two configuration files that need to be supplied before launching the 
 
 ### Packer Images
 
-The deployment process can be sped up considerably by using virtual machine images that were created with [Packer](https://www.packer.io/). The following steps describe how to create such images.
+The deployment process can be sped up considerably by using virtual machine images created with [Packer](https://www.packer.io/). The following steps show how to create such images.
 
 1. Navigate to the `packer` directory for your chosen cloud provider. For example, for Hetzner Cloud:
 
