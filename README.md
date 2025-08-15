@@ -1,12 +1,12 @@
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![GitHub Release](https://img.shields.io/github/v/release/ashiven/enosimulator)](https://github.com/ashiven/enosimulator/releases)
-[![PyPI version](https://badge.fury.io/py/enosimulator.svg)](https://badge.fury.io/py/enosimulator)
-[![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/ashiven/enosimulator)](https://github.com/ashiven/enosimulator/issues)
-[![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr/ashiven/enosimulator)](https://github.com/ashiven/enosimulator/pulls)
-[![Tests](https://github.com/ashiven/enosimulator/actions/workflows/tests.yml/badge.svg)](https://github.com/ashiven/enosimulator/actions/workflows/tests.yml)
-![GitHub Repo stars](https://img.shields.io/github/stars/ashiven/enosimulator)
+[![GitHub Release](https://img.shields.io/github/v/release/ashiven/enosim)](https://github.com/ashiven/enosim/releases)
+[![PyPI version](https://badge.fury.io/py/enosim.svg)](https://badge.fury.io/py/enosim)
+[![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/ashiven/enosim)](https://github.com/ashiven/enosim/issues)
+[![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr/ashiven/enosim)](https://github.com/ashiven/enosim/pulls)
+[![Tests](https://github.com/ashiven/enosim/actions/workflows/tests.yml/badge.svg)](https://github.com/ashiven/enosim/actions/workflows/tests.yml)
+![GitHub Repo stars](https://img.shields.io/github/stars/ashiven/enosim)
 
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Flask](https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white)
@@ -51,13 +51,13 @@ This application can be used to simulate an attack/defense cybersecurity competi
 1. Clone the repository to your local machine as follows:
 
    ```bash
-   git clone https://github.com/ashiven/enosimulator.git
+   git clone https://github.com/ashiven/enosim.git
    ```
 
 2. Install the necessary dependencies:
 
    ```bash
-   cd ./enosimulator && pip install -r requirements.txt
+   cd ./enosim && pip install -r requirements.txt
    ```
 
 3. Start the program (paths to the configuration files can also be defined in the environment variables `ENOSIMULATOR_CONFIG` and `ENOSIMULATOR_SECRETS`):
@@ -79,7 +79,7 @@ This application can be used to simulate an attack/defense cybersecurity competi
 1. Clone the repository to your local machine as follows:
 
    ```bash
-   git clone https://github.com/ashiven/enosimulator.git
+   git clone https://github.com/ashiven/enosim.git
    ```
 
 2. Create an SSH key pair in the `config` directory:
@@ -117,7 +117,7 @@ This application can be used to simulate an attack/defense cybersecurity competi
 
 ### Configuration
 
-There are two configuration files that need to be supplied before launching the simulation (examples can be found [here](/enosimulator/config/examples)).
+There are two configuration files that need to be supplied before launching the simulation (examples can be found [here](/enosim/config/examples)).
 
 #### secrets.json
 
@@ -211,9 +211,9 @@ The deployment process can be sped up considerably by using virtual machine imag
 
 There is a browser UI available at `http://localhost:3000` that can be used to monitor the simulation.
 
-![frontend1](https://raw.githubusercontent.com/ashiven/enosimulator/main/docs/img/Frontend1.PNG)
+![frontend1](https://raw.githubusercontent.com/ashiven/enosim/main/docs/img/Frontend1.PNG)
 
-![frontend2](https://raw.githubusercontent.com/ashiven/enosimulator/main/docs/img/Frontend2.PNG)
+![frontend2](https://raw.githubusercontent.com/ashiven/enosim/main/docs/img/Frontend2.PNG)
 
 ### CLI
 
@@ -223,17 +223,17 @@ To receive detailed information about the current state of the simulation in the
 python enosimulator -c /path/to/config.json -s /path/to/secrets.json -v
 ```
 
-![cli1](https://raw.githubusercontent.com/ashiven/enosimulator/main/docs/img/CLI1.PNG)
+![cli1](https://raw.githubusercontent.com/ashiven/enosim/main/docs/img/CLI1.PNG)
 
-![cli2](https://raw.githubusercontent.com/ashiven/enosimulator/main/docs/img/CLI2.PNG)
+![cli2](https://raw.githubusercontent.com/ashiven/enosim/main/docs/img/CLI2.PNG)
 
-![cli3](https://raw.githubusercontent.com/ashiven/enosimulator/main/docs/img/CLI3.PNG)
+![cli3](https://raw.githubusercontent.com/ashiven/enosim/main/docs/img/CLI3.PNG)
 
 ### Scoreboard
 
 The current state of the scoreboard can be monitored via the public IP address of the engine VM. It is available at `http://<engine-ip>:5001/scoreboard`.
 
-![scoreboard1](https://raw.githubusercontent.com/ashiven/enosimulator/main/docs/img/Scoreboard1.PNG)
+![scoreboard1](https://raw.githubusercontent.com/ashiven/enosim/main/docs/img/Scoreboard1.PNG)
 
 ### Direct connections via SSH
 
@@ -247,3 +247,4 @@ ssh -F /path/to/simconfig <vm-name>
 
 > GitHub [@ashiven](https://github.com/Ashiven) &nbsp;&middot;&nbsp;
 > Twitter [ashiven\_](https://twitter.com/ashiven_)
+
