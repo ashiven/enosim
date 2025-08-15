@@ -37,7 +37,7 @@ This application can be used to simulate an attack/defense cybersecurity competi
 1. Install the package via pip:
 
    ```bash
-   pip install --user enosimulator
+   pip install enosimulator
    ```
 
 2. Start the simulation with the following command:
@@ -57,7 +57,7 @@ This application can be used to simulate an attack/defense cybersecurity competi
 2. Install the necessary dependencies:
 
    ```bash
-   cd ./enosimulator && pip install --user -r requirements.txt
+   cd ./enosimulator && pip install -r requirements.txt
    ```
 
 3. Start the program (paths to the configuration files can also be defined in the environment variables `ENOSIMULATOR_CONFIG` and `ENOSIMULATOR_SECRETS`):
@@ -72,7 +72,7 @@ This application can be used to simulate an attack/defense cybersecurity competi
    cd ./frontend && npm install && npm run build && npm run start
    ```
 
-5. A graphical user interface is available at `http://localhost:3000` to monitor the simulation. (It may take up to 20 minutes for the simulation to start.)
+5. A graphical user interface is available at `http://localhost:3000` to monitor the simulation. (It may take a while for the simulation to start.)
 
 #### Docker
 
@@ -88,7 +88,7 @@ This application can be used to simulate an attack/defense cybersecurity competi
    ssh-keygen -f ./enosimulator/config/simkey
    ```
 
-3. Specify simulation details in **enosimulator/config/config.json** and **enosimulator/config/secrets.json** with the following SSH key paths.
+3. Specify simulation details in `enosimulator/config/config.json` and `enosimulator/config/secrets.json` with the following SSH key paths.
 
    ```json
    {
@@ -179,7 +179,7 @@ There are two configuration files that need to be supplied before launching the 
 
 The deployment process can be sped up considerably by using virtual machine images that were created with [Packer](https://www.packer.io/). The following steps describe how to create such images.
 
-1. Navigate to the **packer** directory for your chosen cloud provider. For example, for Hetzner Cloud:
+1. Navigate to the `packer` directory for your chosen cloud provider. For example, for Hetzner Cloud:
 
    ```bash
    cd ./packer/hetzner
