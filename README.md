@@ -82,7 +82,7 @@ This application can be used to simulate an attack/defense cybersecurity competi
    git clone https://github.com/ashiven/enosimulator.git
    ```
 
-2. Create an SSH key pair in the **config** directory:
+2. Create an SSH key pair in the `config` directory:
 
    ```bash
    ssh-keygen -f ./enosimulator/config/simkey
