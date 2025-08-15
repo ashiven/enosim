@@ -237,7 +237,7 @@ The current state of the scoreboard can be monitored via the public IP address o
 
 ### Direct connections via SSH
 
-During the process of building the simulation infrastructure, an SSH configuration file will be generated in the location specified inside **config.json**. To connect to a specific VM via SSH, use the following command:
+During the process of building the simulation infrastructure, an SSH configuration file will be generated in the location specified inside `config.json`. To connect to a specific VM via SSH, use the following command:
 
 ```bash
 ssh -F /path/to/simconfig <vm-name>
