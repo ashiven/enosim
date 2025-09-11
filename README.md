@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub Release](https://img.shields.io/github/v/release/ashiven/enosim)](https://github.com/ashiven/enosim/releases)
-[![PyPI version](https://badge.fury.io/py/enosim.svg)](https://badge.fury.io/py/enosim)
+[![PyPI version](https://badge.fury.io/py/enosimulator.svg)](https://badge.fury.io/py/enosimulator)
 [![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/ashiven/enosim)](https://github.com/ashiven/enosim/issues)
 [![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr/ashiven/enosim)](https://github.com/ashiven/enosim/pulls)
 [![Tests](https://github.com/ashiven/enosim/actions/workflows/tests.yml/badge.svg)](https://github.com/ashiven/enosim/actions/workflows/tests.yml)
@@ -247,4 +247,5 @@ ssh -F /path/to/simconfig <vm-name>
 
 > GitHub [@ashiven](https://github.com/Ashiven) &nbsp;&middot;&nbsp;
 > Twitter [ashiven\_](https://twitter.com/ashiven_)
+
 
